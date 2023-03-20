@@ -1,0 +1,99 @@
+<apex:page standardStylesheets="false" applyHtmlTag="true" applyBodyTag="false" standardcontroller="Account_Allocation__c" extensions="UNILAB_PAL_PDFGenerator_Controller" renderAs="PDF">
+    <head>
+        <style>
+            @page {
+            size: Legal;
+            }
+            @font-face {
+            font-family: salesforceSansRegular;
+            src: url({! URLFOR($Resource.slds, '/fonts/SalesforceSans-Regular.ttf')});
+            }
+            .salesforceSansFont {
+            font-family: salesforceSansRegular;
+            font-size: 10px;
+            }
+            .paragraphNoSpace {
+            margin: 0;
+            padding: 0;
+            }
+            .headerText {
+            text-align: center;
+            font-size: 20px;
+            }
+            .textCenter {
+            text-align: center;
+            }
+            .textJustify {
+            text-align: justify;
+            }
+            .boldText {
+            font-weight: bold;
+            }
+            .italicText {
+            font-style: italic;
+            }
+        </style>
+    </head>
+    
+    
+    <div class="salesforceSansFont">
+        
+        
+        <table cellpadding="3" cellspacing="0" width="100%">
+            
+            <tr >
+                <td width="40%">
+                    <apex:image style="" value="{!URLFOR($Resource.UNILABSign)}" width="140" height="50"/>
+                </td>
+                <td width="40%">
+                    <b><apex:outputLabel style="text-align:center; font-size: 18px;" value="Account Allocations"/></b>
+                </td>
+                
+                <td width="20%" style="font-size: 12px;">
+                    <b>Promo Title:</b><apex:outputLabel value=" {!accAllocWrapList[0].accAllocRecord.Allocation__r.Promo_Name__c}"/><br/>
+                    <b>Channel:</b><apex:outputLabel value=" {!accAllocWrapList[0].accAllocRecord.Account__r.Channel__c}"/><br/>
+                    <b>Total Allocation:</b><apex:outputText value="{!accAllocWrapList[0].accAllocRecord.Allocation__r.Total_Account_Allocation__c}"/><br/>
+                    <b>Start Date:</b><apex:outputLabel value=" {!accAllocWrapList[0].accAllocRecord.Allocation__r.Start_Date__c}"/><br/>
+                    <b>End Date:</b><apex:outputLabel value=" {!accAllocWrapList[0].accAllocRecord.Allocation__r.End_Date__c}"/>
+                </td>
+            </tr>
+            
+        </table>
+        
+        
+        <br/>
+        <br/>
+        
+        
+        <table border="1" cellpadding="4" cellspacing="0" width="100%" >
+            <tr style="text-align: center">
+                <th>Account Team</th>
+                <th>Account Group</th>
+                <th>Account Name</th>
+                <th>Final Allocation</th>
+                <th>CDS</th>
+            </tr>
+            <apex:repeat value="{!accAllocWrapList}" var="accAlloc">
+                <tr>
+                    <td>
+                        <apex:outputText value="{!accAlloc.accAllocRecord.Account__r.Team__c}"/>
+                    </td>
+                    <td>
+                        <apex:outputText value="{!accAlloc.accAllocRecord.Account__r.Account_Group__c}"/>
+                    </td>
+                    <td>
+                        <apex:outputText value="{!accAlloc.accAllocRecord.Account__r.Name}"/>
+                    </td>
+                    <td>
+                        <apex:outputText value="{!accAlloc.accAllocRecord.Final_Allocation__c}"/>
+                    </td>
+                    <td>
+                        <apex:outputText value="{!accAlloc.accAllocRecord.Account__r.Owner.Name}"/>
+                    </td>
+                </tr>
+                
+            </apex:repeat>
+        </table>
+    </div>
+    
+</apex:page>

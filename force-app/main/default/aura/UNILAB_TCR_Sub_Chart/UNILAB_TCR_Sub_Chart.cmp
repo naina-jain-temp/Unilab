@@ -1,0 +1,23 @@
+<aura:component controller="UNILAB_TCR_Summary" access="global" >
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="tcrType" type="String" />
+    
+    <ltng:require scripts="{! $Resource.HighCharts + '/code/highcharts.src.js' }"
+                  afterScriptsLoaded="{! c.scriptsLoad }" />
+    
+    <div class="slds-box" style="background-color: white;">
+        
+        <div aura:id="mySpinner" class="slds-show slds-is-relative">
+            
+            <lightning:spinner variant="brand" alternativeText="Loading" size="small" />
+            
+        </div>
+        
+        <div aura:id="callAverageChart" id="callAverageChart" />
+        
+    </div>
+    
+    <br />
+    
+</aura:component>

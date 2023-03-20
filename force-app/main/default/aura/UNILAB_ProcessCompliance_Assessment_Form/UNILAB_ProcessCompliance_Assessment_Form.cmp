@@ -1,0 +1,49 @@
+<aura:component 
+                controller="UNILAB_ProcessCompliance_Checklist"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    			
+    			<aura:attribute name="assessmentLocal" type="Map" />
+    			<aura:attribute name="assessmentData" type="List" />
+    			<aura:attribute name="assessmentItem" type="List" />
+    			<aura:attribute name="assessmentResults" type="Map" />
+    			<aura:attribute name="category" type="String" />
+				<aura:attribute name="categorymap" type="Map" />											
+    			<aura:attribute name="year" type="String" />
+    			<aura:attribute name="period" type="String"/>
+    			<aura:attribute name="disableButton" type="Boolean" />
+    
+    			<aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    			<aura:attribute name="clearChecklist" type="Boolean" default="false"/>
+    			
+    			<div style="padding:0px 0px 50px;" class="slds-col slds-large-size_1-of-1 slds-small-size_1-of-1">
+                    
+                    <table style="border-collapse:collapse;margin-bottom:10px;">    
+            			<thead>
+                            <tr>
+                                <th colspan="2" style="border: 1px solid black;padding:5px 10px 5px 10px;">{!v.category}</th>
+                                <th style="border: 1px solid black;text-align:center;padding:5px 10px 5px ">Ratings</th>
+                                <th style="border: 1px solid black;text-align:center;padding:5px 10px 5px 10px;">Remarks</th>
+                            </tr>
+                    	</thead>
+                        <tbody>
+                    		<aura:iteration items="{!v.assessmentItem}" var ="assessmentItem">
+                                
+                                <c:UNILAB_ProcessCompliance_Assessment_Form_Item 
+                                                                                 assessmentItem = "{!assessmentItem}"
+                                                                                 assessmentResults = "{!v.assessmentResults}"
+                                                                                 assessmentLocal = "{!v.assessmentLocal}"
+                                                                                 period = "{!v.period}"
+                                                                            	 year = "{!v.year}"
+                                                                                 clearChecklist = "{!v.clearChecklist}"
+                                                                                 disableButton="{!v.disableButton}"
+                                                                                 />
+                			</aura:iteration>
+                        </tbody>
+          		 	</table>
+	
+            	</div>
+                    
+                
+          
+</aura:component>

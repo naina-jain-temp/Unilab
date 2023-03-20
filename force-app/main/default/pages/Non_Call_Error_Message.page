@@ -1,0 +1,15 @@
+<apex:page >
+    
+    <span style="font-family: Arial Unicode MS; font-size: 16pt; ">Your event is a non call event. Please complete work plan in Edit button.</span>
+    
+    <apex:form >
+    	<apex:commandButton value="Back" onclick="doRedirect();"/>
+        <script type="text/javascript">
+                function doRedirect(){
+                    window.history.back();
+                }
+
+            </script>
+    </apex:form>
+    
+</apex:page>

@@ -1,0 +1,20 @@
+<aura:component controller="UNILAB_PICOS_Label"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	<!--aura doInit handler--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:attribute name="resTagging" type="string" default="Unclassified" />
+    
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-center">
+                <div class="slds-text-heading--small">       
+                    This store is <strong>{!v.resTagging}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</aura:component>

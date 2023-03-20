@@ -1,0 +1,296 @@
+<template>
+    <div class="ul-productSelection">
+        <template if:true={recordinfo}>
+            <h3 class="modal-header">HAT Product Selection - {hatObj.name} </h3>
+            <div class="slds-grid slds-wrap slds-p-top_medium Product-info">
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Allocation Type </label>
+                    {hatObj.allocationType}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Allocation Month</label>
+                    {hatObj.allocationMonth}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Item Code </label>
+                    {hatObj.itemCode}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Storage Location </label>
+                    {hatObj.storageLocation}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>SOH (QTY)</label>
+                    {hatObj.sohQty}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Prod Alloc Object Number</label>
+                    {hatObj.prodAllocObjNumber}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Item Description </label>
+                    {hatObj.itemDescription}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Division</label>
+                    {hatObj.division}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>UOM</label>
+                    {hatObj.uom}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Item Case</label>
+                    {hatObj.itemCase}
+                </div>
+                <div class="slds-col slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-bottom_medium">
+                    <label>Item Price W/O VAT</label>
+                    {hatObj.itemWOPrice}
+                </div>
+            </div>
+            <div class="slds-clearfix slds-p-around_medium ">
+                <div class="slds-float_right">
+                    <lightning-button label="Next" class="btn btn-pri" onclick={handleProductDetails}>
+                    </lightning-button>
+                </div>
+            </div>
+            <!-- <ul class="Product-info">
+                <li><b>Allocation Type </b> Allocation_Type__c</li>
+                <li><b>Allocation Month </b> Allocation_Type__c</li>
+                <li><b>Item Code </b> Allocation_Type__c</li>
+                <li><b>Storage Location </b> Allocation_Type__c</li>
+                <li><b>SOH(QTY)  </b> Allocation_Type__c</li>
+                <li><b>Prod Alloc Object Number  </b> Product_r.Product_Allocation_Object_Number_c</li>
+                <li><b>Item Description  </b> Allocation_Type__c</li>
+                <li><b>Division   </b> Allocation_Type__c</li>
+                <li><b>UOM   </b> Allocation_Type__c</li>
+                <li><b>Item Case  </b> Allocation_Type__c</li>
+                <li><b>Item Price W/O VAT   </b> Allocation_Type__c</li>
+            </ul> -->
+           
+        </template>
+        <template if:true={showProductDetails}>
+            <div class="table_ProductDetails">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Final Sell-In</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>2021 MAY</th>
+                            <th></th>
+                            <th>2021 MAY</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>Sell-IN OB</th>
+                            <th></th>
+                            <th>P03 </th>
+                            <th></th>
+                            <th colspan="2">Allocation Share</th>
+                            <th colspan="3">INITIAL Allocation </th>
+                            <th>+/- adjustment</th>
+                            <th colspan="4">FINAL Allocation </th>                           
+                        </tr>
+                        <tr>
+                            <th>SNCD Channel </th>
+                            <th>OB Target </th>
+                            <th>SOT</th>
+                            <th>SI Amount</th>
+                            <th>SOB</th>                           
+                            <th>w/ Alloc (Y/N)</th>
+                            <th>SOB</th>
+                            <th>QTY</th>
+                            <th>Amount</th>
+                            <th>Impact vs SI</th>
+                            <th>QTY</th>
+                            <th>QTY</th>
+                            <th>Amount</th>
+                            <th>Impact vs SI</th>
+                            <th>For TOMG (QTY/UOM)</th>
+                        </tr>
+                        <tr>
+                            <th>Grand Total>>></th>
+                            <th>68,72,48,213.44</th>
+                            <th>100.0%</th>
+                            <th>9,45,84,026.51</th>
+                            <th>100.0%</th>
+                            <th></th>
+                            <th>100.0%</th>
+                            <th>10,223</th>
+                            <th>77,58,541.39</th>
+                            <th>8.2%</th>
+                            <th>0</th>
+                            <th>10,223</th>
+                            <th>77,58,541.39</th>
+                            <th>8.2%</th>
+                            <th>10,223</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                <!--        <tr>
+                            <td>Mercury  </td>
+                            <td>29,54,93,492.40 </td>
+                            <td>43.0%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>N</td>
+                            <td>0.0%</td>
+                            <td>0</td>
+                            <td>0.00</td>
+                            <td>0% </td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0.00</td>
+                            <td>0.0%</td>
+                            <td>0 </td>
+                        </tr>
+                        <tr>
+                            <td>Key Accounts </td>
+                            <td>22,84,68,161.96 </td>
+                            <td>33.2%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>Y</td>
+                            <td>57.8% </td>
+                            <td>5,910 </td>
+                            <td>44,85,276.30  </td>
+                            <td>14.0% </td>
+                            <td>0</td>
+                            <td>5,410</td>
+                            <td>41,05,811.30</td>
+                            <td>12.9%</td>
+                            <td>5,410 </td>
+                        </tr>
+                        <tr>
+                            <td>Key Accounts </td>
+                            <td>22,84,68,161.96 </td>
+                            <td>33.2%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>Y</td>
+                            <td>57.8% </td>
+                            <td>5,910 </td>
+                            <td>44,85,276.30  </td>
+                            <td>14.0% </td>
+                            <td>0</td>
+                            <td>5,410</td>
+                            <td>41,05,811.30</td>
+                            <td>12.9%</td>
+                            <td>5,410 </td>
+                        </tr>
+                        <tr>
+                            <td>Key Accounts </td>
+                            <td>22,84,68,161.96 </td>
+                            <td>33.2%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>Y</td>
+                            <td>57.8% </td>
+                            <td>5,910 </td>
+                            <td>44,85,276.30  </td>
+                            <td>14.0% </td>
+                            <td>0</td>
+                            <td>5,410</td>
+                            <td>41,05,811.30</td>
+                            <td>12.9%</td>
+                            <td>5,410 </td>
+                        </tr>
+                        <tr>
+                            <td>Mercury  </td>
+                            <td>29,54,93,492.40 </td>
+                            <td>43.0%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>N</td>
+                            <td>0.0%</td>
+                            <td>0</td>
+                            <td>0.00</td>
+                            <td>0% </td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0.00</td>
+                            <td>0.0%</td>
+                            <td>0 </td>
+                        </tr>
+                        <tr>
+                            <td>Key Accounts </td>
+                            <td>22,84,68,161.96 </td>
+                            <td>33.2%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>Y</td>
+                            <td>57.8% </td>
+                            <td>5,910 </td>
+                            <td>44,85,276.30  </td>
+                            <td>14.0% </td>
+                            <td>0</td>
+                            <td>5,410</td>
+                            <td>41,05,811.30</td>
+                            <td>12.9%</td>
+                            <td>5,410 </td>
+                        </tr>
+                        <tr>
+                            <td>Key Accounts </td>
+                            <td>22,84,68,161.96 </td>
+                            <td>33.2%</td>
+                            <td>3,90,56,550.59 </td>
+                            <td>41.3% </td>
+                            <td>Y</td>
+                            <td>57.8% </td>
+                            <td>5,910 </td>
+                            <td>44,85,276.30  </td>
+                            <td>14.0% </td>
+                            <td>0</td>
+                            <td>5,410</td>
+                            <td>41,05,811.30</td>
+                            <td>12.9%</td>
+                            <td>5,410 </td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </div>
+            <div class="slds-clearfix slds-p-around_medium">
+                <div class="slds-float_right">
+                    <lightning-button label="Done" class="btn btn-pri" onclick={handleClose}></lightning-button>
+                </div>
+            </div>
+        </template>
+        <table>
+            <thead>
+                <template if:true={showProductDetails} for:each={record} for:item="rec">
+                    <tr key={rec}>
+                        <th>{rec}</th>
+                    </tr>
+                </template>
+            </thead>
+        </table>
+        
+    </div>
+</template>

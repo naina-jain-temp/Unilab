@@ -1,0 +1,24 @@
+<aura:component controller="UNILAB_NEON_ISPlan_Summary"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <!-- attributes -->
+    <aura:attribute name="isSummarydata" type="Object"/>
+    <aura:attribute name="isSummarycolumns" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+	<div aura:id="containerDiv">
+        <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Mobile' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+        	<lightning:layout pullToBoundary="small" verticalAlign="center" multipleRows="true">
+                <lightning:layoutItem size="12" padding="around-small">
+                    <lightning:datatable
+                        keyField="id"
+                        data="{! v.isSummarydata }"
+                        columns="{! v.isSummarycolumns }"
+                        hideCheckboxColumn="true"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </div>
+</aura:component>

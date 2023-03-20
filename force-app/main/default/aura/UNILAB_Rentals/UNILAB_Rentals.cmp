@@ -1,0 +1,109 @@
+<aura:component controller="UNILAB_Rentals"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <!-- control form -->
+    <aura:attribute name="enableForm" type="Boolean" default="false"/>
+    <aura:attribute name="enableForm2" type="Boolean" default="false"/>
+    
+    <aura:attribute name="eventId" type="String" />
+    
+    <!-- backing data -->
+    <aura:attribute name="data" type="List" />
+    <aura:attribute name="priorityData" type="List"/>
+    
+    <aura:attribute name="dataCount" type="Integer" default="0" />
+    
+    <aura:attribute name="ansList" type="List" default="[{'label': 'Yes', 'value': 'Y'},{'label': 'No', 'value': 'N'}]" />
+    <aura:attribute name="value" type="List" />
+    
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg']" />
+    <aura:attribute name="fileCount" type="Integer" default="0" />
+    
+    <aura:attribute name="prevJournal" type="String" />
+    <aura:attribute name="journal" type="String"/>
+    <aura:attribute name="currentEventId" type="String"/>
+    <aura:attribute name="withoutRec" type="Boolean" default="{!not(empty(v.currentEventId)) ? false : true}"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler event="force:refreshView" action="{!c.refresh}" />
+
+    <aura:if isTrue="{! or(v.enableForm, v.enableForm2) }">
+        <div aura:id="containerDiv">
+            <lightning:spinner variant="brand" alternativeText="Loading" size="medium" class="{!(v.showSpinner? 'slds-show': 'slds-hide')}" />
+            
+            <div style="{! $Browser.formFactor == 'DESKTOP' ? '' : 'height: 100%; overflow:auto; display: flex; flex-direction: column;' }">
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                            <thead>
+                                <tr class="slds-text-title_caps">
+                                    <th scope="col" style="width: 10px;">
+                                        <div class="slds-truncate slds-align_absolute-center" title="Account">Criteria</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate_container slds-align_absolute-center" title="Date">Yes/No</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{! v.data }" var="record" >
+                                    <c:UNILAB_Rentals_Items data="{!record}"
+                                                            priorityData="{! v.priorityData}"/>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </lightning:layoutItem>	
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <lightning:fileUpload label="Accepted file types: .JPEG, .JPG, .PNG"
+                                              name="fileUploader"
+                                              multiple="false"
+                                              accept="{!v.filetype}"
+                                              recordId="{!v.recordId}"
+                                              onuploadfinished="{!c.handleUploadFinished}"
+                                              style="width: 100%;" />
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <div class="slds-truncate_container slds-form-element">
+                            <div class="slds-page-header">
+                                <div class="slds-page-header__row">
+                                    <div class="slds-page-header__col-title">
+                                        <div class="slds-media">
+                                            <div class="slds-media__figure">
+                                                <lightning:icon iconName="utility:note" size="small" />
+                                            </div>
+                                            <div class="slds-media__body">
+                                                <div class="slds-page-header__name">
+                                                    <div class="slds-page-header__name-title">
+                                                        <h1>
+                                                            <span class="slds-page-header__title slds-truncate">Journal</span>
+                                                        </h1>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-text-heading_small">{!v.prevJournal}
+                                <lightning:textarea name="txtJournal" value="{! v.journal }" placeholder="Write a Learnings and Insights..."/>
+                            </div>
+                        </div> 
+                    </lightning:layoutItem>
+                </lightning:layout>
+                 <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <div class="slds-align_absolute-center">
+                            <lightning:button class="slds-m-top_small" variant="brand" type="button" name="save" label="Save" onclick="{!c.saveRecord}" />	
+                        </div>
+                     </lightning:layoutItem>
+                </lightning:layout>
+            </div>	
+        </div>
+        <aura:set attribute="else">
+        	<h1>Rental Form is Locked!</h1>
+        </aura:set>
+    </aura:if>
+</aura:component>

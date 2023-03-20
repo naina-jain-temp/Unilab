@@ -1,0 +1,72 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg']" />
+    <aura:attribute name="enabledLocation" type="Boolean" default="false" />
+    <aura:attribute name="lat" type="decimal" />
+    <aura:attribute name="long" type="decimal" />
+	
+    <div aura:id="containerDiv">
+        <lightning:spinner variant="brand" alternativeText="Loading" size="medium" class="{!(v.showSpinner? 'slds-show': 'slds-hide')}" />
+        
+        <div style="{! $Browser.formFactor == 'DESKTOP' ? '' : 'height: 100%; overflow:auto; display: flex; flex-direction: column;' }">
+            <lightning:layout pullToBoundary="small" >
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-page-header">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-title">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning:icon iconName="standard:store" size="small" />
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-page-header__name">
+                                            <div class="slds-page-header__name-title">
+                                                <h1>
+                                                    <span class="slds-page-header__title slds-truncate">Area Information</span>
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                      mediumDeviceSize="12" largeDeviceSize="12" 
+                                      padding="around-small">
+                    <lightning:recordEditForm aura:id="quickMapsForm" recordId="{!v.recordId}" 
+                                              objectApiName="Account">
+                        <lightning:messages />
+                        <lightning:inputField fieldName="Near_or_Within_a_Supermarket__c" />
+                        <lightning:inputField fieldName="Near_Other_Drugstores__c" />
+                        <lightning:inputField fieldName="Near_a_Generics_Drugstore__c" />
+                        <lightning:inputField fieldName="Fronting_Near_Hospital__c" />
+                        <lightning:inputField fieldName="Near_Clinic__c" />
+                        <lightning:inputField fieldName="Near_A_Pre_School__c" />
+                        <lightning:inputField fieldName="Near_A_School__c" />
+                        <lightning:inputField fieldName="Near_A_University_College__c" />
+                        <lightning:inputField fieldName="Near_Public_Market__c" />
+                        <lightning:inputField fieldName="Near_Transport_Terminal__c" />
+                        <lightning:inputField fieldName="Near_A_Call_Center__c" />
+                        <lightning:inputField fieldName="Near_Offices__c" />
+                        <lightning:fileUpload label="Capture the Store Facade"
+                                name="fileUploader"
+                                multiple="false"
+                                accept="{!v.filetype}"
+                                recordId="{!v.recordId}"
+                                onuploadfinished="{!c.handleUploadFinished}" />
+                        <div class="slds-align_absolute-center">
+                            <lightning:button class="slds-m-top_small" variant="brand" type="button" name="save" label="Save" onclick="{!c.handleSubmit}" />	
+                       	</div>
+                    </lightning:recordEditForm>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>	
+    </div>
+</aura:component>

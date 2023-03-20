@@ -1,0 +1,11 @@
+.THIS .manpower-summary-miss{
+    
+    color: red;
+    font-weight: bolder;
+}
+
+.THIS .manpower-summary-hit{
+    
+    color: green;
+    font-weight: bolder;
+}

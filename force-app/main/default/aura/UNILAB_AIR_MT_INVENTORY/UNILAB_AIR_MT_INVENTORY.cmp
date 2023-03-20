@@ -1,0 +1,118 @@
+<aura:component controller="UNILAB_MT_INVENTORY"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="priorityData" type="List"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/>
+    <aura:attribute name="bNoRecordsFound" type="boolean"/>
+    <aura:attribute name="searchKeyword" type="String"/>
+    <aura:attribute name="successMessage" type="boolean" default="false"/>
+    <aura:attribute name="disableBtn" type="boolean" default="true"/>
+    
+    <aura:attribute name="defaultRows" type="List" default="[]" description="reset selected rows..." />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+    
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Inventory
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <aura:if isTrue="{!v.successMessage}">
+        <div class="slds-notify_container slds-is-relative">
+            <div class="slds-notify slds-notify_toast slds-theme_success" role="alert" onclick="{! c.closeNotif}">
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small">Record Saved.</h2>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    <div class="c-container">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-float_left slds-size--1-of-1">
+                    <lightning:input value="{!v.searchKeyword}"
+                                     placeholder="Search Item Code/Name"
+                                     aura:id="searchField"
+                                     label="Filter"
+                                     type="search"
+                                     oncommit="{!c.searchProduct}"/>
+                </div>
+            </lightning:layoutItem>
+            <aura:if isTrue="{!v.bNoRecordsFound}">
+                <!--display error message if there is no records available -->
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <h2>No record found.</h2>
+                    </div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-scrollable_x">
+                            <table class="slds-table slds-table_bordered slds-table_col-bordered">
+                                <thead>
+                                    <tr class="slds-text-title">
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="code">Item Code</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="name">Item Name</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="status">Status</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{! v.mydata }" var="record" >
+                                        <c:UNILAB_AIR_MT_INVENTORY_ITEM product="{!record}" 
+                                                                     priorityData="{! v.priorityData}"
+                                                                        disableBtn="{! v.disableBtn}"/>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-clearfix slds-float_left slds-size--1-of-1">
+                                <div class="slds-page-header slds-text-align_center" role="banner" style="width:100%">
+                                    <div class="slds-float_right">            
+                                        <lightning:button label="Prev" 
+                                                          iconName="utility:chevronleft" 
+                                                          iconPosition="left"
+                                                          onclick="{!c.handlePrev}" 
+                                                          disabled="{! v.pageNumber == 1}"/>
+                                        <lightning:button label="Next" 
+                                                          iconName="utility:chevronright" 
+                                                          iconPosition="right"
+                                                          disabled="{! v.isLastPage}" 
+                                                          onclick="{!c.handleNext}"/>
+                                    </div>
+                                    <p class="slds-text-heading--small">
+                                        Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*(v.pageSize)+1)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}
+                                    </p>
+                                </div>
+                            </div>
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+        </lightning:layout>
+    </div>
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <lightning:button variant="brand" label="Save" onclick="{!c.saveRecord}" disabled="{! v.disableBtn }" />
+    </div>
+</aura:component>

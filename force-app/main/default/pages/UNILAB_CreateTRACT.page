@@ -1,0 +1,8 @@
+<apex:page standardController="CIS__c" showHeader="true">  
+     <apex:form >
+        <apex:sectionHeader title="System Information" />
+        <apex:pageBlock title="Message">
+            <apex:outputLabel value="Creating Trade Activity (TRACT) is under Account Record Page. Kindly search for the account and click CREATE TRACT. Thank You!" />
+        </apex:pageBlock>
+    </apex:form>
+ </apex:page>

@@ -1,0 +1,101 @@
+<aura:component controller="UNILAB_PAL_AllocationCDSview" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global">
+    
+    <aura:attribute name="recordId" type="String" />
+    
+    <aura:attribute name="accountAllocList" type="Account_Allocation__c[]" />
+    <aura:attribute name="accountAllocColumns" type="List"/>
+     
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <lightning:layout multipleRows="true" verticalAlign="stretch">
+        <lightning:layoutItem size="12" flexibility="auto, grow">
+            <div class="slds-card-wrapper">                
+                <article class="slds-card">
+                    <div class="slds-card__body slds-card__body_inner">
+                        <lightning:spinner class="slds-show" variant="brand" size="large" aura:id="mySpinner" />
+                        <aura:if isTrue="{! v.recordId }">
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <div class="slds-page-header slds-page-header_record-home">
+                                        <div class="slds-page-header__row">
+                                            <div class="slds-page-header__col-title">
+                                                <div class="slds-media">
+                                                    <div class="slds-media__figure">
+                                                        <span class="slds-icon_container slds-icon-standard-opportunity">
+                                                            <span class="slds-icon_container slds-icon-custom-custom18">
+                                                                <lightning:icon iconName="custom:custom18" size="xx-large" />
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <div class="slds-page-header__name">
+                                                            <div class="slds-page-header__name-title">
+                                                                <h1 class="slds-p-bottom_xx-small">
+                                                                    <span class="slds-page-header__title slds-truncate"
+                                                                          title="ALLOC-0000066">
+                                                                        Account Allocation
+                                                                    </span>
+                                                                </h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--
+                                            <div class="slds-page-header__col-actions">
+                                                <div class="slds-page-header__controls">
+                                                    <div class="slds-page-header__control">
+                                                        <ul class="slds-button-group-list">
+                                                            <li>
+                                                                <lightning:button label="Concur" 
+                                                                                  title="Concur"
+                                                                                  onclick="{! c.concurRecord }" />
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            -->
+                                        </div>
+                                    </div>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <hr style="padding: 0px; margin: 0px;" />
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <aura:if isTrue="{! not(empty(v.accountAllocList)) }">
+                                        <div class="slds-scrollable_y"  style="height: 10rem;">
+                                            <lightning:datatable data="{! v.accountAllocList }"
+                                                                 columns="{! v.accountAllocColumns }"
+                                                                 keyField="id"
+                                                                 hideCheckboxColumn="true"/>
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <h1 class="slds-align_absolute-center" style="font-size: 1.25rem;">
+                                                <strong>
+                                                    No Records Found.
+                                                </strong>
+                                            </h1>
+                                        </aura:set>
+                                    </aura:if>                                    
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <aura:set attribute="else">
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                        <h1 class="slds-align_absolute-center" style="font-size: 1.5rem;">
+                                            <strong>
+                                                Id Not Found. Please go to record page.
+                                            </strong>
+                                        </h1>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </article>
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+</aura:component>

@@ -1,0 +1,43 @@
+<aura:component controller="UNILAB_TCB_Form"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <aura:attribute name="tData" type="List" />
+    <aura:attribute name="tPriorityData" type="List" />
+    <aura:attribute name="availYes" type="boolean" default="false"/>
+    <aura:attribute name="availNo" type="boolean" default="false"/>
+    <!--<aura:handler name="init" value="{!this}" action="{!c.doInit}" />-->
+    
+    <tr>
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                {! v.tData.Item__c }
+            </div>
+        </th><!--
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                
+            </div>
+        </th>-->
+        <th scope="row">
+            <div class="slds-truncate_container slds-align_absolute-center">
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="Yes" 
+                                 aura:id="optYes"
+                                 name="Yes"
+                                 checked="{! v.tData.Yes__c}"
+                                 onchange="{! c.optYesChange}"
+                                 style="padding-right:5px;"/>
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="No" 
+                                 aura:id="optNo"
+                                 name="No"
+                                 checked="{! v.tData.No__c}"
+                                 onchange="{! c.optNoChange}"/>
+            </div>
+            
+        </th>
+    </tr>
+</aura:component>

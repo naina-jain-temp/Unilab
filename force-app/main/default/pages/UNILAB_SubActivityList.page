@@ -1,0 +1,162 @@
+<apex:page standardController="Event" extensions="UNILAB_SubActivityListCX" standardStylesheets="false">
+    
+    <!-- RENDERED ONLY IN SALESFORCE LIGHTNING -->
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3'}">
+        <apex:slds />
+        <div class="slds-scope">
+            
+            <apex:form >
+                
+                
+                <apex:outputText rendered="{!subActMasterList== null}">No Records to show.</apex:outputText>
+                
+                
+                <apex:pageBlock rendered="{!subActMasterList != null}">
+                    
+                    
+                    <!-- ACTIVITIES TABLE -->
+                    <apex:outputPanel rendered="{!subActList != null}" >
+                        <article class="slds-card">
+                            <div class="slds-card__body">
+                                <apex:pageBlockTable value="{!subActList}" var="s" styleClass="slds-table slds-table_fixed-layout slds-table_bordered slds-no-row-hover slds-table_cell-buffer"> 
+                                    <apex:column headerValue="ACTIVITIES">
+                                        <apex:outputField value="{!s.Activity_Name__c}"/>
+                                    </apex:column>
+                                    
+                                </apex:pageBlockTable>                           
+                            </div>
+                        </article>
+                    </apex:outputPanel>                
+                    
+                    
+                    <!-- SURVEY TABLE LTNG -->
+                    <apex:outputPanel rendered="{!sWrapList != null}">
+                        <article class="slds-card slds-m-top_medium">
+                            <div class="slds-card__body">
+                                    <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout" role="grid">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th class="slds-text-align_right" scope="col" style="width: 5rem;">
+                                                <div class="slds-th__action slds-th__action_form">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="RATING">RATING</span>
+                                                </div>
+                                            </th>
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="Survey">Survey</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="Answered?">Answered?</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        <apex:repeat value="{!sWrapList}" var="s" >
+                                            <tr class="slds-hint-parent">
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <apex:outputText value="{!s.fieldValue}"/>   
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <apex:outputLink value="/{!s.ssForm.Id}" target="_parent">{!s.fieldValue2}</apex:outputLink>  
+                                                    </div>
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <apex:image id="answered" value="{!$Resource.Answered}" width="15" height="15" rendered="{!s.img = TRUE}"/>
+                                                        <apex:image id="notAnswered" value="{!$Resource.Not_Answered}" width="15" height="15" rendered="{!s.img = FALSE}"/>
+                                                    </div>
+                                                </td>
+                                            </tr>                                    
+                                        </apex:repeat>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </article>
+                    </apex:outputPanel>
+                    
+                </apex:pageBlock>
+                
+            </apex:form>
+            
+        </div>
+    </apex:outputPanel>
+    
+    <!-- RENDERED ONLY IN SALESFORCE CLASSIC -->
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3'}">
+        
+        <div class="slds-scope">
+            <div class="slds-template_bottom-magnet">
+                <apex:form >
+                    <apex:outputText rendered="{!subActMasterList == null}">No Records to show.</apex:outputText>
+                    
+                    
+                    <apex:pageBlock rendered="{!subActMasterList != null}">
+                        
+                        
+                        
+                        <apex:pageBlockTable value="{!subActList}" var="s" rendered="{!subActList != null}" styleClass="slds-table slds-table_bordered slds-table_cell-buffer"> 
+                            <apex:column headerValue="Activity">
+                                <apex:outputField value="{!s.Activity_Name__c}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <br/>
+                        
+                        <apex:pageBlockTable value="{!sWrapList}" var="s" rendered="{!sWrapList != null}" styleClass="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <apex:column headerValue="Survey Rating">
+                                <apex:outputText value="{!s.fieldValue}"/>      
+                            </apex:column>
+                            <apex:column headerValue="Survey">
+                                <apex:outputLink value="/{!s.ssForm.Id}" target="_parent">{!s.fieldValue2}</apex:outputLink>     
+                            </apex:column>
+                            
+                            <apex:column headerValue="Answered?">
+                                <apex:image id="answered" value="{!$Resource.Answered}" width="15" height="15" rendered="{!s.img = TRUE}"/>
+                                <apex:image id="notAnswered" value="{!$Resource.Not_Answered}" width="15" height="15" rendered="{!s.img = FALSE}"/>
+                            </apex:column>
+                            
+                        </apex:pageBlockTable>
+                        
+                    </apex:pageBlock>
+                </apex:form>
+            </div>
+        </div>
+    </apex:outputPanel> 
+    
+</apex:page>

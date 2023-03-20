@@ -1,0 +1,58 @@
+<apex:page standardController="Account" showHeader="false">
+    
+    <script>
+        <apex:includeScript value="/soap/ajax/30.0/connection.js"/>
+        sforce.connection.sessionId = "{!$Api.Session_ID}";
+        var c = new sforce.SObject("Account"); 
+        c.Id='{!Account.Id}'; 
+        
+        
+        if(navigator.geolocation){ 
+        //browser support geolocation 
+        navigator.geolocation.getCurrentPosition(callbackSuccess, callbackError,{enableHighAccuracy:true,timeout:30000}); 
+        
+        }else{ 
+            alert('Browser not supported for getting location!');
+            window.location.href="/"+c.Id; 
+        } 
+        
+        function callbackSuccess(position) { 
+        
+        //get latitude and longitude ********window.opener.location.href="/"+c.Id;
+        var lat = position.coords.latitude; 
+        var lon = position.coords.longitude; 
+        
+        c.Latitude__c=lat; 
+        c.Longitude__c=lon; 
+        
+        sforce.connection.update([c]); 
+        window.location.href="/"+c.Id;
+        } 
+        
+        function callbackError(error) { 
+        switch(error.code) { 
+        case error.UNKNOWN_ERROR: 
+        alert("Unknown Error"); 
+        window.location.href="/"+c.Id;
+        break; 
+        case error.PERMISSION_DENIED: 
+        alert("Permission Denied"); 
+        window.location.href="/"+c.Id;
+        break; 
+        case error.POSITION_UNAVAILABLE: 
+        alert("Coordinates not available"); 
+        window.location.href="/"+c.Id;
+        break; 
+        case error.TIMEOUT: 
+        alert("System Time-out, please make sure location is enabled."); 
+        window.location.href="/"+c.Id;
+        break; 
+        } 
+        }
+    </script>
+    Getting location.
+    <!--
+    <apex:form >
+        <apex:commandLink action="{!cancel}" value="Click Here to return"/>
+    </apex:form>-->
+</apex:page>

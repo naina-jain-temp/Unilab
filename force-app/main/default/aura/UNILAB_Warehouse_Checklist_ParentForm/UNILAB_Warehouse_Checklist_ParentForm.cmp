@@ -1,0 +1,537 @@
+<aura:component controller="UNILAB_CDS_Warehouse_Checklist"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">    
+    
+    <aura:attribute name="openModal" type="boolean"/>
+    <aura:attribute name="hideModal" type="boolean"/>  
+    <aura:attribute name="openModal2" type="boolean"/>    
+    <aura:attribute name="hideModal2" type="boolean"/>
+    <aura:attribute name="openConfirmationBox" type="boolean"/>
+    <aura:attribute name="closeConfirmationBox"  type="boolean"/>
+    <aura:attribute name="saveRecord" type="boolean"/>
+    <aura:attribute name="hideConfirmation" type="boolean"/>
+    
+    <aura:attribute name="sumRating" type="Map"/> 
+    <aura:attribute name="sumActualRating1" type="Map"/> 
+    <aura:attribute name="sumActualRating2" type="Map"/> 
+    <aura:attribute name="sumActualRating3" type="Map"/> 
+    <aura:attribute name="sumActualRating4" type="Map"/> 
+    <aura:attribute name="sumActualRating5" type="Map"/> 
+    <aura:attribute name="sumActualRating6" type="Map"/>     
+    <aura:attribute name="totalSumActualRating" type="Map"/>  
+    
+    <aura:attribute name="overallRating1" type="Map"/> 
+    <aura:attribute name="overallRating2" type="Map"/> 
+    <aura:attribute name="overallRating3" type="Map"/> 
+    <aura:attribute name="overallRating4" type="Map"/> 
+    <aura:attribute name="overallRating5" type="Map"/> 
+    <aura:attribute name="overallRating6" type="Map"/>
+    <aura:attribute name="totalOverallRating" type="Map"/>        
+    
+    <aura:attribute name="totalLine1" type="Map"/> 
+    <aura:attribute name="totalLine2" type="Map"/> 
+    <aura:attribute name="totalLine3" type="Map"/>
+    <aura:attribute name="totalLine4" type="Map"/>
+    <aura:attribute name="totalLine5" type="Map"/> 
+    <aura:attribute name="totalLine6" type="Map"/> 
+	<aura:attribute name="totalRequired" type="Map" />  
+    
+    <aura:attribute name="totalScore" type="Map" /> 
+    
+    <aura:attribute name="functionalAreas" type="List"/>
+    <aura:attribute name="materialHandlingEquipment" type="List"/>
+    <aura:attribute name="storageEquipment" type="List"/>
+    <aura:attribute name="thermometer" type="List"/>
+    <aura:attribute name="ppEquipment" type="List"/>
+    <aura:attribute name="others" type="List"/>   
+    
+    <aura:attribute name="saveRatings" type="Map"/>
+    <aura:attribute name="assessment" type="Map"/>    
+    <aura:attribute name="isdisabled" type="boolean"/> 
+    <aura:attribute name="isdisabled2" type="boolean"/>
+    <aura:attribute name="isdisabled3" type="boolean"/> 
+    
+    <aura:attribute name="progressbar" type="Integer" default="0"/>
+    <aura:attribute name="progress" type="Integer" default="0"/>
+	<aura:attribute name="openProgressModal" type="Boolean" default="false"/>
+	<aura:attribute name="saveDraftConfirmation" type="Boolean" default="false"/>  
+    <aura:attribute name="hideSaveDraftConfirmation" type="Boolean" default="false"/> 
+    <aura:attribute name="progresstitle" type="String" default="In progress"/>
+    <aura:attribute name="progressmessage" type="String" default="Please wait as saving is in progress."/>
+    <aura:attribute name="validatemessage" type="String" />
+    <aura:attribute name="draftData" type="Map" />
+    <aura:attribute name="clearData" type="Map" />  
+    <aura:attribute name="savedData" type="Map" />
+    <aura:attribute name="notice" type="Boolean" />
+    <aura:attribute name="disablePeriod" type="Boolean" />
+    <aura:attribute name="disableYear" type="Boolean" />
+     <aura:attribute name="alreadyExist" type="Boolean" default="false"/>
+    <aura:attribute name="clearChecklist" type="Boolean" default="false"/>
+    <aura:attribute name="isSubmitted" type="Boolean" />
+    
+   	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 	
+  	<aura:handler name="change" value="{! v.sumRating }" action="{! c.calculate }"/> 
+   
+    
+    <aura:attribute name="year" type="String"/>
+    <aura:attribute name="period" type="String"/>
+    <aura:attribute name="semester" type="List" default="['Sem 1','Sem 2']"/>
+    <aura:attribute name="years" type="List" default="[2022,2023,2024,2025,2026]"/>
+    
+ 	
+       <div class="slds-grid slds-gutters" style="width:100%; padding:20px;">            
+            <div class="slds-col slds-large-size_1-of-2 slds-small-size_1-of-1">
+                <lightning:select name="semester" label="Semester" required="true" value="{!v.period}" disabled="{!v.disablePeriod}">
+                    <aura:iteration items="{!v.semester}" var="sems">
+                        <option text="{!sems}"/>
+                    </aura:iteration>
+                </lightning:select>
+            </div>
+      
+            <div class="slds-col slds-large-size_1-of-2 slds-small-size_1-of-1">
+                <lightning:select name="year" label="Year" required="true" value="{!v.year}" disabled="{!v.disableYear}">
+                    <aura:iteration items="{!v.years}" var="years">
+                        <option text="{!years}"/>
+                    </aura:iteration>
+                </lightning:select>
+            </div>    
+        </div>
+
+  <div id="container">      
+ <aura:if isTrue="{!v.notice}">
+    <div class="slds-grid slds-gutters slds-grid slds-grid_vertical-align-center slds-grid_align-center" style="width:100%; padding:20px;">
+            <div class="slds-col slds-large-size_6-of-12 slds-small-size_10-of-12" style="background-color:lightgreen">
+                <h1 style="font-weight: bold; font-size:18px; text-align:center; ">Information</h1>  
+                <br/>
+                <ul style="font-size:13px; margin-top:-10px;">
+                    <li> <p style="text-align: center"><b>You already have submitted warehouse assessment for {!v.period}&nbsp;{!v.year}</b></p> </li>
+                </ul>
+                
+            </div>           
+    	</div>    
+  </aura:if> 
+        
+    <c:UNILAB_Warehouse_Checklist_Ratings  
+                                               totalLine1="{!v.totalLine1}"
+                                               totalLine2="{!v.totalLine2}"
+                                               totalLine3="{!v.totalLine3}"
+                                               totalLine4="{!v.totalLine4}"
+                                               totalLine5="{!v.totalLine5}"
+                                               totalLine6="{!v.totalLine6}"
+                                               sumActualRating1="{!v.sumActualRating1}"
+											   sumActualRating2="{!v.sumActualRating2}"
+                                               sumActualRating3="{!v.sumActualRating3}"
+                                               sumActualRating4="{!v.sumActualRating4}"
+                                               sumActualRating5="{!v.sumActualRating5}"
+                                               sumActualRating6="{!v.sumActualRating6}"
+                                               overallRating1="{!v.overallRating1}"  
+                                               overallRating2="{!v.overallRating2}" 
+                                               overallRating3="{!v.overallRating3}" 
+                                               overallRating4="{!v.overallRating4}"  
+                                               overallRating5="{!v.overallRating5}" 
+                                               overallRating6="{!v.overallRating6}" 
+                                               totalRequired="{!v.totalRequired}"
+                                               totalSumActualRating="{!v.totalSumActualRating}"
+                                               totalOverallRating="{!v.totalOverallRating}"
+                                               totalScore="{!v.totalScore}"
+                                           />   
+
+  	<table>
+      	<tr>
+  			<div class="slds-grid slds-grid_align-end">
+      			<div class="slds-col">
+                	<lightning:button variant="neutral" label="View Rating Scale" title="View Rating Scale" onclick="{! c.showModal }"/>
+  				</div>     
+    			<div class="slds-col">
+      				<lightning:button variant="neutral" label="Warehouse Requirement" title="Warehouse Requirement" onclick="{! c.showModal2 }"/>
+  				</div>
+            </div>
+        </tr>
+  	</table>
+    
+    
+    <!--MODAL 1 CODE-->
+    
+    <aura:if isTrue="{!v.openModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+            aria-modal="true" aria-describedby="modal-content-id-1" 
+            class="slds-modal slds-fade-in-open" >
+                            <div class="slds-modal__container " style=" width:100px !important;">
+                                <header class="slds-modal__header">
+                                    <lightning:buttonIcon iconName="utility:close"
+                                                          onclick="{! c.hideModal }"
+                                                          alternativeText="close"
+                                                          variant="bare-inverse"
+                                                          class="slds-modal__close"/>
+            						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Rating Scale</h2>
+                                </header>
+                                <!--Modal/Popup Box Body Starts here-->
+             <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center"> 
+			<table class="slds-table slds-table_cell-buffer slds-table_bordered" >      
+              <thead>
+                <tr class="slds-line-height_reset">
+                  <th class="text-align:center" scope="col">
+                    <div style="margin-left:50px; font-size:15px;">Score</div>
+                  </th>
+                  <th class="text-align:center" scope="col">
+                    <div style="margin-left:15px; font-size:15px;">Rating</div>
+                  </th>
+                  </tr>
+                <tr>
+                  <th scope="col">
+                    <div style="margin-left:65px; font-size:14px; font-weight: normal;">4</div>
+                  </th>
+                  <th class="text-align:center" scope="col">
+                    <div style="font-size:14px; font-weight: normal;">96% - 100%</div>
+                  </th>
+                </tr>
+                  <tr class="slds-line-height_reset">
+                  <th class="text-align:center" scope="col">
+                    <div style="margin-left:65px; font-size:14px; font-weight: normal;">3</div>
+                  </th>
+                  <th class="text-align:center" scope="col">
+                    <div style="font-size:14px; font-weight: normal;">75% - 95%</div>
+                  </th>
+                </tr>
+                  <tr class="slds-line-height_reset">
+                  <th class="text-align:center" scope="col">
+                    <div style="margin-left:65px; font-size:14px; font-weight: normal;">2</div>
+                  </th>
+                  <th class="text-align:center" scope="col">
+                    <div style="font-size:14px; font-weight: normal;" >51% - 74%</div>
+                  </th>
+                </tr>
+                  <tr class="slds-line-height_reset">
+                  <th class="text-align:center" scope="col">
+                    <div style="margin-left:65px; font-size:14px; font-weight: normal;">1</div>
+                  </th>
+                  <th class="text-align:center" scope="col">
+                    <div style="font-size:14px; font-weight: normal;">Below 50%</div>        
+                  </th>
+                      
+                </tr>       
+             </thead>           
+            </table>
+                </div>       
+                                <!--Modal/Popup Box Footer Starts here-->
+                                <footer class="slds-modal__footer">                       
+                                </footer>
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+
+    
+	<!--END MODAL 1 CODE-->       
+        
+    <!--MODAL 2 CODE-->
+		<aura:if isTrue="{!v.openModal2}">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.hideModal2 }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+								<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Criteria</h2>
+                    </header>
+                    <!--Modal/Popup (showModal2/hideModal2) Box Body Starts here-->
+    	<table class="slds-table slds-table_cell-buffer slds-table_bordered">      
+  			<thead>
+    			<tr class="slds-line-height_reset">
+      				<th class="text-align:center">
+        				<div style="margin-left:220px;">Criteria</div>
+      				</th>
+      				<th class="text-align:center">
+        				<div  style="margin-left:-15px;">Rating</div>
+      				</th>
+      			</tr>
+    			<tr>
+      				<th>
+        				<div class="criteria">(-) negative deficit = Not Compliant and less than the required size/ quantity</div>
+     				 </th>
+      				<th>
+        				<div class="criteriaRating">0</div>
+      				</th>
+    			</tr>
+   				<tr>
+     				<th>
+        				<div class="criteria">(0) zero deficit  = Compliant</div>
+      				</th>
+      				<th>
+        				<div class="criteriaRating">1</div>
+      				</th>
+    			</tr>
+    			<tr >
+      				<th >
+        				<div class="criteria">(+) positive deficit or more than +1  = Compliant; more than the required size/quantity</div>
+      				</th>
+      				<th>
+        				<div class="criteriaRating">1</div>
+      				</th>
+    			</tr>    
+ 			</thead>           
+		</table>        
+                    <!--Modal/Popup Box Footer Starts here-->
+                    <footer class="slds-modal__footer">                       
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>    
+	<!--END MODAL 2 CODE-->      
+    
+    	<aura:if isTrue="{!v.openConfirmationBox}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Confirmation</h1>                                           
+                   	</header>
+      								<div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">                                		
+                                       <p style="text-align:center; font-size:14px;"> Are you sure you want to submit the record?</p>                                        
+                                	</div>
+                    			<footer class="slds-modal__footer "> 
+                                    <div style="margin-right:70px;"> 
+                                    	<lightning:button variant="brand" name="saveRecord" label="Yes" onclick="{! c.saveRecord}"/>
+                                   	 	<lightning:button variant="neutral" name="hideConfirmation" label="Cancel" onclick="{! c.hideConfirmationBox}"/>                                    
+                                    </div>
+                                </footer>
+                   			
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>
+    
+    <aura:if isTrue="{!v.saveDraftConfirmation}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Confirmation</h1>                                           
+                   	</header>
+      								<div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">                                		
+                                       <p style="text-align:center; font-size:14px;"> Are you sure you want to save as draft?</p>                                        
+                                	</div>
+                    			<footer class="slds-modal__footer "> 
+                                    <div style="margin-right:70px;"> 
+                                    	<lightning:button variant="brand" label="Yes" onclick="{! c.saveDraft}"/>
+                                   	 	<lightning:button variant="neutral" label="Cancel" onclick="{! c.hideSaveDraftConfirmation}"/>                                    
+                                    </div>
+                                </footer>
+                   			
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>
+    
+    
+    	<aura:if isTrue="{!v.openProgressModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Saving {!v.progresstitle}</h1>                                           
+                   	</header>
+                        <div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">                                		
+                           <lightning:progressBar value="{! v.progressbar }" />
+                            <br/>
+                            
+                            <p style="text-align:center;">{!v.progressmessage}</p>
+                            <p style="text-align:center;">{!v.validatemessage}</p>
+                        </div>
+                    <div class="slds-modal__footer "> 
+                        <div> 
+                            <lightning:button variant="neutral" name="Close" label="Close" onclick="{! c.hideInprogressModal}"/>                                    
+                        </div>
+                    </div>
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>	
+
+	<article class="slds-card" style="margin-bottom:20px; padding-bottom:20px;"> 
+		<lightning:accordion aura:id="accordion" activeSectionName="accordion">
+    <!--start of A. Functional Areas-->
+			<lightning:accordionSection name="A" label="A. Functional Areas">  
+				
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;">   
+                     <thead>     
+                        <th class="header1">Functional Areas</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                             </thead>
+                             <aura:iteration items="{! v.functionalAreas}" var="area1">
+
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating="{!v.sumRating}"
+                                                                                 objectData="{!area1}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                                
+                                                                                 />		
+							                                             
+                             </aura:iteration>
+                  	</table>     
+       		</lightning:accordionSection>
+	<!--end of A. Functional Areas--> 
+
+    <!-- start of B. Material Handling Equipment-->
+        <lightning:accordionSection name="B" label="B. Material Handling Equipment">  
+  
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;">   
+                     <thead>     
+                        <th class="header1" style="width:50px">Material Handling Equipment</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                             </thead>
+                                   <aura:iteration items="{! v.materialHandlingEquipment}" var="area2">
+                                
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating="{!v.sumRating}"
+                                                                                 objectData="{!area2}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                                
+                                                                                 />
+							                                                             
+                             </aura:iteration>
+                  	</table>     
+   
+        </lightning:accordionSection>
+            <!-- end of B. Material Handling Equipment-->
+            
+            <!-- start of C. Storage Equipment-->
+        <lightning:accordionSection name="C" label="C. Storage Equipment">  
+      
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;">   
+                     <thead>     
+                        <th class="header1">Storage Equipment</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                             </thead>
+                                   <aura:iteration items="{! v.storageEquipment}" var="area3">
+                                
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating ="{!v.sumRating}"
+                                                       	    		   			 objectData="{!area3}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                               
+                                                                                 />
+							                                                             
+                             </aura:iteration>
+                  	</table>          
+        </lightning:accordionSection>
+            <!-- end of C. Storage Equipment-->    
+            
+            <!-- start of D. Personal Protective Equipment (PPEs)-->
+        <lightning:accordionSection name="D" label="D. Personal Protective Equipment (PPEs)" >  
+ 
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;" >   
+                     <thead>     
+                        <th class="header1" style="width:50px; text-align:center">Personal Protective Equipment (PPEs)</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                     </thead>
+                             <aura:iteration items="{! v.ppEquipment}" var="area4">
+                                
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating="{!v.sumRating}"                                                                    
+                                                       	    		   			 objectData="{!area4}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                                
+                                                                                 />
+							                                                             
+                             </aura:iteration>
+                  	</table>     
+
+        </lightning:accordionSection>
+            <!-- end of D. Personal Protective Equipment (PPEs)-->  
+            
+            <!-- start of E. Thermometers-->
+        <lightning:accordionSection name="E" label="E. Thermometers">                     	                  
+                   <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;">   
+                     <thead>     
+                        <th class="header1">Thermometers</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                      </thead>     
+                            <aura:iteration items="{! v.thermometer}" var="area5">
+                                
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating="{!v.sumRating}" 
+                                                                                 objectData="{!area5}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                                 
+                                                                                  />				                                                             
+                             </aura:iteration>
+                           
+                  	</table>     
+        </lightning:accordionSection>
+            <!-- end of E. Thermometers-->
+            
+            <!-- start of F. Others-->
+        <lightning:accordionSection name="F" label="F. Others">  
+        	 <table class="slds-table slds-table_cell-buffer slds-table_bordered" style=" border: 0.01px solid black;  border-collapse: collapse;" >   
+                     <thead>     
+                        <th class="header1">Others</th> 
+                        <th class="header2">Required Size (in sqm)</th>
+                        <th class="header3">Actual Size (in sqm)</th>
+                        <th class="header4">Deficit</th>
+                        <th class="header5">Rating</th>
+                        <th class="header6">Remarks</th>
+                      </thead>    
+
+                               <aura:iteration items="{! v.others}" var="area6">                              
+                                   <c:UNILAB_Warehouse_Checklist_Calculation sumRating="{!v.sumRating}" 
+                                                                                 objectData="{!area6}"
+                                                                                 assessment = "{!v.assessment}"
+                                                                                 draftData = "{!v.draftData}"
+                                                                             	 clearData = "{!v.clearData}"
+                                                                                
+                                                                                  />                                      
+                              </aura:iteration>                                
+             </table>     
+        </lightning:accordionSection>
+            <!-- end of F. Others-->  
+        </lightning:accordion>    
+    </article>
+			<!--<div  class="slds-grid slds-gutters" style="margin-left:270px; margin-top:-20px;">  -->
+            <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">    
+                <div class="slds-col slds-order_1">
+			 		<span><lightning:button class="slds-grid_align-center" disabled="{!v.isdisabled}" variant="brand" label="Submit" title="Submit" onclick="{! c.showConfirmationBox }"/></span>  
+                </div>
+                <div class="slds-col slds-order_2">
+                     <lightning:button class="slds-grid_align-center" disabled="{!v.isdisabled2}" variant="neutral" label="Save as Draft" title="Save as Draft" onclick="{! c.saveDraftConfirmation}"/>
+				</div>
+                <div class="slds-col slds-order_3">
+                    <lightning:button class="slds-grid_align-center" disabled="{!v.isdisabled3}" variant="neutral" label="Retrieve Draft" title="Retrieve Draft" onclick="{! c.retrieveDraft}"/>					    		    		 	
+                </div>
+			</div>  
+      
+     </div> 
+</aura:component>

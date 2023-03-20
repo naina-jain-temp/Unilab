@@ -1,0 +1,93 @@
+<!-- sldsValidatorIgnore -->
+<template>
+  <lightning-card style="text-align:center;">
+    <lightning-quick-action-panel>
+      <template if:true={showLoadingSpinner}>
+          <div style="z-index: 10000 !important;">
+              <lightning-spinner alternative-text="Uploading......" size="medium" style="z-index: 10000 !important;"></lightning-spinner>
+          </div>
+      </template>
+      <lightning-card>
+          <div if:false={showDownloadButtons}>
+              <b>Upload CSV File</b>
+              <lightning-input name="file uploader"  onchange={handleUploadFinished} type="file" multiple></lightning-input>
+               <div class="slds-text-body_small slds-text-color_error">&nbsp;&nbsp;{fileName}</div>
+             <lightning-button  class="slds-m-top--large"  onclick={handleUpload} label="Upload" variant="brand" disabled={isTrue}></lightning-button>   
+          </div>
+          <div if:true={showDownloadButtons}>
+            <lightning-button icon-name="utility:download" 
+            label="View Success"
+            title="Download CSV File"
+            onclick={getSuccessData} class="slds-m-right--large" variant="brand">
+          
+          </lightning-button>
+          <span class="slds-badge slds-theme_success"  style="position: absolute;left: 15.5rem;top: 0.5rem;">{successCount}</span>
+
+            <lightning-button icon-name="utility:download" 
+            label="View Error"
+            title="Download CSV File"
+            onclick={getFailedData} variant="brand"></lightning-button>
+            <span class="slds-badge slds-theme_error"  style="position: absolute;left: 25rem;top: 0.5rem;">{failureCount}</span>
+          </div>
+      </lightning-card>
+      <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+      </template>
+    </lightning-quick-action-panel>
+</lightning-card>
+<!--
+<template if:true={showModal}>
+  <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal-medium" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+      <div class="slds-modal__container">
+        <div class="slds-modal__content slds-p-around_medium">
+          <p>{message}</p>
+        </div>
+<lightning-card>
+  <template if:true={showLoadingSpinner1}>
+    <div style="z-index: 10000 !important;">
+        <lightning-spinner alternative-text="Uploading......" size="medium" style="z-index: 10000 !important;"></lightning-spinner>
+    </div>
+</template>-->
+ <!-- <fieldset class="slds-form-element slds-has-error">
+     comment this card <lightning-card>
+          <div style="width: auto;">
+              <template if:true={data}>
+                      <lightning-datatable
+                              data={data}
+                              columns={columns}   
+                              hide-checkbox-column="false"
+                              key-field="id">
+                      </lightning-datatable>
+              </template>
+          </div>
+      </lightning-card> comment this card
+      &nbsp;&nbsp;<b>Operation Successfully Completed</b><br><br><div class="slds-grid slds-gutters"><br>
+          <div class="slds-col slds-size_2-of-4">
+            <span>
+              &nbsp;&nbsp;&nbsp;&nbsp;<lightning-button icon-name="utility:download" 
+              label="View Success"
+              title="Download CSV File"
+              onclick={downloadCSVFile} variant="brand"></lightning-button>
+            </span>
+          </div>
+          <div class="slds-col slds-size_2-of-4">
+            <span>
+              <lightning-button icon-name="utility:download" 
+              label="View Error"
+              title="Download CSV File"
+              onclick={downloadCSVFile1} variant="brand"></lightning-button>
+            </span>
+          </div>
+        </div><br>    
+  </fieldset>
+<footer class="slds-modal__footer">
+  <lightning-button variant="neutral" label="Close" title="Close" onclick={closeModal}
+      class="slds-m-left_x-small"></lightning-button>
+</footer>
+</lightning-card>
+</div>
+</section>
+<div class="slds-backdrop slds-backdrop_open"></div>
+</template> -->
+
+</template>

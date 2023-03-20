@@ -1,0 +1,40 @@
+<aura:component controller="RFCMApprovalProcessController" implements="force:lightningQuickActionWithoutHeader,force:hasRecordId">
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="resp" type="RFCMApprovalProcessController.RFCMApprovalProcessResponse"/>
+    <aura:attribute name="showForm" type="boolean" default="true" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{!v.showForm}">
+        <aura:if isTrue="{! v.resp.errorFlag == false}">
+            <div class="slds-grid slds-grid_vertical">
+                <div class="slds-col">
+                    <span style="font-weight: 500;font-size: medium;"> Please be sure to review the current RFCM record before initiating the approval process.</span>
+                </div>
+                <div class="slds-col">
+                    &nbsp;
+                </div>
+                <div class="slds-col">
+                    <lightning:button variant="brand" label="Submit for Approval" title="Submit for Approval" onclick="{! c.handleSubmit }" />
+                </div>
+                <div class="slds-col">
+                    &nbsp;
+                </div>
+                <div class="slds-col">
+                    <span> Note: RFCM record will be locked once submitted for approval.</span>
+                </div>
+                
+            </div>
+            <aura:set attribute="else">
+                <div class="slds-grid slds-grid_vertical">
+                    <div class="slds-col">
+                        <span style="font-size: medium;font-weight: 600;"> {! v.resp.message}  </span>
+                    </div>
+                </div>
+                
+            </aura:set> 
+        </aura:if>
+        
+    </aura:if>
+</aura:component>

@@ -1,0 +1,5 @@
+<apex:page standardController="Account">
+<apex:map width="300px" height="110px" mapType="roadmap" zoomLevel="12" center="{latitude:{!Account.Latitude__c},longitude:{!Account.Longitude__c}}">
+<apex:mapMarker title="{!Account.Name}" position="{latitude:{!Account.Latitude__c},longitude:{!Account.Longitude__c}}"/>
+</apex:map>
+</apex:page>

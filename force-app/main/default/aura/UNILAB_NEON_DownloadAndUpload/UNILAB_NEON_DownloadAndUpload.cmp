@@ -1,0 +1,135 @@
+<aura:component controller="UNILAB_NEON_DownloadAndUpload" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    
+    <aura:attribute name="itemCode" type="String" default=""/>
+    <aura:attribute name="isModalOpen" type="boolean" default="true"/>
+    <aura:attribute name="disabledBtn" type="boolean" default="false"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="errmsgModal" type="boolean" default="false"/>
+    <aura:attribute name="options" type="List" default="[
+                                                        { 'value': 'Head Office', 'label': 'Total' },
+                                                        { 'value': 'Total', 'label': 'Nomination' }
+                                                        ]"/>
+    <aura:attribute name="accountType" type="String" default="Head Office"/>
+    <aura:attribute name="accountTypeLabel" type="String"/>
+    <aura:attribute name="accountData" type="Object[]"/>
+    <aura:attribute name="ispStatus" type="List"/>
+    
+    <aura:attribute name="showcard" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    
+    <lightning:navigation aura:id="navService"/>
+ 
+    <aura:if isTrue="{!v.isModalOpen}">        
+        <!-- Modal/Popup Box starts here-->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                 aria-modal="true" aria-describedby="modal-content-id-1" 
+                 class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box Header Starts here-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeModal }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h1 class="slds-text-heading_medium slds-hyphenate">Account Type</h1>
+                </header>
+                <!--Modal/Popup Box Body Starts here-->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning:radioGroup name="radioGroup"
+                                          label="Select Account Type"
+                                          options="{! v.options }"
+                                          value="{! v.accountType }"
+                                          type="radio"
+                                          />
+                </div>
+                <!--Modal/Popup Box Footer Starts here-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral"
+                                      label="Cancel"
+                                      title="Cancel"
+                                      onclick="{! c.closeModal }"/>
+                    <lightning:button variant="brand"
+                                      label="OK"
+                                      title="OK"
+                                      onclick="{!c.nextToModal}"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    <aura:if isTrue="{!v.errmsgModal}">
+        <!-- Modal/Popup Box starts here-->
+        <section role="dialog" tabindex="-3" aria-labelledby="modal-heading-01" 
+                 aria-modal="true" aria-describedby="modal-content-id-1" 
+                 class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box Header Starts here-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeErrModal }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h1 class="slds-text-heading_medium slds-hyphenate">Item Code</h1>
+                </header>
+                <!--Modal/Popup Box Body Starts here-->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <p>Not Yet Available in New Product List, please contact your NPD Task Force Lead.</p>
+                </div>
+                <!--Modal/Popup Box Footer Starts here-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral"
+                                      label="OK"
+                                      title="OK"
+                                      onclick="{! c.closeErrModal }"/>
+                </footer>
+            </div>
+        </section>
+    </aura:if>
+    <aura:if isTrue="{!v.showSpinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="12" padding="around-small">
+            <article class="slds-card">
+                <div class="slds-grid slds-wrap">
+                    <!--<div class="slds-col slds-size_5-of-12 slds-m-bottom_medium slds-m-left_medium">
+                        <c:CustomLookup objectName="Product2" fieldName="Item_Code__c" 
+                                        label="Item Code" value="{! v.itemCode }" 
+                                        iconName="standard:product" placeholder="Enter Value" />
+                    </div>-->
+                    <div class="slds-col slds-size_12-of-12 slds-m-right_medium slds-m-left_medium slds-border_bottom" style="height:5rem" >
+                        
+                        <div class="slds-align_absolute-center">
+                            <lightning:button variant="brand" label="{! 'IS Plan Template Type: ' + v.accountTypeLabel }" title="Download" 
+                                          onclick="{! c.downloadOnClick }" iconName="utility:download" 
+                                          iconPosition="left" disabled="{! v.disabledBtn }" />
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-m-around_medium">
+                        <!--<input type="file" class="file" aura:id="file" onchange="{!c.showfiledata}"/>-->
+                        <input type="file" class="file slds-align_absolute-center"
+                               style="height:3rem" aura:id="file" accept=".csv" disabled="{! v.disabledBtn }"/>
+                        
+                        <lightning:button label="Upload" onclick="{!c.CreateRecord}" disabled="{! v.disabledBtn }"
+                                          class="slds-button slds-button--brand slds-align_absolute-center" 
+                                          iconName="utility:upload" iconPosition="left"/>
+                        <aura:if isTrue = "{!v.showcard}">
+                            <lightning:card>
+                                <div id="divCSV">
+                                </div>  
+                            </lightning:card>
+                        </aura:if>
+                    </div>
+                </div>
+            </article>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

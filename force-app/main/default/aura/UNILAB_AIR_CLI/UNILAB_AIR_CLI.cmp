@@ -1,0 +1,102 @@
+<aura:component controller="UNILAB_AIR_CLI"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="PageHeading" type="String" default="New Record"/>
+    
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="keyField" type="List"/>
+    <aura:attribute name="journal" type="String"/>
+    <aura:attribute name="currentEventId" type="String"/>
+    <aura:attribute name="withoutRec" type="Boolean" default="{!not(empty(v.currentEventId)) ? false : true}"/>
+    
+    <aura:attribute name="mydata2" type="Object"/>
+    <aura:attribute name="mycolumns2" type="List"/>
+    <aura:attribute name="keyField2" type="List"/>
+    
+    <aura:attribute name="mydata3" type="Object"/>
+    <aura:attribute name="mycolumns3" type="List"/>
+    <aura:attribute name="keyField3" type="List"/>
+    <aura:attribute name="disclaimer" type="String" default="CLI data extract for" />
+    <aura:attribute name="disclaimer2" type="String" default="MT is as of" />
+    <aura:attribute name="disclaimer3" type="String" default="and for" />
+    <aura:attribute name="disclaimer4" type="String" default="Other Channels is as of" />
+    <aura:attribute name="disclaimer5" type="String" default="Coordinate with your credit analysts for any clarifications on CLI data." />
+    
+    <aura:attribute name="defaultRows" type="List" default="[]" description="reset selected rows..." />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Collection Summary
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div style="max-height: 300px;">
+        <aura:iteration items="{!v.mydata3}" var="cd">
+            <div class="slds-text-body_small slds-p-left_small slds-p-right_small" title="CLI Disclaimer">
+               <p style="display: flex;flex-wrap: wrap;">&#128204;
+               {! v.disclaimer }&nbsp;
+               <strong>{! v.disclaimer2 }</strong>&nbsp;
+               <lightning:formattedDateTime value="{!cd.mt__c}" style="font-weight: bold;text-decoration: underline;color:#CC0000"/>&nbsp;
+               {! v.disclaimer3 }&nbsp;
+               <strong>{! v.disclaimer4 }</strong>&nbsp;
+               <lightning:formattedDateTime value="{!cd.other_channel__c}" style="font-weight: bold;text-decoration: underline;color:#CC0000"/>&nbsp;
+               {! v.disclaimer5 }</p>
+                
+            </div>
+        </aura:iteration>
+        
+    </div>
+    <br />
+    <div style="slds-form-element max-height: 300px">
+        <lightning:datatable data="{! v.mydata }" 
+                             columns="{! v.mycolumns }" 
+                             keyField="Id" 
+                             onrowselection="{! c.handleRowAction }"
+                             hideCheckboxColumn ="{! v.withoutRec }"
+                             selectedRows="{!v.defaultRows}" />
+    </div>
+    <br/>
+    <div class="slds-form-element">
+        <div class="slds-m-top--xx-small">
+            <div class="slds-page-header">
+                <div class="slds-align--absolute-left">
+                    <div class="slds-text-heading--small">       
+                        Journal Box
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-form-element__control">
+            <lightning:textarea name="txtJournal" value="{! v.journal }" disabled="{! v.withoutRec }"  placeholder="Write a Learnings and Insights..."/>
+        </div>
+    </div> 
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <lightning:button variant="brand" label="Save" onclick="{!c.SaveRecord}" disabled="{! v.withoutRec }" />
+    </div>
+    <br/>
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Summary
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <lightning:datatable data="{! v.mydata2 }" 
+                         columns="{! v.mycolumns2 }" 
+                         keyField="Id" 
+                         hideCheckboxColumn ="true"/>
+    <br/>
+</aura:component>

@@ -1,0 +1,8 @@
+<aura:component controller="RFCMGenerateCSVController" implements="force:hasRecordId,flexipage:availableForAllPageTypes">
+    <aura:attribute name="recordId" type="String" />
+	
+    <div>
+      <lightning:button variant="brand" label="Generate CSV" title="Generate CSV" onclick="{! c.createCSVFromButton }" />  
+    </div>
+    
+</aura:component>

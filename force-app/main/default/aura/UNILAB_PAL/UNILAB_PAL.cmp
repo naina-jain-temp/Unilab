@@ -1,0 +1,1424 @@
+<aura:component controller="UNILAB_PAL_Controller" implements="force:appHostable,lightning:actionOverride,force:hasRecordId,flexipage:availableForAllPageTypes" >    
+    
+    <!-- CUSTOM DATA TABLE -->
+    <aura:attribute name="updatedListOfAccounts" type="List" />
+	<aura:attribute name="listOfAllAccounts" type="List"/> 
+    <aura:attribute name="PaginationList" type="List"/> 
+    <aura:attribute name="selectedCount" type="Integer" default="0"
+                    description="Selected Records Count"/>
+    <aura:attribute name="startPage" type="Integer" />
+    <aura:attribute name="endPage" type="Integer"/>
+    <aura:attribute name="totalRecordsCount" type="Integer"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"
+                    description="number of records to be display on per page"/>
+    <aura:attribute name="currentPage" type="Integer" default="1"/>
+    <aura:attribute name="totalPagesCount" type="Integer"/>
+    <aura:attribute name="bNoRecordsFound" type="Boolean"/>
+    <aura:attribute name="recordLoaded" type="Boolean" default="true" />
+    
+    <!-- ALLOCATION RECORD ID -->
+    <aura:attribute name="recordId" type="Id" /><!-- default="a0Gp0000002tQLpEAM"-->
+    <aura:attribute name="allocRec" type="Allocation__c"/>
+    <aura:attribute name="palConfigData" type="Object" />
+    <aura:attribute name="accAllocations" type="List" />
+    <ltng:require styles="{!$Resource.PAL_multilineToastCSS}" />
+
+	<!-- Temporary Handler of Lists per Object -->
+    <aura:attribute name="apiParamRec" type="Object" />
+    <aura:attribute name="accAllocationsForInsertion" type="List" />
+    <aura:attribute name="tempAllocations" type="List" />
+    
+    <!-- Used if Data is still retrieving from the API -->
+    <aura:attribute name="ProcessingData" type="Boolean" default="true" /> <!-- Set default value to true -->
+    
+    <aura:attribute name="objInfo" type="Allocation__c" default="{sObjectType : 'Allocation__c'}" />
+    <aura:attribute name="ObjectName" type="String" default="Allocation__c" access="global"/> <!-- Object Name as String-->
+    <!-- Date Today -->
+    <aura:attribute name="dateToday" type="Date" />
+    
+    <!-- FOR DISABLING FIELDS -->
+    <aura:attribute name="isDraft" type="Boolean" default="true" />
+    <aura:attribute name="isDisabled" type="Boolean" default="false" />
+    <aura:attribute name="disableGenerateActions" type="Boolean" default="false" />
+    
+    <!-- ERROR HANDLING -->
+    <aura:attribute name="hasError" type="Boolean" default="false" />
+    <aura:attribute name="listOfAllocError" type="List" />
+    
+    <!-- PAGE LOAD -->    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <!-- USER INFO -->
+    <aura:attribute name="userInfo" type="User"/> 
+    
+    <!-- PROGRESS INDICATOR -->    
+    <aura:attribute name="currentStep" type="String" default="1" />
+    
+    <!-- MEASURE TYPE (CHECKBOX GROUP) -->
+    <aura:attribute name="measureTypeOptions" type="List" default="[{'label': 'Sell-in', 'value': 'sellIn'},
+                                                                   {'label': 'Sell-out', 'value': 'sellOut'},
+                                                                   {'label': 'Ending Inventory', 'value': 'endingInventory'}
+                                                                   ]"/>    
+    <aura:attribute name="measureTypeValue" type="List" />
+    <aura:attribute name="measureTypeLabel" type="String" />
+    <aura:attribute name="SIdisable" type="Boolean" default="false"/>
+    <aura:attribute name="SOdisable" type="Boolean" default="false"/>
+    <aura:attribute name="sellInVal" type="Boolean" default="false"/>
+    <aura:attribute name="openModal" type="Boolean" default="false"/>
+    <aura:attribute name="editAddModal" type="Boolean" default="false"/>
+    
+    <!-- MEASURE TYPE (DATA CONSTRAINT SECTION ENABLER) -->
+    <aura:attribute name="measureTypeHasValue" type="Boolean" default="false"/>
+    <aura:attribute name="enabledSellInDataType" type="Boolean" default="false"/>
+    <aura:attribute name="enabledSellOutDataType" type="Boolean" default="false"/>
+    <aura:attribute name="enabledEndingInventoryDataType" type="Boolean" default="false"/>
+    
+    <!-- SELECT CHANNELS TO INCLUDE (DUAL LISTBOX) -->
+    <aura:attribute name="selectChannelsValues" type="String" />
+    
+    <!-- SELL IN DATA TYPE (DUAL LISTBOX)-->
+    <aura:attribute name="sellInDataTypePicklist" type="String[]" />
+    
+    <!-- SELL OUT DATA TYPE (DUAL LISTBOX)-->
+    <aura:attribute name="sellOutDataTypePicklist" type="String[]" />
+    
+    <!-- ENDING INVENTORY DATA TYPE (COMBOBOX) -->
+    <aura:attribute name="endingInventoryDataTypePicklist" type="String[]" />
+    
+     <!-- ENDING INVENTORY MEASURE LEVEL -->
+    <aura:attribute name="endingInventoryMeasureLevelPicklist" type="String[]" />
+    
+    <!-- OPERATOR (COMBOBOX) -->
+    <aura:attribute name="endingInventoryOperatorPicklist" type="String[]" />
+    
+    <!-- FREQUENCY OF VISIT (COMBOBOX) -->
+    <aura:attribute name="frequencyOfVisitPicklist" type="String[]" />
+    <!-- ALONG NATIONAL HIGHWAY OR RESIDENTIAL (COMBOBOX) -->
+    <aura:attribute name="alongNationalHighwayResidentialPicklist" type="String[]" />
+    
+    <!-- ACCOUNT STATUS (COMBOBOX) -->
+    <aura:attribute name="accountStatusPicklist" type="String[]" />
+    
+    <!-- ACCOUNT CRITERIAS (ACCORDION OPEN SECTION) --> 
+    <aura:attribute name="accountCriteriaAccordion" type="List" />
+    
+    <!-- STORE FORMAT (COMBOBOX) -->
+    <aura:attribute name="storeFormatPicklist" type="String[]" />
+    
+    <!-- RPS ACCOUNT CLASS (COMBOBOX) -->
+    <aura:attribute name="rpsAccountClassPicklist" type="String[]" />
+    <aura:attribute name="rpsAccountList" type="Object" />
+    
+    <aura:attribute name="withTPACoverage" type="Boolean" default="false" />
+    <aura:attribute name="withLampCoverage" type="Boolean" default="false" />
+    
+    <!-- TREE GRID -->
+    <aura:attribute name="gridColumns" type="List"  />
+    <aura:attribute name="gridData" type="Object" default="[]"/>
+    <aura:attribute name="gridExpandedRows" type="Object" />
+    <aura:attribute name="currentExpandedRows" type="String" />    
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="errors" type="Object" default="[]"/>
+    <aura:attribute name="draftValues" type="Object" default="[]"/>
+    <aura:attribute name="selectedRows" type="List" default="[]"/>
+    <aura:attribute name="updatedRecord" type="Object[]" />
+    <aura:attribute name="accColumns" type="List"  />
+    <aura:attribute name="accData" type="Object"/>
+    <aura:attribute name="selectedAccount" type="List"/>
+    <aura:attribute name="isSaved" type="Boolean"/>
+    <aura:attribute name="totalAccAllocVolume" type="Integer"/>
+    <aura:attribute name="masterData" type="Object" default="[]"/>
+    
+    <!-- ADD EDIT ACCOUNT -->
+    <aura:attribute name="nameList" type="List"/>
+    <aura:attribute name="addedAcc" type="List" default = "[]"/>
+    <aura:attribute name="manual" type="Integer"/>
+    <aura:attribute name="addEdit_DraftValues" type="Object" default="[]"/>
+    
+    <!-- Count data-->
+    <aura:attribute name="totalNumberOfRows" type="Integer" />
+    <aura:attribute name="totalAccountTeam" type="Integer" />
+    <aura:attribute name="totalAccountGroup" type="Integer" />
+    
+    <!-- SEARCH FILTER-->
+    <aura:attribute name="filter" type="String" />
+    <aura:attribute name="backingdata" type="List" />
+    <aura:attribute name="filteredData" type="List" />
+    
+    <!-- ACCOUNT PAGINATION-->
+    <aura:attribute name="page" type="integer" description="using for store page Number"/>
+    <aura:attribute name="pages" type="integer" description="using for store All Pages page Number"/>
+    <aura:attribute name="total" type="integer" description="total records count store "/>
+    <aura:attribute name="alphabetPageList" type="List" />
+    <aura:attribute name="currentAlphabet" type="String" default = "All"/>
+    
+    <!-- MODALS -->
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <aura:attribute name="addModal" type="Boolean" default="false" />
+    <aura:attribute name="deleteModal" type="Boolean" default="false" />
+    <aura:attribute name="editModal" type="Boolean" default="false"/>
+    
+    
+    <!--OverAllocated -->
+    <aura:attribute name="IsOverAllocated" type="boolean" default="false"/>
+    
+    <!--Allocation Status and Input Volume -->
+    <aura:attribute name="allocationStatus" type="String"/>
+    <aura:attribute name="allocationTotalVolume" type="Integer" />
+    
+    <!--Related Promo Name -->
+    <aura:attribute name="promoName" type="String"/>
+    
+    <!--CheckBoxes -->
+    <aura:attribute name="accountTeams" type="boolean" default = "true"/>
+    <aura:attribute name="accountGroups" type="boolean" default = "true"/>
+    
+    <!-- Booleans -->
+    <aura:attribute name="isChildren" type="boolean" default = "true"/>
+    
+    <!-- For Hiding Next Button -->
+    <aura:attribute name="showNextButton" type="Boolean" default="true" />
+
+    <div  style="height: 100%; margin: 0; overflow:auto;">
+        <aura:if isTrue="{!v.spinner}">
+            <c:UNILAB_PAL_Spinner/>
+        </aura:if>
+        <lightning:layout multipleRows="true" verticalAlign="stretch">
+            
+            <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                <div class="slds-card-wrapper">
+                    <article class="slds-card">
+                        <div class="slds-m-left_large slds-m-right_large slds-card__body slds-card__body_inner">
+                            <!-- (START) PROGRESS INDICATOR -->
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem smallDeviceSize="0" mediumDeviceSize="2" largeDeviceSize="3" size="3" flexibility="auto, grow" padding="around-small" />
+                                <lightning:layoutItem smallDeviceSize="12" mediumDeviceSize="8" largeDeviceSize="6" size="6" flexibility="auto, grow" padding="around-small">
+                                    <lightning:progressIndicator currentStep="{! v.currentStep }" type="path" variant="base">
+                                        <lightning:progressStep label="Setup" value="1" onclick="{! c.goToSection1 }" />
+                                        <lightning:progressStep label="Generate" value="2" onclick="{! c.goToSection2 }" />
+                                        <lightning:progressStep label="Export" value="3" onclick="{! c.goToSection3 }" />
+                                    </lightning:progressIndicator>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem smallDeviceSize="0" mediumDeviceSize="2" largeDeviceSize="3" size="3" flexibility="auto, grow" padding="around-small" />
+                            </lightning:layout>
+                            <!-- (END) PROGRESS INDICATOR -->
+                            <!-- (START) SETUP -->
+                            <aura:if isTrue="{! v.currentStep == '1' }">
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                        <article class="slds-card slds-card_boundary">
+                                            <div class="slds-card__body slds-card__body_inner">
+                                                <div class="slds-p-top_small" />
+                                                
+                                                <!-- (START) HEADER -->
+                                                <div class="slds-card__header slds-grid">
+                                                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                                        <div class="slds-media__figure">
+                                                            <span class="slds-icon_container slds-icon-standard-action_list_component">
+                                                                <lightning:icon class="setupHeader" iconName="standard:action_list_component" size="medium" />
+                                                            </span>
+                                                        </div>
+                                                        <div class="slds-media__body">
+                                                            <h2 class="slds-card__header-title">
+                                                                <span>
+                                                                    <strong>{!v.allocRec.Promo__r.Promo_Name__c}</strong>
+                                                                </span>
+                                                            </h2>
+                                                            <p>
+                                                                Allocation Setup
+                                                                <lightning:helptext content="Help!" />
+                                                            </p>
+                                                        </div>
+                                                        <div class="slds-no-flex">
+                                                            <p>
+                                                                CMD Developer: <strong><span>{!v.userInfo.Name}</span></strong>
+                                                            </p>
+                                                            <p class="slds-float_right">
+                                                                Channel: <strong><span>{!v.allocRec.Channel__c}</span></strong>
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                </div>
+                                                <!-- (END) HEADER -->
+                                                <!-- (START) ALLOCATION INFORMATION -->
+                                                <!-- (START) HEADER -->
+                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                    
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <div class="slds-page-header customHeader">
+                                                            <div class="slds-page-header__row">
+                                                                <div class="slds-page-header__col-title">
+                                                                    <div class="slds-media">
+                                                                        <div class="slds-media__body">
+                                                                            <div class="slds-page-header__name">
+                                                                                <div class="slds-page-header__name-title">
+                                                                                    <h1>
+                                                                                        <span class="slds-page-header__title slds-truncate" 
+                                                                                              title="Allocation Information"
+                                                                                              style="font-size: medium;">
+                                                                                            Allocation Information
+                                                                                        </span>
+                                                                                    </h1>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <!-- (END) HEADER -->
+                                                <!-- (START) BODY -->
+                                                <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                <lightning:input aura:id="inputAllocationVolume"
+                                                                                 required="true"
+                                                                                 type="number" 
+                                                                                 name="inputAllocationVolume"
+                                                                                 label="Input Total Allocation" 
+                                                                                 value="{!v.allocRec.Allocation_Volume__c}"
+                                                                                 onchange="{!c.handleInputAllocation}"
+                                                                                 disabled="{!v.isDisabled}"/>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                <label class="slds-form-element__label">
+                                                                    <abbr class="slds-required" title="required">* </abbr>
+                                                                    <strong>Measure Type</strong>
+                                                                    
+                                                                    
+                                                                </label>
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-checkbox">
+                                                                            <lightning:input aura:id="allocSIMeasureType" type="checkbox" label="Sell-In" name="sellIn" checked="{!v.allocRec.Sell_in__c}" disabled="{!v.SIdisable}" onchange="{!c.handleMeasureTypeChange}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-checkbox">
+                                                                            <lightning:input aura:id="allocSOMeasureType" type="checkbox" label="Sell-Out" name="sellOut" checked="{!v.allocRec.Sell_out__c}" disabled="{!v.SOdisable}" onchange="{!c.handleMeasureTypeChange}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-checkbox">
+                                                                            <lightning:input type="checkbox" label="Ending Inventory" name="endingInventory" checked="{!v.allocRec.Ending_Inventory__c}" disabled="{!v.isDisabled}" onchange="{!c.handleMeasureTypeChange}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </lightning:layoutItem>
+                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                <lightning:input aura:id="allocStartDate"
+                                                                                 type="date"
+                                                                                 required="true"
+                                                                                 name="startDate" 
+                                                                                 label="Start Date"
+                                                                                 value="{!v.allocRec.Start_Date__c}"
+                                                                                 onchange="{!c.handleAllocStartDate}"
+                                                                                 disabled="{!v.isDisabled}"
+                                                                                 />
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                <lightning:input aura:id="allocEndDate"
+                                                                                 type="date"
+                                                                                 required="true"
+                                                                                 name="endDate" 
+                                                                                 label="End Date"
+                                                                                 value="{!v.allocRec.End_Date__c}"
+                                                                                 onchange="{!c.handleAllocEndDate}"
+                                                                                 disabled="{!v.isDisabled}"
+                                                                                 />
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <!-- (END) BODY -->
+                                                <!-- (END) ALLOCATION INFORMATION -->
+                                                
+                                                <!-- (START) DATA CONSTRAINTS -->
+                                                <!-- (START) HEADER -->
+                                                <aura:if isTrue="{!v.measureTypeHasValue}">
+                                                    <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                        <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                            <div class="slds-page-header customHeader">
+                                                                <div class="slds-page-header__row">
+                                                                    <div class="slds-page-header__col-title">
+                                                                        <div class="slds-media">
+                                                                            <div class="slds-media__body">
+                                                                                <div class="slds-page-header__name">
+                                                                                    <div class="slds-page-header__name-title">
+                                                                                        <h1>
+                                                                                            <span class="slds-page-header__title slds-truncate" 
+                                                                                                  title="Allocation Information"
+                                                                                                  style="font-size: medium;">
+                                                                                                Sales and Inventory Measure
+                                                                                            </span>
+                                                                                        </h1>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                        </lightning:layoutItem>
+                                                    </lightning:layout>
+                                                    <!-- (END) HEADER -->
+                                                    <!-- (START) BODY -->
+                                                    <aura:if isTrue="{!v.allocRec.Sell_in__c}"> 
+                                                        <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                
+                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <lightning:radioGroup aura:id="allocSIDataType"
+                                                                                              name="sellInDataType"
+                                                                                              required="true"
+                                                                                              label="Sell-in Data Type"
+                                                                                              value="{!v.allocRec.Sell_in_Data_Type__c}"
+                                                                                              options="{! v.sellInDataTypePicklist }"
+                                                                                              type="button"
+                                                                                              disabled="{!v.isDisabled}"/>
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>
+                                                                
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                        </lightning:layout>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.allocRec.Sell_out__c}"> 
+                                                        <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                
+                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <lightning:radioGroup aura:id="allocSODataType"
+                                                                                              name="sellOutDataType"
+                                                                                              required="true"
+                                                                                              label="Sell-out Data Type"
+                                                                                              value="{!v.allocRec.Sell_out_Data_Type__c}"
+                                                                                              options="{! v.sellOutDataTypePicklist }"
+                                                                                              type="button"
+                                                                                              disabled="{!v.isDisabled}"/>
+                                                                        
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>
+                                                                
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                        </lightning:layout>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.enabledEndingInventoryDataType}">
+                                                        <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                
+                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <div class="slds-form-element__label slds-form-element__legend">
+                                                                            ENDING INVENTORY DATA TYPE
+                                                                        </div>
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>                                                                 
+                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="4" flexibility="auto, grow" padding="horizontal-small">
+                                                                        <div class="slds-align_absolute-center">
+                                                                            <lightning:combobox aura:id="eIDataType"
+                                                                                                name="dataType"
+                                                                                                required="true"
+                                                                                                label="Data Type"
+                                                                                                placeholder="Select a Data Type"
+                                                                                                value="{!v.allocRec.Ending_Inventory_Data_Type__c}"
+                                                                                                options="{! v.endingInventoryDataTypePicklist }"
+                                                                                                disabled="{!v.isDisabled}"
+                                                                                                onchange="{!c.handleEndingInventoryDataTypeChange}"/>
+                                                                        </div>
+                                                                    </lightning:layoutItem>
+                                                                    <lightning:layoutItem size="4" flexibility="auto, grow" padding="horizontal-small">
+                                                                        <div class="slds-align_absolute-center">
+                                                                            <lightning:combobox aura:id="eIOperator"
+                                                                                                name="operator"
+                                                                                                required="true"
+                                                                                                label="Operator"
+                                                                                                placeholder="Select an Operator"
+                                                                                                value="{!v.allocRec.Ending_Inventory_Operator__c}"
+                                                                                                options="{! v.endingInventoryOperatorPicklist }"
+                                                                                                disabled="{!v.isDisabled}"
+                                                                                                onchange="{!c.handleEndingInventoryOperatorChange}"/>
+                                                                        </div>
+                                                                    </lightning:layoutItem>
+                                                                    <lightning:layoutItem size="4" flexibility="auto, grow" padding="horizontal-small">
+                                                                        <div class="slds-align_absolute-center">
+                                                                            <lightning:input aura:id="eIValue"
+                                                                                             type="number"
+                                                                                             step="0.01"
+                                                                                             name="value"
+                                                                                             required="true"
+                                                                                             label="Value" 
+                                                                                             value="{!v.allocRec.Ending_Inventory_Value__c}"
+                                                                                             disabled="{!v.isDisabled}"
+                                                                                             onchange="{!c.handleEndingInventoryValueChange}"/>
+                                                                        </div>
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>  
+                                                                
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                        </lightning:layout>
+                                                        
+                                                        
+                                                         <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                            <lightning:layoutItem size="3" flexibility="auto, grow" padding="around-small" />
+                                                            <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                            
+                                                             <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small">
+                                                                          <div class="slds-align_absolute-center">
+                                                                        <lightning:radioGroup aura:id="allocEIMeasureLevel"
+                                                                                              name="endingInventoryMeasureLevel"
+                                                                                              required="true"
+                                                                                              label="Ending Inventory Measure Level"
+                                                                                              value="{!v.allocRec.Ending_Inventory_Measure_Level__c}"
+                                                                                              options="{! v.endingInventoryMeasureLevelPicklist }"
+                                                                                              type="button"
+                                                                                              disabled="{!v.isDisabled}"/>
+                                                                         </div>
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>                                                                  
+                                                             </lightning:layoutItem>
+                                                             
+                                                        </lightning:layout>
+                                                        
+                                                        
+                                                        
+                                                    </aura:if>
+                                                </aura:if>
+                                                <!-- (END) BODY -->
+                                                <!-- (END) DATA CONSTRAINTS -->
+                                                
+                                                <!-- (START) ACCOUNT CRITERIAS -->
+                                                <!-- (START) HEADER -->
+                                                
+                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <div class="slds-page-header customHeader">
+                                                            <div class="slds-page-header__row">
+                                                                <div class="slds-page-header__col-title">
+                                                                    <div class="slds-media">
+                                                                        <div class="slds-media__body">
+                                                                            <div class="slds-page-header__name">
+                                                                                <div class="slds-page-header__name-title">
+                                                                                    <h1>
+                                                                                        <span class="slds-page-header__title slds-truncate" 
+                                                                                              title="Allocation Information"
+                                                                                              style="font-size: medium;">
+                                                                                            Account Criteria
+                                                                                        </span>
+                                                                                    </h1>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <!-- (END) HEADER -->
+                                                <!-- (START) BODY -->
+                                                
+                                                <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                    <aura:if isTrue="{!v.palConfigData.CONF_Frequency_of_Visit__c}">
+                                                        <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                            
+                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small" />
+                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                    <lightning:combobox name="frequencyOfVisit" 
+                                                                                        label="Frequency of Visit" 
+                                                                                        value="{!v.allocRec.Frequency_of_Visit__c}"
+                                                                                        options="{! v.frequencyOfVisitPicklist }"
+                                                                                        disabled="{!v.isDisabled}"/>
+                                                                </lightning:layoutItem>
+                                                            </lightning:layout>
+                                                            
+                                                        </lightning:layoutItem>
+                                                        
+                                                        
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.palConfigData.CONF_Account_Status__c}">
+                                                        
+                                                        
+                                                        <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                            
+                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                    <lightning:combobox name="accountStatus" 
+                                                                                        label="Account Status" 
+                                                                                        value="{!v.allocRec.Account_Status__c}"
+                                                                                        options="{! v.accountStatusPicklist }"
+                                                                                        disabled="{!v.isDisabled}"/>
+                                                                </lightning:layoutItem>
+                                                            </lightning:layout>
+                                                            
+                                                        </lightning:layoutItem>
+                                                        
+                                                    </aura:if>
+                                                </lightning:layout>
+                                                
+                                                <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <lightning:accordion class="customAccordionCSS" allowMultipleSectionsOpen="true"
+                                                                             activeSectionName="{! v.accountCriteriaAccordion }">
+                                                            <!-- (START) ACCOUNT NEARBY CRITERIAS -->
+                                                            <lightning:accordionSection name="accountNearbyCriterias" label="Account Nearby Criterias">
+                                                                
+                                                                <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <div class="slds-float_right">
+                                                                            <ul class="slds-float_right">
+                                                                                <li>
+                                                                                    <aura:if isTrue="{!v.palConfigData.CONF_Along_National_Highway_Residential__c}">
+                                                                                        <lightning:combobox name="alongNationalHighway" 
+                                                                                                            label="Along National Highway/Residential?"
+                                                                                                            value="{!v.allocRec.Along_National_Highway_Residential__c}" 
+                                                                                                            options="{! v.alongNationalHighwayResidentialPicklist }"
+                                                                                                            disabled="{!v.isDisabled}"/>
+                                                                                    </aura:if>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_a_Generics_Drugstore__c}">
+                                                                                                <lightning:input type="toggle" disabled="{!v.isDisabled}" label="Near a Generics Drugstore?" name="nearAGenericDrugstore" checked="{!v.allocRec.Near_a_Generics_Drugstore__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label> 
+                                                                                    </div>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_or_Within_a_Supermarket__c}">
+                                                                                                <lightning:input type="toggle" label="Near or Within a Supermarket?" name="nearOrWithinASupermarket" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_or_Within_a_Supermarket__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Mall_Based__c}">
+                                                                                                <lightning:input type="toggle" label="Mall-Based?" name="mallBased" disabled="{!v.isDisabled}" checked="{!v.allocRec.Mall_Based__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_Transport_Terminal__c}">
+                                                                                                <lightning:input type="toggle" label="Near Transport Terminal?" name="nearTransportTerminal" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_Transport_Terminal__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_a_Pre_School__c}">
+                                                                                                <lightning:input type="toggle" label="Near a Pre-School?" name="nearAPreSchool" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_a_Pre_School__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_a_University_College__c}">
+                                                                                                <lightning:input type="toggle" label="Near a University(College)?" name="nearAUniversity" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_a_University_College__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                        
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </lightning:layoutItem>
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <div class="slds-float_left">
+                                                                            <ul class="slds-float_left">
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_medium">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_Other_Drugstores__c}">
+                                                                                                <lightning:input type="toggle" label="Near Other Drugstores?" name="nearOtherDrugstores" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_Other_Drugstores__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Fronting_Near_Hospital__c}">
+                                                                                                <lightning:input type="toggle" label="Fronting/Near Hospital?" name="frontingNearHospital" disabled="{!v.isDisabled}" checked="{!v.allocRec.Fronting_Near_Hospital__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_Clinic__c}">
+                                                                                                <lightning:input type="toggle" label="Near Clinic?" name="nearClinic" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_Clinic__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_Public_Market__c}">
+                                                                                                <lightning:input type="toggle" label="Near Public Market?" name="nearPublicMarket" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_Public_Market__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_Offices__c}">
+                                                                                                <lightning:input type="toggle" label="Near Offices?" name="nearOffices" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_Offices__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_a_Grade_High_School__c}">
+                                                                                                <lightning:input type="toggle" label="Near a Grade/High School?" name="nearAGradeHighSchool" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_a_Grade_High_School__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>                                                                    
+                                                                                <li>
+                                                                                    <div class="floatRight slds-p-top_small">
+                                                                                        <label class="slds-checkbox_toggle slds-grid">
+                                                                                            <aura:if isTrue="{!v.palConfigData.CONF_Near_a_Call_Center__c}">
+                                                                                                <lightning:input type="toggle" label="Near a Call Center?" name="nearACallCenter" disabled="{!v.isDisabled}" checked="{!v.allocRec.Near_a_Call_Center__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                            </aura:if>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>                                                     
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>
+                                                            </lightning:accordionSection>
+                                                            <!-- (END) ACCOUNT NEARBY CRITERIAS -->
+                                                            <!-- (START) OTHERS -->
+                                                            <lightning:accordionSection name="others" label="Others">
+                                                                <lightning:layout class="slds-m-left_large slds-m-right_large" multipleRows="true" verticalAlign="stretch">
+                                                                    
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <aura:if isTrue="{!v.palConfigData.CONF_Store_Physical_Size__c}">
+                                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small" />
+                                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                                    <lightning:input name="storePhysicalSize"
+                                                                                                     label="Store Physical Size" 
+                                                                                                     value="{!v.allocRec.Store_Physical_Size__c}"
+                                                                                                     
+                                                                                                     disabled="{!v.isDisabled}" />
+                                                                                </lightning:layoutItem>
+                                                                            </lightning:layout>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!v.palConfigData.CONF_Self_Service_Floor_Area__c}">
+                                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                
+                                                                                <lightning:layoutItem size="4" flexibility="auto, grow" padding="around-small" />
+                                                                                
+                                                                                
+                                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                                    <lightning:input name="selfServiceFloorArea"
+                                                                                                     label="Self-Service Floor Area" 
+                                                                                                     value="{!v.allocRec.Self_Service_Floor_Area__c}"
+                                                                                                     
+                                                                                                     disabled="{!v.isDisabled}" />
+                                                                                </lightning:layoutItem>
+                                                                            </lightning:layout>
+                                                                        </aura:if>
+                                                                    </lightning:layoutItem>
+                                                                    <lightning:layoutItem size="6" flexibility="auto, grow" padding="around-small">
+                                                                        <aura:if isTrue="{!v.palConfigData.CONF_Store_Format__c}">
+                                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                                    <lightning:combobox name="storeFormat" 
+                                                                                                        label="Store Format"
+                                                                                                        placeholder="Select Store Format" 
+                                                                                                        value="{!v.allocRec.Store_Format__c}"
+                                                                                                        options="{! v.storeFormatPicklist }"
+                                                                                                        disabled="{!v.isDisabled}" />
+                                                                                </lightning:layoutItem>
+                                                                            </lightning:layout>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!v.palConfigData.CONF_RPS_Account_Class__c}">
+                                                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                                    <lightning:combobox name="rpsAccountClass" 
+                                                                                                        label="RPS Account Class"
+                                                                                                        placeholder="Select RPS Account Class" 
+                                                                                                        value="{!v.allocRec.RPS_Account_Class__c}"
+                                                                                                        options="{! v.rpsAccountClassPicklist }"
+                                                                                                        disabled="{!v.isDisabled}" />
+                                                                                </lightning:layoutItem>
+                                                                            </lightning:layout>
+                                                                        </aura:if>
+                                                                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                            <lightning:layoutItem size="8" flexibility="auto, grow" padding="around-small">
+                                                                                <div class="slds-p-top_medium" />
+                                                                                <aura:if isTrue="{!or(v.withTPACoverage,v.palConfigData.CONF_With_TPA_Coverage__c)}">
+                                                                                    <label class="slds-checkbox_toggle slds-grid">
+                                                                                        
+                                                                                        <lightning:input type="toggle" label="With TPA Coverage" name="withTPACoverage" disabled="{!v.isDisabled}" checked="{!v.allocRec.With_TPA_Coverage__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                        
+                                                                                    </label>
+                                                                                </aura:if>
+                                                                                <aura:if isTrue="{!or(v.withLampCoverage,v.palConfigData.CONF_With_Lamp_Coverage__c)}">
+                                                                                    <label class="slds-checkbox_toggle slds-grid">
+                                                                                        <lightning:input type="toggle" label="With Lamp Coverage" name="withLampCoverage" disabled="{!v.isDisabled}" checked="{!v.allocRec.With_Lamp_Coverage__c}" messageToggleActive="Enabled" messageToggleInactive="Disabled"/>
+                                                                                        
+                                                                                    </label>
+                                                                                </aura:if>
+                                                                            </lightning:layoutItem>
+                                                                        </lightning:layout>
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>
+                                                            </lightning:accordionSection>
+                                                            <!-- (END) OTHERS -->
+                                                        </lightning:accordion>
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <!-- (END) BODY -->
+                                                <!-- (END) ACCOUNT CRITERIAS -->
+                                                
+                                            </div>
+                                        </article>
+                                        <div class="slds-p-bottom_small" />
+                                        <aura:if isTrue="{!v.showNextButton}">
+                                            <div class="slds-align_absolute-center">
+                                                <aura:if isTrue="{!v.isDraft}">
+                                                    <lightning:button variant="brand"
+                                                                      label="Save as Draft"
+                                                                      onclick="{! c.saveAsDraft }"
+                                                                      value="saveAsDraftButtonClicked"/>
+                                                    
+                                                    <lightning:button variant="brand"
+                                                                      label="Save and Next"
+                                                                      onclick="{! c.goToSection2 }"
+                                                                      value="nextButtonClicked"/>
+                                                </aura:if>
+                                            </div>
+                                        </aura:if>
+                                        
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </aura:if>
+                            <!-- (END) SETUP -->
+                            <!-- (START) GENERATE -->
+                            <aura:if isTrue="{! v.currentStep == '2' }">
+                                <aura:if isTrue="{! v.ProcessingData }">
+                                    <c:UNILAB_PAL_RetrievingDataModal recordId="{!v.recordId}"/>
+                                </aura:if>
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                        <h1 class="slds-align_absolute-center" style="font-size: 1.5rem;">
+                                            <strong>
+                                                Please review the details of the generated data.
+                                            </strong>
+                                        </h1>
+                                        <p class="slds-align_absolute-center" style="font-size: 1.05rem;">
+                                            Click Edit if you want to customize the tagging.
+                                        </p>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                        <div class="slds-page-header slds-page-header_record-home">
+                                            <div class="slds-page-header__row">
+                                                <div class="slds-page-header__col-title">
+                                                    <div class="slds-media">
+                                                        <div class="slds-media__figure">
+                                                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                                                                <span class="slds-icon_container slds-icon-standard-investment_account">
+                                                                    <lightning:icon iconName="standard:investment_account" size="xx-large" />
+                                                                    
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                        <div class="slds-media__body">
+                                                            <div class="slds-page-header__name">
+                                                                <div class="slds-page-header__name-title">
+                                                                    <h1 class="slds-p-bottom_xx-small">
+                                                                        <span class="slds-page-header__title slds-truncate">{!v.allocRec.Promo__r.Promo_Name__c}</span>
+                                                                        <span>
+                                                                            Total Channel Allocation : <lightning:formattedNumber value="{!v.totalAccAllocVolume}"/>/<lightning:formattedNumber value="{!v.allocRec.Allocation_Volume__c}"/>
+                                                                        </span> 
+                                                                    </h1>
+                                                                    <span>
+                                                                        <strong>Status: </strong>
+                                                                        <span class="slds-badge slds-badge_inverse">{!v.allocRec.Status__c}</span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-page-header__col-actions">
+                                                    <div class="slds-page-header__controls">
+                                                        <div class="slds-page-header__control">
+                                                            <ul class="slds-button-group-list">
+                                                                <li>
+                                                                    <lightning:button label="Add" 
+                                                                                      title="Add"
+                                                                                      onclick="{! c.openAddModal }"
+                                                                                      disabled="{!v.disableGenerateActions}"/>
+                                                                </li>
+                                                                <li>
+                                                                    <lightning:button label="Edit" 
+                                                                                      title="Edit" 
+                                                                                      onclick="{!c.openEditModal}"
+                                                                                      disabled="{!v.disableGenerateActions}"/>
+                                                                </li>
+                                                                <div id="editDiv" class="slds-hide">
+                                                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                                                                        <div class="slds-modal__container">
+                                                                            <header class="slds-modal__header">
+                                                                                <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" iconName="utility:close" variant="bare" onclick="{! c.closeEditModal }" alternativeText="Close" />
+                                                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Edit Manual Allocation</h2>
+                                                                            </header>
+                                                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                                                        <!-- Edit Account Table -->
+                                                                                        <lightning:datatable aura:id="EditDataTable"
+                                                                                                             data="{! v.data }"
+                                                                                                             columns="{! v.columns }"
+                                                                                                             keyField="Id"
+                                                                                                             draftValues="{! v.draftValues }"
+                                                                                                             onsave="{!c.saveTable}"
+                                                                                                             oncancel="{!c.cancelTable}"
+                                                                                                             />
+                                                                                        
+                                                                                        <!-- End Edit Account Table -->
+                                                                                    </lightning:layoutItem>
+                                                                                </lightning:layout> 
+                                                                            </div>
+                                                                        </div>
+                                                                    </section>
+                                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                                </div>
+                                                                <div id="errorDiv" class="slds-hide">
+                                                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                                                                        <div class="slds-modal__container">
+                                                                            <header class="slds-modal__header">
+                                                                                <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" iconName="utility:close" variant="bare" onclick="{! c.closeErrorModal }" alternativeText="Close" />
+                                                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Errors</h2>
+                                                                            </header>
+                                                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                                                        <!-- Edit Account Table -->
+                                                                                        <lightning:datatable aura:id="ErrorDataTable"
+                                                                                                             data="{! v.data }"
+                                                                                                             columns="{! v.columns }"
+                                                                                                             keyField="Id"
+                                                                                                             hideCheckboxColumn="true"
+                                                                                                             />
+                                                                                        
+                                                                                        <!-- End Edit Account Table -->
+                                                                                    </lightning:layoutItem>
+                                                                                </lightning:layout> 
+                                                                            </div>
+                                                                        </div>
+                                                                    </section>
+                                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                                </div>
+                                                                <li>
+                                                                    <lightning:button label="Delete" 
+                                                                                      title="Delete" onclick="{!c.openDeleteModal}"
+                                                                                      disabled="{!v.disableGenerateActions}"/>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-page-header__row slds-page-header__row_gutters">
+                                                <div class="slds-page-header__col-details">
+                                                    <ul class="slds-page-header__detail-row">
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Teams">
+                                                                Teams: {!v.totalAccountTeam}
+                                                            </div>
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Account Groups">
+                                                                Account Groups: {!v.totalAccountGroup}
+                                                            </div>
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Accounts in Total" >
+                                                                Accounts in Total: {!v.totalNumberOfRows}
+                                                            </div>
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Table Sort">
+                                                                Table Sort:
+                                                            </div>
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Account Teams">
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-checkbox">
+                                                                            <lightning:input aura:id="accountTeamCheckBox" type="checkbox"
+                                                                                             label="Show Account Teams" checked="{!v.accountTeams}"
+                                                                                             name="accountTeamCheckBox" value="accountTeamCheckBox" onchange="{!c.handleTeamCheck}" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate" title="Account Groups">
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-checkbox">
+                                                                            <lightning:input aura:id="accountGroupCheckBox" type="checkbox"
+                                                                                             label="Show Accounts" checked="{!v.accountGroups}"
+                                                                                             name="accountGroupCheckBox" value="accountGroupCheckBox" onchange="{!c.handleGroupCheck}" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="slds-page-header__detail-block">
+                                                            <div class="slds-text-title slds-truncate">
+                                                                <span class="slds-badge">
+                                                                    <aura:if isTrue="{!v.IsOverAllocated}">
+                                                                        <span class="slds-icon_container slds-icon-utility-close slds-m-right_xx-small">
+                                                                            <span class="slds-icon slds-icon_xx-small slds-icon-text-default">
+                                                                                <lightning:icon class="overAllocatedCSS" iconName="utility:close" size="xx-small" />
+                                                                                
+                                                                            </span>
+                                                                            <span style="color:#ff0000;">OverAllocated</span> 
+                                                                        </span>
+                                                                    </aura:if>
+                                                                </span>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                        <lightning:treeGrid columns="{! v.gridColumns }"
+                                                            data="{! v.gridData }"
+                                                            keyField="name"
+                                                            aura:id="mytree"
+                                                            expandedRows="{!v.gridExpandedRows}"
+                                                            onrowselection="{!c.getSelectedName}"
+                                                            />
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <div class="slds-p-bottom_small" />
+                                <div class="slds-align_absolute-center">
+                                    <lightning:button variant="brand"  
+                                                      label="Return"
+                                                      onclick="{!c.navigateToRecord }" 
+                                                      value="generateNextButtonClicked"/>			  
+                                </div>
+                            </aura:if>
+                            <!-- (END) GENERATE -->
+                            <!-- (START) ADD MODAL -->
+                            
+                            <aura:if isTrue="{! v.addModal }">
+                                <div class="demo-only" style="height: 640px;">
+                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                                        <div class="slds-modal__container">
+                                            <header class="slds-modal__header">
+                                                <lightning:buttonIcon class="slds-modal__close"
+                                                                      iconName="utility:close"
+                                                                      variant="bare-inverse"
+                                                                      alternativeText="Close"
+                                                                      onclick="{! c.closeAddModal }"
+                                                                      disabled="{! v.recordLoaded }"
+                                                                      />
+                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                                    <strong>
+                                                        Add Account
+                                                    </strong>
+                                                </h2>
+                                            </header>
+                                            <div class="slds-modal__content slds-p-around_medium slds-is-relative" id="modal-content-id-1">
+                                                
+                                                <aura:if isTrue="{! v.spinner }">
+                                                    <c:UNILAB_PAL_Spinner/>
+                                                </aura:if>
+                                                
+                                                <div class="slds-page-header" role="banner">
+                                                    
+                                                    <p class="slds-page-header__title slds-truncate">Accounts</p>
+                                                    <ui:inputSelect aura:id="recordSize" label="Display Record Per Page: " change="{!c.onSelectChange}">
+                                                        <ui:inputSelectOption text="10" label="10" value="true"/>
+                                                        <ui:inputSelectOption text="15" label="15"/>
+                                                        <ui:inputSelectOption text="20" label="20"/>
+                                                    </ui:inputSelect>
+                                                </div>
+                                                
+                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <lightning:input aura:id="searchAccount"
+                                                                         name="searchAccount"
+                                                                         label="Search Account"
+                                                                         type="search"
+                                                                         onchange="{!c.filter}" 
+                                                                         value="{!v.filter}"
+                                                                         />
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <!-- Account Table -->
+                                                        <aura:if isTrue="{!v.bNoRecordsFound}">
+                                                            <!--display error message if there is no records available -->
+                                                            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                                                                <span class="slds-assistive-text">error</span>
+                                                                <h2>No record found.</h2>
+                                                            </div>
+                                                            <br />
+                                                            <br />
+                                                            <div class="slds-align_absolute-center">
+                                                                <aura:iteration items="{!v.alphabetPageList}" var="item">
+                                                                    <span class="slds-p-horizontal_xx-small">
+                                                                        <a onclick="{!c.filterByLetter}" name="{!item}"
+                                                                           class="{! (v.currentAlphabet == 'item') ? 'selected' : ''}">{!item}</a>
+                                                                    </span>
+                                                                </aura:iteration>
+                                                            </div>
+                                                            <aura:set attribute="else">
+                                                                <!-- display total record and selected record count -->
+                                                                <p class="slds-m-around_small">
+                                                                    <span class="slds-badge slds-badge_lightest" style="display:inline-block;">
+                                                                        Total Records Selected : <lightning:formattedNumber value="{! v.selectedCount }"/>
+                                                                    </span>
+                                                                    <span class="slds-badge slds-badge_lightest" style="display:inline-block; float: right;">
+                                                                        Total Records : <lightning:formattedNumber value="{! v.totalRecordsCount }"/>
+                                                                    </span>
+                                                                </p>
+                                                                
+                                                                <!-- data table start-->
+                                                                <div class="slds-scrollable_x">
+                                                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                                                                        <thead>
+                                                                            <tr class="slds-text-title_caps">
+                                                                                <!--header checkbox for select all-->
+                                                                                <th style="width:3.25rem;" class="slds-text-align_right" />
+                                                                                <th scope="col">
+                                                                                    <div class="slds-truncate" title="Name">Name</div>
+                                                                                </th>
+                                                                                <th scope="col">
+                                                                                    <div class="slds-truncate" title="Phone">Account Status</div>
+                                                                                </th>
+                                                                                <th scope="col">
+                                                                                    <div class="slds-truncate" title="Type">Account Owner</div>
+                                                                                </th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <aura:iteration items="{!v.PaginationList}" var="obj">
+                                                                                <tr>
+                                                                                    <th scope="row" class="slds-text-align_right" style="width:3.25rem;">
+                                                                                        <div class="slds-form-element">
+                                                                                            <div class="slds-form-element__control">
+                                                                                                <label class="slds-checkbox">
+                                                                                                    <ui:inputCheckbox text="{!obj.objAccount.Id}"
+                                                                                                                      value="{!obj.isChecked}"
+                                                                                                                      change="{!c.checkboxSelect}"/>
+                                                                                                    <span class="slds-checkbox_faux"></span>
+                                                                                                    <span class="slds-form-element__label text"></span>
+                                                                                                </label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </th>
+                                                                                    <th scope="row">
+                                                                                        <div class="slds-truncate" title="{!obj.objAccount.Name}">
+                                                                                            {!obj.objAccount.Name}
+                                                                                        </div>
+                                                                                    </th> 
+                                                                                    <th scope="row">
+                                                                                        <div class="slds-truncate" title="{!obj.objAccount.Account_Status__c}" >
+                                                                                            {!obj.objAccount.Account_Status__c}
+                                                                                        </div>
+                                                                                    </th>
+                                                                                    <th scope="row">
+                                                                                        <div class="slds-truncate" title="{!obj.objAccount.Owner.Name}">
+                                                                                            {!obj.objAccount.Owner.Name}
+                                                                                        </div>
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </aura:iteration>
+                                                                        </tbody>
+                                                                    </table>
+                                                                    <div class="slds-p-bottom_small" />
+                                                                </div>
+                                                                <!-- DataTable End -->
+
+                                                                <br />
+                                                                
+                                                                <div class="slds-align_absolute-center">
+                                                                    <aura:iteration items="{!v.alphabetPageList}" var="item">
+                                                                        <span class="slds-p-horizontal_xx-small">
+                                                                            <a onclick="{!c.filterByLetter}" name="{!item}"
+                                                                               class="{! (v.currentAlphabet == 'item') ? 'selected' : ''}">{!item}</a>
+                                                                        </span>
+                                                                    </aura:iteration>
+                                                                </div>
+                                                                
+                                                                <br/>
+                                                                
+                                                                <!--  Pagination Buttons Start -->
+                                                                <div class="slds-align_absolute-center">         
+                                                                    <lightning:button label="Previous"
+                                                                                      disabled="{!v.startPage == 0}"  
+                                                                                      onclick="{!c.navigation}"
+                                                                                      variant="brand"
+                                                                                      iconName="utility:back"
+                                                                                      name="previous"/>
+                                                                    
+                                                                    <span class="slds-badge slds-badge_lightest"
+                                                                          style="margin-right: 10px;margin-left: 10px;">
+                                                                        Page <lightning:formattedNumber value="{! v.currentPage }"/> out of
+                                                                        <lightning:formattedNumber value="{! v.totalPagesCount }"/>
+                                                                    </span>
+                                                                    
+                                                                    <lightning:button label="Next"
+                                                                                      disabled="{!(v.endPage + 1) >= v.totalRecordsCount}" 
+                                                                                      onclick="{!c.navigation}"
+                                                                                      variant="brand"
+                                                                                      iconName="utility:forward"
+                                                                                      iconPosition="right"
+                                                                                      name="next"/>
+                                                                </div>  
+                                                                <!--  Pagination Buttons End -->
+                                                            </aura:set> 
+                                                        </aura:if>
+                                                        <!--<lightning:datatable aura:id="AccDataTable"
+                                                                             data="{! v.accData }"
+                                                                             columns="{! v.accColumns }"
+                                                                             keyField="Id"
+                                                                             onrowselection = "{!c.getSelectedID}"
+                                                                             />-->
+                                                        <!-- End Account Table -->
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                                <!-- <div class="slds-align_absolute-center">            
+                                                    <lightning:button disabled="{!v.page == 1}" aura:id="previousPage" variant="brand" label="Previous Page" onclick="{! c.navigate }" />            
+                                                    <lightning:button disabled="{!v.page == v.pages}" aura:id="nextPage" variant="brand" label="Next Page" onclick="{! c.navigate }" />
+                                                </div> -->
+                                            </div>
+                                            
+                                            <footer class="slds-modal__footer">
+                                                <lightning:button label="Cancel"
+                                                                  title="Cancel"
+                                                                  onclick="{! c.closeAddModal }"
+                                                                  disabled="{! v.recordLoaded }" />
+                                                <lightning:button variant="brand" 
+                                                                  label="Add"
+                                                                  title="Add"
+                                                                  onclick="{! c.addNewAccount }"
+                                                                  disabled="{! v.selectedCount == 0 }"/>
+                                            </footer>
+                                        </div>
+                                    </section>
+                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                </div>
+                            </aura:if>
+                            
+                            <!-- (END) ADD MODAL -->
+                            
+                            <!-- (START) DELETE MODAL -->
+                            <aura:if isTrue="{! v.deleteModal }">
+                                <div class="demo-only" style="height: 640px;">
+                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                        <div class="slds-modal__container">
+                                            <header class="slds-modal__header">
+                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                                    <strong>
+                                                        Delete Account
+                                                    </strong>
+                                                </h2>
+                                            </header>
+                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                
+                                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                    <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate slds-text-align_center">
+                                                            <strong>
+                                                                Do you wish to delete this account record?
+                                                            </strong>
+                                                        </h2> 
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                            </div>
+                                            <footer class="slds-modal__footer">
+                                                <lightning:button variant="brand" 
+                                                                  label="Yes"
+                                                                  title="Yes"
+                                                                  onclick="{! c.deleteTableRow }"/>
+                                                <lightning:button label="No"
+                                                                  title="No"
+                                                                  onclick="{! c.closeDeleteModal }"/>
+                                                
+                                            </footer>
+                                        </div>
+                                    </section>
+                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                </div>                                
+                            </aura:if>
+                            <aura:if isTrue="{! v.currentStep == '3' }">
+                                
+                                <div class="slds-p-top_xx-large" />                            
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">                                        
+                                            <lightning:icon class="finishCSS" iconName="utility:success" size="medium" />
+                                            &nbsp;
+                                            <strong style="font-size: large;">
+                                                Finished.
+                                                
+                                            </strong>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>                            
+                                <div class="slds-p-bottom_xx-large" />
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">
+                                            Export Data By:
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <div class="slds-p-bottom_small" />
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">
+                                            <lightning:button label=".XLS"
+                                                              title=".XLS" 
+                                                              onclick="{!c.downloadXLS}"/>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <div class="slds-p-bottom_small" />
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">
+                                            <lightning:button label=".PDF"
+                                                              title=".PDF" 
+                                                              onclick="{!c.downloadPDF}"/>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <div class="slds-p-bottom_small" />
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">                                        
+                                            <lightning:button label=".CSV"
+                                                              title=".CSV" 
+                                                              onclick="{!c.downloadCsv}" />
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <div class="slds-p-bottom_small" />
+                                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                    <lightning:layoutItem size="12" flexibility="auto, grow">
+                                        <div class="slds-align_absolute-center">
+                                            <lightning:button variant="brand"
+                                                              label="Exit"
+                                                              title="Exit"
+                                                              onclick="{!c.navigateToRecord}"/>                                        
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </aura:if>
+                            <!-- (END) EXPORT -->
+                            
+                            <!-- START Edit Add Account Table -->
+                            
+                            <!--<aura:if isTrue="{!v.editAddModal}">-->
+                            <div id="editAddManualModal" class="slds-hide">
+                                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_large">
+                                    <div class="slds-modal__container">
+                                        <header class="slds-modal__header">
+                                            <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" iconName="utility:close" variant="bare" onclick="{! c.closeEditAddModal }" alternativeText="Close" />
+                                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Add Manual Allocation</h2>
+                                        </header>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                                    
+                                                    <lightning:datatable aura:id="EditAddDataTable"
+                                                                         data="{! v.addedAcc }"
+                                                                         columns="{! v.columns }"
+                                                                         keyField="Id"
+                                                                         onsave="{!c.getSelectedAccount}"
+                                                                         draftValues="{! v.draftValues }"
+                                                                         hideCheckboxColumn="true"
+                                                                         />
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open"></div>
+                            </div>
+                            <!--</aura:if>-->
+                            
+                        </div>
+                    </article>
+                </div>
+                
+                
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

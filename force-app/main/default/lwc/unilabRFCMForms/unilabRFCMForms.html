@@ -1,0 +1,60 @@
+<template>
+    <section role="dialog"  aria-modal="true"  class="modalSection slds-modal  slds-fade-in-open">
+        <div class="slds-modal__container">
+
+            <!--header-->
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"  title="Close" onclick={closeModalPopup}>
+                    <lightning-icon icon-name="utility:close"
+                        alternative-text="close"
+                        variant="inverse"
+                        size="small"></lightning-icon>
+                </button>
+                <div class="slds-align_absolute-left">
+                    <h3 class="slds-text-heading_medium">{headingName}</h3>
+                </div>
+            </header> 
+            
+            
+            <!--body-->
+
+            <!--RecordType screen-->
+            <template if:true={recordTypeScreen}>
+                <c-unilab-recordtype-form ondetail={capturerecordtypeid}></c-unilab-recordtype-form> 
+            </template>
+
+
+            <!--details page -->
+            <template if:true={saverecordscreen}>
+                <c-unilab-detail-form recordtypeid={recordtypeid} onrecorddetails={recorddetails}></c-unilab-detail-form>
+            </template>
+
+            <!--file upload page-->
+            <template if:true={filerecordscreen}>
+                <c-uni-lab-attachment-component rf-id={recordid}></c-uni-lab-attachment-component> 
+            </template>
+
+             <!-- footer -->
+            <footer class="slds-modal__footer"> 
+
+                
+
+                <template if:true={recordTypeScreen}>
+                    <button class="slds-button slds-button_neutral" onclick={closeModalPopup} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={saveNext} disabled={Buttontrue} title="Next">Next</button>
+                </template>
+                <template if:true={saverecordscreen}>
+                    <button class="slds-button slds-button_neutral" onclick={closeModalPopup} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={saveData} disabled={Buttontrue} title="Next">Save&amp;Next</button>
+                </template>
+               <template if:true={filerecordscreen}>
+                    <button class="slds-button slds-button_neutral " onclick={handleChange} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" type="button" onclick={handleChange} title="Finish">Finish</button>
+                </template> 
+                
+            </footer> 
+
+        </div>
+    </section>
+    <div class="backdropDiv slds-backdrop slds-backdrop_open"></div>  
+</template>

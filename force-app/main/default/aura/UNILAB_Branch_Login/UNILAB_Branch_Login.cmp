@@ -1,0 +1,162 @@
+<aura:component controller="UNILAB_Branch_Login"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <!--
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="2"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/>-->
+    <!-- control form -->
+    <aura:attribute name="enableForm" type="Boolean" default="false"/>
+    
+    <aura:attribute name="totalRecords" type="Integer" default="0" description="Total Records Returned From Apex Controller" />
+    <aura:attribute name="pageSize" type="Integer" default="20" description="Number of Records that will be Displayed per Page" />
+    <aura:attribute name="totalPages" type="Integer" default="0" description="Total Page (Navigation)" />
+    <aura:attribute name="currentPage" type="Integer" default="1" description="Current Page (Navigation)" />
+    <aura:attribute name="startPage" type="Integer" default="0" description="Start Page (Navigation)" />
+    <aura:attribute name="endPage" type="Integer" default="0" description="End Page (Navigation)" />
+    
+    <aura:attribute name="updatedListOfRecords" type="List" default="[]" description="Temporary Placeholder for any changes" />
+    <aura:attribute name="acctList" type="List" default="[]"/>
+    <aura:attribute name="filteredAcctList" type="List" default="[]"/>
+    
+    <aura:attribute name="bNoRecordsFound" type="boolean"/>
+    
+    <aura:attribute name="acctEventCallList" type="List" default="[
+                                                        {'label': 'With Workplan (Today)', 'value': 'With Workplan (Today)'},
+                                                        {'label': 'With Workplan (Yesterday)', 'value': 'With Workplan (Yesterday)'},
+                                                        {'label': 'Without Workplan', 'value': 'Without Workplan'}
+                                                        ]"/>
+    <aura:attribute name="acctEventCallValue" type="String" default="With Workplan (Today)"/>
+    
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+
+    <aura:attribute name="lat" type="decimal" />
+    <aura:attribute name="long" type="decimal" />
+    
+    <aura:attribute name="mydata" type="List"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    
+    <aura:attribute name="branchId" type="String"/>
+    <aura:attribute name="callEventCheck" type="Integer" default="false" />
+    <aura:attribute name="activityJunctionId" type="String"/>
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="true" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:navigation aura:id="navigation"/>
+
+    <aura:if isTrue="{!	v.enableForm }">
+        <div aura:id="containerDiv">
+            <aura:if isTrue="{! v.showSpinner }">
+                <lightning:spinner variant="brand" alternativeText="Loading" size="medium" />
+            </aura:if>
+            
+            <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Desktop' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <span onkeypress="{!c.filterByKeyword}" class="slds-size--11-of-12">
+                            <lightning:input aura:id="searchBox" name="input2" label="Search Account..." class="slds-text-title_bold" type="search" />
+                        </span>
+                        <span class="slds-size--11-of-12">
+                            <lightning:radioGroup name="acctEventCallGroup"
+                                  label="Workplan Type"
+                                  options="{! v.acctEventCallList }"
+                                  value="{! v.acctEventCallValue }"
+                                  type="button" onchange="{! c.filterByWorkplanType}"/>
+                        </span>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <aura:if isTrue="{!v.bNoRecordsFound}">
+                            <lightning:layoutItem size="12" padding="around-small">
+                                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                                    <span class="slds-assistive-text">error</span>
+                                    <h2>No record found!</h2>
+                                </div>
+                            </lightning:layoutItem>
+                            <aura:set attribute="else">
+                                <aura:iteration items="{! v.filteredAcctList }" var="record" >
+                                    <div >
+                                        <!--<div onclick="{!c.testClick}" class="slds-button slds-button_outline-brand">Sample</div>-->
+                                    <!--<lightning:button title='{!record.acct.Id}' onclick="{! c.handleClick }" class="slds-button slds-button_neutral slds-button_stateful slds-button_full-width slds-p-vertical_x-small slds-box slds-box_x-small slds-has-dividers_left">-->
+                                        <lightning:button ariaLabel="{!record.acct.Id + '-' + record.actjunction.Event_ID__c + '-' + record.actjunction.Id}" title="{!record.acct.Branch_Code__c + '-' + record.acct.Name}" onclick="{! c.handleClick }" class="slds-button slds-button_neutral slds-button_stateful slds-button_full-width slds-p-vertical_x-small slds-box slds-box_x-small slds-has-dividers_left">
+                                        <div style="{! empty(record.actjunction.Subject__c) ? '' : 'color: green;' }">
+                                            <div class="slds-text-heading_x-small">
+                                                <aura:if isTrue="{! (record.actjunction.Status__c == 'Completed') }">
+                                                    ✔️
+                                                </aura:if>
+                                                🏢 {!record.acct.Branch_Code__c} - {!record.acct.Name}
+                                            </div>
+                                            <div class="slds-text-body_small">
+                                                <aura:if isTrue="{! not(empty(record.acct.MT_Account_Group__c)) }">
+                                                    {!record.acct.MT_Account_Group__c}
+                                                    <aura:set attribute="else">
+                                                        {!record.acct.Account_Group__c}
+                                                    </aura:set>
+                                                </aura:if><br/>
+                                                {!record.acct.Retail_Environment__c}
+                                                <!--<br/>{!record.acct.Id}
+                                                <br/>{!record.actjunction.Event_Id__c}
+                                                <br/>{!record.acct.Id + '-' + record.actjunction.Event_ID__c + '-' + record.actjunction.Id}
+                                                {!record.actjunction.Status__c}-->
+                                            </div>
+                                        </div>
+                                    </lightning:button>
+                                    </div>
+                                    
+                                    <!--
+                                                    {!vRecord.acct.Branch_Name__c}<br/>
+                                                    {!vRecord.actjunction.Subject__c}<br/>
+                                                    {!vRecord.actjunction.Start_Date__c}
+                                                    -->
+                                </aura:iteration>
+                            </aura:set>
+                        </aura:if>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <!--
+                <lightning:layout verticalAlign="center" class="x-large">
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <span>
+                            Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*(v.pageSize)+1)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}
+                        </span>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <span class="slds-float_right">
+                            <lightning:button label="Prev" 
+                                              iconName="utility:chevronleft" 
+                                              iconPosition="left"
+                                              variant="base"
+                                              onclick="{!c.handlePrev}" 
+                                              disabled="{! v.pageNumber == 1}"/>
+                            <lightning:button label="Next" 
+                                              iconName="utility:chevronright" 
+                                              iconPosition="right"
+                                              variant="base"
+                                              disabled="{! v.isLastPage}" 
+                                              onclick="{!c.handleNext}"/>  
+                        </span>
+                    </lightning:layoutItem>
+                </lightning:layout>-->
+                <!-- pagination (start) -->
+                <div class="slds-align_absolute-center">         
+                    <lightning:buttonIcon disabled="{! v.startPage == 0 }" onclick="{! c.pageNavigation }"
+                                          variant="brand" iconName="utility:back" name="previous" />
+                    <span class="slds-badge slds-badge_lightest"
+                          style="margin-right: 10px; margin-left: 10px;">
+                        Page <lightning:formattedNumber value="{! v.currentPage }"/> out of
+                        <lightning:formattedNumber value="{! v.totalPages }"/>
+                    </span>
+                    <lightning:buttonIcon name="next" variant="brand" iconName="utility:forward"
+                                          disabled="{! (v.endPage + 1) >= v.totalRecords }" onclick="{! c.pageNavigation }" />
+                </div>
+                <!-- pagination (end) -->
+            </div>
+        </div>
+        <aura:set attribute="else">
+        	<h1>Please enable your device location!</h1>
+        </aura:set>
+    </aura:if>
+	
+</aura:component>

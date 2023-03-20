@@ -1,0 +1,126 @@
+<aura:component controller="UNILAB_PerDiem_Export" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global">
+	
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="startDate" type="date"/>
+    <aura:attribute name="endDate" type="date"/>
+    
+    <aura:attribute name="overallStatus" type="List" default="[
+        {'label': 'Draft', 'value': 'Draft'},
+        {'label': 'For Approval', 'value': 'For Approval'},
+        {'label': 'Approved &amp; For SA/MOSS Processing', 'value': 'Approved &amp; For SA/MOSS Processing'},
+		{'label': 'Processed by SA/MOSS', 'value': 'Processed by SA/MOSS'},
+        ]"/>
+    <aura:attribute name="overallStatusValue" type="String"/>
+    <aura:attribute name="downloadType" type="List" default="[
+        {'label': 'Summary', 'value': 'Summary'},
+        {'label': 'Details', 'value': 'Details'},
+        ]"/>
+    <aura:attribute name="downloadTypeValue" type="String"/>
+    
+    
+    <aura:attribute name="divisionGroup" type="List" default="[
+        {'label': 'SALES &amp; CUSTOMER DEVELOPMENT', 'value': 'SALES &amp; CUSTOMER DEVELOPMENT'},
+        {'label': 'PROFESSIONAL HEALTH GROUP', 'value': 'PROFESSIONAL HEALTH GROUP'},
+        ]"/>
+    <aura:attribute name="divisionGroupValue" type="String"/>
+    
+    <aura:attribute name="perDiemDataSummary" type="Object[]"/>
+    <aura:attribute name="perDiemDataDetails" type="Object[]"/>
+    
+    <aura:attribute name="bNoRecordsFound" type="boolean"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+    
+    <lightning:layout multipleRows="true" >
+        <aura:if isTrue="{!v.showSpinner}">
+            <div aura:id="spinnerId" class="slds-spinner_container">
+                <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                    <span class="slds-assistive-text">Loading</span>
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+        </aura:if>
+        <lightning:layoutItem size="12" padding="around-small">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning:icon iconName="custom:custom41" size="medium"/>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-page-header__title slds-truncate">Per Diem Export</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <lightning:layout multipleRows="true">
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:input type="date" 
+                                         aura:id="startDate" 
+                                         name="startDate"
+                                         label="Start Date" 
+                                         value="{! v.startDate }"
+                                         onchange="{! c.dateFilter}" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:input type="date" 
+                                         aura:id="endDate" 
+                                         name="endDate"
+                                         label="End Date" 
+                                         value="{! v.endDate }"
+                                         onchange="{! c.dateFilter}" /> 
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:combobox name="overallStatus" label="Overall Status" value="{! v.overallStatusValue }" placeholder="Select Status" options="{! v.overallStatus }" onchange="{! c.overallStatusFilter }"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:combobox name="divisionGroup" label="Division" value="{! v.divisionGroupValue }" placeholder="Select Division" options="{! v.divisionGroup }" onchange="{! c.divisionGroupFilter }"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:combobox name="downloadType" label="Download Type" value="{! v.downloadTypeValue }" placeholder="Select Download Type" options="{! v.downloadType }" onchange="{! c.overallStatusFilter }"/>
+                    </lightning:layoutItem>
+                    
+                </lightning:layout>
+                
+                
+                <!-- Download -->
+                <div class="slds-align_absolute-center" style="height:5rem">
+                    
+    				<!-- <lightning:button variant="brand" label="Download Summary" title="Download Summary" onclick="{! c.downloadSummaryCsv }" iconName="utility:download" iconPosition="left" />
+                    <lightning:button variant="brand" label="Download Details" title="Download Details" onclick="{! c.downloadDetailsCsv }" iconName="utility:download" iconPosition="left" /> -->
+                    <lightning:button variant="brand" label="Download Now" title="Download Now" onclick="{! c.downloadNow }" iconName="utility:download" iconPosition="left" />
+                    
+                </div>
+            </div>
+            
+        </lightning:layoutItem>
+        <aura:if isTrue="{!v.bNoRecordsFound}">
+            <!--display error message if there is no records available -->
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>No record found.</h2>
+                </div>
+            </lightning:layoutItem>
+        </aura:if>
+    </lightning:layout>
+</aura:component>

@@ -1,0 +1,41 @@
+<aura:component controller="UNILAB_MT_INVENTORY"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <aura:attribute name="product" type="Product2"/>
+    <aura:attribute name="priorityData" type="List"/>
+    <aura:attribute name="carriedBool" type="boolean" default="false"/>
+    <aura:attribute name="oosBool" type="boolean" default="false"/>
+    <aura:attribute name="disableBtn" type="boolean"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <tr>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                {! v.product.Item_Code__c }
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-line-clamp">
+                {! v.product.Name }
+            </div>
+        </th>
+        <th scope="row" >
+            <div class="slds-text-body_small slds-grid">
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="Carried" 
+                                 aura:id="carriedCheck"
+                                 name="carriedCheck" 
+                                 onchange="{! c.carriedChange}"
+                                 checked="{! v.carriedBool}"/>
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="Out of Stock" 
+                                 aura:id="oosCheck"
+                                 name="oosCheck" 
+                                 onchange="{! c.oosChange}"
+                                 checked="{! v.oosBool}"/>
+            </div>
+        </th>
+    </tr>
+</aura:component>

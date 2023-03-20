@@ -1,0 +1,68 @@
+.THIS .slds-radio_button [type=radio][disabled]:checked+.slds-radio_button__label:hover {
+    
+    background-color: #16587a;
+    color: white;
+    
+}
+
+.THIS .slds-radio_button [type=radio][disabled]:checked+.slds-radio_button__label {
+    
+    background-color: #16587a;
+    color: white;
+    
+}
+
+.THIS .slds-radio_button [type=radio][disabled]+.slds-radio_button__label {
+    
+    color: black;
+    
+}
+
+.THIS .slds-radio_button .slds-radio_faux {
+    
+    padding-left: .5rem;
+    padding-right: .5rem;
+    
+}
+
+.THIS.container {
+    
+    height: 100%; 
+    overflow: hidden;
+    overflow-y : auto;
+    
+}
+
+.THIS .slds-truncate {
+    
+    font-size: 0.80rem;
+    
+}
+
+.THIS .customRadioLabel .slds-radio_button__label {
+    
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    
+}
+
+.THIS .customLegend {
+    
+    border-radius:50%;
+    -moz-border-radius:50%;
+    -webkit-border-radius:50%;
+    
+}
+
+.THIS .customLegend svg  {
+    
+    fill: red;
+    
+}
+
+.THIS .customLegend:hover svg  {
+    
+    fill: red;
+    
+}

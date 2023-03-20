@@ -1,0 +1,26 @@
+<aura:component controller="UNILAB_Product_Image"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <!--aura doInit handler--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--aura attributes-->  
+    <aura:attribute name="lstContent" type="List"/>
+    <!--<aura:attribute name="prefixURL" type="String" default="/sfc/servlet.shepherd/version/download/"/>-->
+    <aura:attribute name="prefixURL" type="String" default="/sfc/servlet.shepherd/document/download/"/>
+    
+    
+    <div class="slds-align_absolute-center">
+        
+            <lightning:carousel disableAutoScroll="true">
+                <aura:iteration items="{!v.lstContent}" var="CD">
+                <lightning:carouselImage
+                    src = "{!v.prefixURL + CD.ContentDocumentId}"
+                    href = "#">
+                </lightning:carouselImage>
+                </aura:iteration>
+            </lightning:carousel>
+        
+    </div>
+    
+</aura:component>

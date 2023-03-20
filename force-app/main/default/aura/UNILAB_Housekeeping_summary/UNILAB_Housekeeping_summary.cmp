@@ -1,0 +1,191 @@
+<aura:component controller="UNILAB_Housekeeping"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    
+    <aura:attribute name="Summary" type="Map" /> 
+    <aura:attribute name="clearChecklist" type="Boolean" />
+
+    <aura:attribute name="receiving" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}"/>  
+    <aura:attribute name="bulk" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="loose" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="checking" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="packing" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="staging" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="bo" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="dispatch" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="cold" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="promo" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="ventilation" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="material" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="office" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="washin" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="others" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    <aura:attribute name="temperature" type="Map" default="{'optYes':0,'optNo':0,'optNa':0,'total':0}" />  
+    
+  	<aura:handler name="change" value="{!v.Summary }" action="{! c.showSummary }"/>
+    
+    
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="margin-bottom:30px; ">  
+      <thead style="height:10px;">      
+        <tr class="slds-line-height_reset">
+          <th>
+            <div style="margin-left:25px;">Areas/Items to be checked</div>
+          </th>
+          <th>
+            <div style="margin-left:-25px;"> Yes </div>
+          </th>
+          <th>
+            <div class="slds-truncate">No </div>
+          </th>
+             <th>
+                 <div class="slds-truncate">N/A </div>
+          </th>
+          <th>
+            <div class="slds-truncate">Total</div>
+          </th>     	                    
+        </tr>
+   
+    
+   		<tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>A - Receiving Area</div></td>               
+          <td><div class="catReqRating">{!v.receiving.optYes} </div></td>
+          <td><div class="catActualRating">{!v.receiving.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.receiving.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.receiving.total}</div></td>
+        </tr>
+          
+        <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>B - Bulk Area</div></td>               
+          <td><div class="catReqRating">{!v.bulk.optYes} </div></td>
+          <td><div class="catActualRating">{!v.bulk.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.bulk.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.bulk.total}</div></td>
+        </tr>
+          
+        <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>C - Loose-Pick Area</div></td>               
+         <td><div class="catReqRating">{!v.loose.optYes} </div></td>
+          <td><div class="catActualRating">{!v.loose.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.loose.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.loose.total}</div></td>
+        </tr>
+          
+        <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>D - Checking Area</div></td>               
+          <td><div class="catReqRating">{!v.checking.optYes} </div></td>
+          <td><div class="catActualRating">{!v.checking.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.checking.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.checking.total}</div></td>  
+        </tr>
+          
+		<tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>E - Packing Area</div></td>               
+          <td><div class="catReqRating">{!v.packing.optYes} </div></td>
+          <td><div class="catActualRating">{!v.packing.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.packing.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.packing.total}</div></td>
+        </tr>
+
+        <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>F - Staging Area</div></td>               
+          <td><div class="catReqRating">{!v.staging.optYes} </div></td>
+          <td><div class="catActualRating">{!v.staging.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.staging.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.staging.total}</div></td>
+        </tr>       
+          
+         <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>G - B.O. Area</div></td>               
+          <td><div class="catReqRating">{!v.bo.optYes} </div></td>
+          <td><div class="catActualRating">{!v.bo.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.bo.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.bo.total}</div></td>
+        </tr>       
+          
+          <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>H - Dispatch Area</div></td>               
+          <td><div class="catReqRating">{!v.dispatch.optYes} </div></td>
+          <td><div class="catActualRating">{!v.dispatch.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.dispatch.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.dispatch.total}</div></td>   
+        </tr>       
+          
+            <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>I - Cold Storage Area (Bio-Ref)/Air-Con Room</div></td>               
+          <td><div class="catReqRating">{!v.cold.optYes} </div></td>
+          <td><div class="catActualRating">{!v.cold.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.cold.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.cold.total}</div></td>
+        </tr>       
+          
+            <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>J - Promo/Merch Area</div></td>               
+          <td><div class="catReqRating">{!v.promo.optYes} </div></td>
+          <td><div class="catActualRating">{!v.promo.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.promo.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.promo.total}</div></td> 
+        </tr>  
+
+       <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>K - Ventilation System</div></td>               
+          <td><div class="catReqRating">{!v.ventilation.optYes} </div></td>
+          <td><div class="catActualRating">{!v.ventilation.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.ventilation.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.ventilation.total}</div></td>    
+        </tr>     
+          
+             <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>L - Material Handling</div></td>               
+          <td><div class="catReqRating">{!v.material.optYes} </div></td>
+          <td><div class="catActualRating">{!v.material.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.material.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.material.total}</div></td>
+        </tr>     
+          
+          
+            <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>M - Office Area</div></td>               
+         <td><div class="catReqRating">{!v.office.optYes} </div></td>
+          <td><div class="catActualRating">{!v.office.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.office.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.office.total}</div></td>
+        </tr>     
+          
+
+            <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>N - Washing/Toilet Facilities</div></td>               
+          <td><div class="catReqRating">{!v.washin.optYes} </div></td>
+          <td><div class="catActualRating">{!v.washin.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.washin.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.washin.total}</div></td>
+        </tr>     
+          
+          <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>O - Temperature Monitoring</div></td>               
+          <td><div class="catReqRating">{!v.temperature.optYes} </div></td>
+          <td><div class="catActualRating">{!v.temperature.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.temperature.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.temperature.total}</div></td>   
+          </tr>  
+          
+            <tr class="slds-hint-parent">              
+          <td class="slds-truncate"><div>P - Others</div></td>               
+          <td><div class="catReqRating">{!v.others.optYes} </div></td>
+          <td><div class="catActualRating">{!v.others.optNo}</div></td>
+          <td><div class="catOverallRating">{!v.others.optNa}</div></td> 
+          <td><div class="catOverallRating">{!v.others.total}</div></td>
+        </tr>     
+          
+             
+
+
+         </thead>
+    </table>
+    
+    <!--
+	<div style="margin-bottom:-12px; margin-left:210px;">
+ 		<lightning:button class="slds-align_absolute-left"  variant="brand" label="Calculate Ratings" title="Calculate Ratings" onclick="{! c.loadSummary }"/>  
+    </div>	
+    -->
+    
+</aura:component>

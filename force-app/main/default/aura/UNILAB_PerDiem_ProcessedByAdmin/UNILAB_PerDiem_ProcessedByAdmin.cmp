@@ -1,0 +1,37 @@
+<aura:component controller="UNILAB_PerDiem"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global">
+    <aura:attribute name="isApproved" type="Boolean" default="false"/>
+    <aura:attribute name="isProcessed" type="Boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{! c.doInit}"/>
+    
+    <lightning:layout multipleRows="true">
+        <aura:if isTrue="{! v.isApproved }">
+            <aura:if isTrue="{! v.isProcessed }">
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-text-align_center slds-text-heading_small">Already processed by Admin.</div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-text-align_center slds-text-heading_small">Are you sure? This can not be undo.</div>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-text-align_center">
+                            <lightning:button aura:id="submittedRecord" 
+                                              name="submittedRecord" 
+                                              label="Process" 
+                                              variant="success"
+                                              onclick="{! c.process}"/>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+            <aura:set attribute="else">
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-text-align_center slds-text-heading_small">Not yet approved.</div>
+                </lightning:layoutItem>
+            </aura:set>
+        </aura:if>
+    </lightning:layout>
+</aura:component>

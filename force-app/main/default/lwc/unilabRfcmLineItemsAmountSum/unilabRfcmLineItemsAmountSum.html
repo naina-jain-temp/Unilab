@@ -1,0 +1,57 @@
+<template>
+    <!--<div  style="text-align: center; font-weight:bold; padding: 10px; ">RFCM LINE ITEMS</div>
+    
+        <template if:true={itemsAmount}>
+            <lightning-datatable style="margin:0; padding:5px" key-field="Id" data={itemsAmount} columns={columns} hide-checkbox-column onsave={handleSave} draft-values={saveDraftValues}
+        
+                  >
+            </lightning-datatable>
+       
+        </template>-->
+          
+        
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
+            <template if:true={itemsAmount}>
+            <thead>
+              <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                  <div class="slds-truncate" title="S.NO">S.NO</div>
+                </th>
+                <th class="" scope="col">
+                  <div class="slds-truncate" title="Company">Company</div>
+                </th>
+                <th class="" scope="col">
+                  <div class="slds-truncate" title="Amount">Amount</div>
+                </th>
+                
+              </tr>
+            </thead>
+            <tbody>
+            <template for:each={itemsAmount} for:item="item">
+              <tr class="slds-hint-parent"  key={item.Id}>
+                <td  key={item.Id}>
+                    <div class="slds-truncate"  >{item.sno}</div>
+                </td>
+                <td  key={item.Id}>
+                    <div class="slds-truncate"  >{item.Company}</div>
+                </td>
+                <td  key={item.Id}>
+                    <div  class="slds-truncate">Php {item.total}</div>
+                </td>
+             </tr>
+            </template>
+            <tr class="slds-hint-parent" >
+                <td >
+                    <div class="slds-truncate"></div>
+                </td>
+                <td >
+                    <div class="slds-truncate">Total Claim in Php</div>
+                </td>
+                <td >
+                    <div class="slds-truncate">Php {Total_claim}</div>
+                </td>
+            </tr>
+            </tbody>
+            </template>
+          </table>          
+</template>

@@ -1,0 +1,27 @@
+<aura:component controller="PerDiemCSVController"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <aura:attribute name="exportData" type="List"/>
+    <aura:attribute name="columns" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.loadPerDiemItemList}"/>
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="12" padding="around-small">
+            <div class="slds-float_left slds-size--1-of-1">
+                <lightning:datatable keyField="id"
+                                     data="{! v.exportData }"
+                                     columns="{! v.columns }"
+                                     hideCheckboxColumn="true"/>
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12" padding="around-small">
+            <div class="slds-text-align_center slds-size--1-of-1">
+                <lightning:button aura:id="exportCSV" 
+                                  name="exportCSV" 
+                                  label="Export" 
+                                  variant="success"
+                                  onclick="{! c.exportCSV}"/>
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

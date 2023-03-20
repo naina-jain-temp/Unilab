@@ -1,0 +1,71 @@
+<aura:component 
+                controller="Unilab_PMM_Checklist"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    			
+    			<aura:attribute name="assessmentLocal" type="Map"/>
+    			<aura:attribute name="assessmentItem" type="List" />
+    			<aura:attribute name="assessmentResults" type="Map" />
+    			<aura:attribute name="section" type="String" />
+    			<aura:attribute name="line" type="Integer" />
+    			<aura:attribute name="category" type="String" />
+    			<aura:attribute name="title" type="String" />
+    			<aura:attribute name="rating" type="Boolean" />
+    			<aura:attribute name="RatingYes" type="Boolean" />
+    			<aura:attribute name="RatingNo" type="Boolean" />
+    			<aura:attribute name="RatingNA" type="Boolean" />	
+    			<aura:attribute name="remarks" type="String"/>
+    			<aura:attribute name="year" type="String" />
+    			<aura:attribute name="period" type="String"/>
+    			<aura:attribute name="clearChecklist" type="Boolean" default="false"/>
+    			<aura:attribute name="disableButton" type="Boolean" />
+    
+    			<aura:handler name="init" value="{!this}" action="{! c.init }"/>
+    			
+    			<aura:handler name="change" value="{!v.clearChecklist }" action="{! c.clearChecklist }"/>
+    			
+    			<tr>
+                    <td style="border: 1px solid black;text-align:center;width:5%;padding:5px 10px 5px 5px;">{!v.line}</td>
+                    <td style="border: 1px solid black;width:40%;padding:5px 10px 5px 10px;">{!v.title}</td>
+                    <td style="border: 1px solid black;text-align:right;width:5%;">
+                    	<lightning:input 
+                                         type="checkbox"  
+                                         name="pmm-rating-yes" 
+                                         value = "{!v.RatingYes}"
+                                         aura:id="RatingYes"
+                                         checked = "{!v.RatingYes}"
+                                         style="padding-right:5px;"
+                                         disabled="{!v.disableButton}"
+                                         onchange="{! c.setResults }"
+                                         />
+                    </td>
+                    <td style="border: 1px solid black;text-align:right;width:5%;">
+                    	<lightning:input 
+                                         type="checkbox"  
+                                         name="pmm-rating-no" 
+                                         value = "{!v.RatingNo}"
+                                         aura:id="RatingNo"
+                                         checked = "{!v.RatingNo}"
+                                         style="padding-right:5px;"
+                                         disabled="{!v.disableButton}"
+                                         onchange="{! c.setResults }"
+                                         />
+                    </td>
+                    <td style="border: 1px solid black;text-align:right;width:5%;">
+                    	<lightning:input 
+                                         type="checkbox"  
+                                         name="pmm-rating-na" 
+                                         value = "{!v.RatingNA}"
+                                         aura:id="RatingNA"
+                                         checked = "{!v.RatingNA}"
+                                         style="padding-right:5px;"
+                                         disabled="{!v.disableButton}"
+                                         onchange="{! c.setResults }"
+                                         />
+                    </td>
+                    <td style="border: 1px solid black;text-align:center;width:20%;padding:0px 10px 10px;">
+                    	<lightning:textarea name="pmm-remarks" value="{!v.remarks}" onblur="{!c.setRemarks}" disabled="{!v.disableButton}"/>
+                    </td>
+                </tr>          
+	
+</aura:component>

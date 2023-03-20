@@ -1,0 +1,544 @@
+<aura:component controller="UNILAB_ProductAvailability" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" >
+	<!-- CUSTOM DATATABLE -->
+    
+    <aura:attribute name="noRecordsFound" type="Boolean" />
+    <aura:attribute name="recordLoaded" type="Boolean" default="true" description="Checks if Record has been loaded" />
+    
+    <aura:attribute name="defaultData" type="List" default="[]" description="Default Data Returned From Apex Controller" />
+    <aura:attribute name="updatedListOfRecords" type="List" default="[]" description="Temporary Placeholder for any changes such as filtered records" />
+    <aura:attribute name="dataTableList" type="List" default="[]" description="Record Display" />
+    <aura:attribute name="selectedProductsIDList" type="List" default="[]" description="List of Selected Product IDs Only (for Saving)" />
+    <aura:attribute name="selectedProductsList" type="List" default="[]" description="List of Selected Products (for Viewing)" />
+    
+    <aura:attribute name="selectedCount" type="Integer" default="0" description="Count of Selected Records" />
+    <aura:attribute name="totalRecords" type="Integer" default="0" description="Total Records Returned From Apex Controller" />
+    
+    <aura:attribute name="pageSize" type="Integer" default="20" description="Number of Records that will be Displayed per Page" />
+    <aura:attribute name="totalPages" type="Integer" default="0" description="Total Page (Navigation)" />
+    <aura:attribute name="currentPage" type="Integer" default="1" description="Current Page (Navigation)" />
+    <aura:attribute name="startPage" type="Integer" default="0" description="Start Page (Navigation)" />
+    <aura:attribute name="endPage" type="Integer" default="0" description="End Page (Navigation)" />
+    
+    <aura:attribute name="filterKeyword" type="String" default="" description="Filter by Keyword" />
+    <aura:attribute name="listOfAlphabet" type="List" description="Alphabet List" />
+    <aura:attribute name="selectedAlphabet" type="String" default="All" description="Selected Alphabet Value for Filter" />
+    <aura:attribute name="pickListFilterSet" type="List" default="['Not Applicable','Set A','Set B']" />
+    <aura:attribute name="inputpickListFilterSet" type="String[]" />
+    <aura:attribute name="userChannel" type="String[]" />
+    
+    <!-- CUSTOM DATATABLE AFTER PRODUCT SELECTION -->
+    
+    <aura:attribute name="listOfAlphabetWithProduct" type="List" default="[]" description="Alphabet List" />
+    <aura:attribute name="selectedAlphabetWithProduct" type="String" default="All" description="Selected Alphabet Value for Filter" />
+    <!-- <aura:attribute name="pickListProductRem" type="List" default="['With Stock','Critical Stock','No Stock']"/>-->
+    <aura:attribute name="pickListProductRem" type="List" default="[{'label': 'With Stock', 'value': 'With Stock'},{'label': 'Critical Stock', 'value': 'Critical Stock'},{'label': 'No Stock', 'value': 'No Stock'}]" />
+	<aura:attribute name="pickListProductRemark" type="String[]" />
+    <aura:attribute name="inputProductComment" type="String[]" />
+    
+    <!-- SUB ACTIVITY REPORT FIELDS -->
+    
+    <aura:attribute name="selectedAccount" type="sObject" default="{}" description="Account__c Field" />
+    <aura:attribute name="recordDate" type="String" description="Date__c Field" />
+    <aura:attribute name="recordStatus" type="String" default="" description="Status__c Field" />
+    
+    <!-- SHOW PRODUCTS MODAL DISPLAY -->
+    
+    <aura:attribute name="showProductsModal" type="Boolean" default="false" />
+    
+    <!-- MODAL DISPLAY AFTER SUBMIT BUTTON -->
+    
+    <aura:attribute name="showSubmitConfirmationModal" type="Boolean" default="false" />
+    
+    <!-- SHOW SPINNER -->
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="true" />
+    
+    <!-- PAGE LOAD -->
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+    
+    <!-- DISABLE REFRESH FOR MOBILE (STATIC RESOURCE) -->
+    
+    <ltng:require styles="{! $Resource.disableRefresh }" />
+    
+    <div aura:id="containerDiv">
+        
+        <aura:if isTrue="{! v.showSpinner }">
+            <lightning:spinner variant="brand" alternativeText="Loading" size="medium" />
+        </aura:if>
+        
+        <div style="{! $Browser.formFactor == 'DESKTOP' ? '' : 'height: 100%; overflow:auto; display: flex; flex-direction: column;' }">
+            
+            <lightning:layout pullToBoundary="small" >
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-page-header">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-title">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning:icon iconName="standard:product_required" size="small" />
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-page-header__name">
+                                            <div class="slds-page-header__name-title">
+                                                <h1>
+                                                    <span class="slds-page-header__title slds-truncate">PAC - Product Availablity Check</span>
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aura:if isTrue="{! not(empty(v.recordId)) }">
+                                <div class="slds-page-header__col-actions">
+                                    <div class="slds-page-header__controls">
+                                        <div class="slds-page-header__control">
+                                            <lightning:button label="Go Back"
+                                                              onclick="{! c.goBack }" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                        </div>
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+            <aura:if isTrue="{! v.recordStatus != 'Submitted' }">
+                <lightning:layout multipleRows="true">
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <c:UNILAB_LEX_CustomLookup aura:id="nameLookup" label="Account" required="true" 
+                                                   objectAPIName="accountWithBranchCode" IconName="standard:account" 
+                                                   selectedRecord= "{! v.selectedAccount }" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:input type="date" aura:id="recordDate" name="recordDate"
+                                         label="Date" value="{! v.recordDate }" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <lightning:select aura:id="filterSet" name="filterSet" label="Set Product Group">
+                                        <aura:iteration items="{!v.pickListFilterSet}" var="value">
+                                            <option value="{!value}">{!value}</option>
+                            			</aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                          mediumDeviceSize="6" largeDeviceSize="6" 
+                                          padding="around-small">
+                        <!--<lightning:button label="Products" onclick="{! c.showProducts }" />-->
+                        <div style="padding: 25px 0;">
+                        <lightning:button label="Load Product" onclick="{! c.loadCustomProducts }" />
+                        <!--<lightning:button aura:id="draftRecord" name="draftRecord"
+                                          label="Save as Draft" variant="brand"
+                                          onclick="{! c.saveRecord }" disabled="{! or(empty(v.selectedProductsIDList), empty(v.selectedAccount)) }" />-->
+                        <lightning:button aura:id="submittedRecord" name="submittedRecord"
+                                          label="Submit" variant="brand"
+                                          onclick="{! c.showSubmitConfirmationModal }" disabled="{! or(empty(v.selectedProductsIDList), empty(v.selectedAccount)) }" />
+                       </div>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                
+                <aura:set attribute="else">
+                    
+                    <lightning:layout multipleRows="true" verticalAlign="stretch">
+                        <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                                <thead>
+                                    <tr class="slds-text-title_caps">
+                                        <th scope="col">
+                                            <div class="slds-truncate slds-align_absolute-center" title="Account">Account</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate slds-align_absolute-center" title="Date">Date</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">
+                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.selectedAccount.Name }">
+                                                <lightning:formattedText value="{! v.selectedAccount.Name }" />
+                                            </div>
+                                        </th>
+                                        <th scope="row">
+                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.recordDate }">
+                                                <lightning:formattedDateTime value="{! v.recordDate }"/>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                </aura:set>
+                
+            </aura:if>
+            
+            <!-- SHOW LIST OF PRODUCTS SELECTED -->
+            <aura:if isTrue="{! not(empty(v.selectedProductsList)) }">
+                <lightning:layout pullToBoundary="small" >
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <h1 class="slds-p-around_small">
+                            <span class="slds-page-header__title slds-truncate">Summary of Selected Product(s)</span>
+                        </h1>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <lightning:layout multipleRows="true">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-scrollable_x">
+                            <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal slds-table_col-bordered slds-no-row-hover slds-table_striped">
+                                <thead>
+                                    <tr class="slds-text-title_caps">
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Name">Name</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Name">Remarks</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Name">Comments</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{! v.selectedProductsList }" var="record" >
+                                        <tr>
+                                            <th scope="row" class="slds-cell-wrap">
+                                                <div class="slds-truncate" title="{! record.prod2.Name }">
+                                                    {! record.prod2.Name }
+                                                </div>
+                                            </th>
+                                            <th scope="row" class="slds-cell-wrap" style="font-size: 8pt;">
+                                                <lightning:radioGroup aura:id="select" name="{!index}"
+                                                                          options="{! v.pickListProductRem }"
+                                                                          type="button" />
+                                                <!--<lightning:select aura:id="select" name="{!index}" Class="slds-col slds-size_1-of-2 slds-p-horizontal_x-small">
+                                                    <aura:iteration items="{!v.pickListProductRem}" var="value">
+                                                        <option value="{!value}">{!value}</option>
+                                                    </aura:iteration>
+                                                    
+                                                </lightning:select>-->
+                                            </th>
+                                            <th scope="row" class="slds-cell-wrap">
+                                            	<lightning:input aura:id="inputComment"  name="{!index}" placeholder="type your comment here..." />
+                                            </th>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                            <div class="slds-p-bottom_small" />
+                            
+                            <div class="slds-text-align_center">
+                                <aura:if isTrue="{! $Browser.formFactor == 'PHONE' }">
+                                    <aura:if isTrue="{! v.recordStatus != 'Submitted' }">
+                                        <lightning:layout multipleRows="true">
+                                             <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                   mediumDeviceSize="6" largeDeviceSize="6" 
+                                                                   padding="around-small">
+                                                 <lightning:button aura:id="submittedRecord" name="submittedRecord"
+                                                                   label="Submit" variant="brand"
+                                                                   onclick="{! c.showSubmitConfirmationModal }" disabled="{! or(empty(v.selectedProductsIDList), empty(v.selectedAccount)) }" />
+                                             </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </aura:if>
+                                </aura:if>
+                            </div>
+                            
+                        </div>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </aura:if>
+            
+            <!-- SHOW PRODUCTS MODAL (NOT PHONE) -->
+            <aura:if isTrue="{! and(v.showProductsModal, $Browser.formFactor != 'PHONE') }">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon class="slds-modal__close" iconName="utility:close"
+                                                  variant="bare-inverse" alternativeText="Close"
+                                                  onclick="{! c.closeProductsModal }" disabled="{! v.recordLoaded }" />
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                <strong>
+                                    Add Product(s)
+                                </strong>
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <lightning:input aura:id="searchProduct" name="searchProduct"
+                                                     label="Search Product" type="search"
+                                                     onchange="{! c.filterByKeyword }" value="{! v.filterKeyword }" />
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <aura:if isTrue="{! v.noRecordsFound }">
+                                        <!--display error message if there is no records available -->
+                                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                                            <span class="slds-assistive-text">error</span>
+                                            <h2>No record found.</h2>
+                                        </div>
+                                        <br />
+                                        <br />
+                                        <div class="{! $Browser.formFactor == 'DESKTOP' ? 'slds-align_absolute-center' : 'slds-scrollable_x' }">
+                                            <aura:iteration items="{! v.listOfAlphabet }" var="item">
+                                                <span class="slds-p-horizontal_xx-small">
+                                                    <a onclick="{! c.filterByLetter }" name="{! item }"
+                                                       class="{! (v.selectedAlphabet == 'item') ? 'selected' : '' }">
+                                                        {! item }
+                                                    </a>
+                                                </span>
+                                            </aura:iteration>
+                                            <div class="{! $Browser.formFactor == 'DESKTOP' ? '' : 'slds-p-bottom_small' }" />
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <!-- display total record and selected record count -->
+                                            <p class="slds-m-bottom_small">
+                                                <span class="slds-badge slds-badge_lightest" style="display: inline-block;">
+                                                    Records : <lightning:formattedNumber value="{! v.selectedCount }"/> / <lightning:formattedNumber value="{! v.totalRecords }"/>
+                                                </span>
+                                            </p>
+                                            <!-- data table (start) -->
+                                            <div class="slds-scrollable_x">
+                                                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                                                    <thead>
+                                                        <tr class="slds-text-title_caps">
+                                                            <th style="width: 3.25rem;" class="slds-text-align_right" />
+                                                            <th scope="col">
+                                                                <div class="slds-truncate" title="Name">Name</div>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <aura:iteration items="{! v.dataTableList }" var="record" >
+                                                            <tr>
+                                                                <th scope="row" class="slds-text-align_right" style="width: 3.25rem;">
+                                                                    <div class="slds-form-element">
+                                                                        <div class="slds-form-element__control">
+                                                                            <label class="slds-checkbox">
+                                                                                <ui:inputCheckbox text="{! record.prod2.Id }"
+                                                                                                  value="true"
+                                                                                                  change="{! c.checkboxSelect }"/>
+                                                                                <span class="slds-checkbox_faux"></span>
+                                                                                <span class="slds-form-element__label text"></span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </th>
+                                                                <th scope="row">
+                                                                    <div class="slds-truncate" title="{! record.prod2.Name }">
+                                                                        {! record.prod2.Name }
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
+                                                        </aura:iteration>
+                                                    </tbody>
+                                                </table>
+                                                <div class="slds-p-bottom_small" />
+                                            </div>
+                                            <!-- data table (end) -->
+                                            <br />
+                                            <div class="{! $Browser.formFactor == 'DESKTOP' ? 'slds-align_absolute-center' : 'slds-scrollable_x' }">
+                                                <aura:iteration items="{! v.listOfAlphabet }" var="item">
+                                                    <span class="slds-p-horizontal_xx-small">
+                                                        <a onclick="{! c.filterByLetter }" name="{! item }"
+                                                           class="{! (v.selectedAlphabet == 'item') ? 'selected' : '' }">
+                                                            {! item }
+                                                        </a>
+                                                    </span>
+                                                </aura:iteration>
+                                                <div class="{! $Browser.formFactor == 'DESKTOP' ? '' : 'slds-p-bottom_small' }" />
+                                            </div>
+                                            <br />
+                                            <!-- pagination (start) -->
+                                            <div class="slds-align_absolute-center">         
+                                                <lightning:buttonIcon disabled="{! v.startPage == 0 }" onclick="{! c.pageNavigation }"
+                                                                      variant="brand" iconName="utility:back" name="previous" />
+                                                <span class="slds-badge slds-badge_lightest"
+                                                      style="margin-right: 10px; margin-left: 10px;">
+                                                    Page <lightning:formattedNumber value="{! v.currentPage }"/> out of
+                                                    <lightning:formattedNumber value="{! v.totalPages }"/>
+                                                </span>
+                                                <lightning:buttonIcon name="next" variant="brand" iconName="utility:forward"
+                                                                      disabled="{! (v.endPage + 1) >= v.totalRecords }" onclick="{! c.pageNavigation }" />
+                                            </div>
+                                            <!-- pagination (end) -->
+                                        </aura:set>
+                                    </aura:if>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning:button label="Cancel" onclick="{! c.closeProductsModal }"
+                                              disabled="{! v.recordLoaded }" />
+                            <lightning:button variant="brand" label="Add" onclick="{! c.addSelectedProducts }"
+                                              disabled="{! v.selectedCount == 0 }" />
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+            
+            <!-- SHOW PRODUCTS MODAL (PHONE) -->
+            
+            <aura:if isTrue="{! and(v.showProductsModal, $Browser.formFactor == 'PHONE') }">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon class="slds-modal__close" iconName="utility:close"
+                                                  variant="bare-inverse" alternativeText="Close"
+                                                  onclick="{! c.closeProductsModal }" disabled="{! v.recordLoaded }" />
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                <strong>
+                                    Add Product(s)
+                                </strong>
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <lightning:input aura:id="searchProduct" name="searchProduct"
+                                                     label="Search Product" type="search"
+                                                     onchange="{! c.filterByKeyword }" value="{! v.filterKeyword }" />
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <aura:if isTrue="{! v.noRecordsFound }">
+                                        <!--display error message if there is no records available -->
+                                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                                            <span class="slds-assistive-text">error</span>
+                                            <h2>No record found.</h2>
+                                        </div>
+                                        <br />
+                                        <br />
+                                        <div class="{! $Browser.formFactor == 'DESKTOP' ? 'slds-align_absolute-center' : 'slds-scrollable_x' }">
+                                            <aura:iteration items="{! v.listOfAlphabet }" var="item">
+                                                <span class="slds-p-horizontal_xx-small">
+                                                    <a onclick="{! c.filterByLetter }" name="{! item }"
+                                                       class="{! (v.selectedAlphabet == 'item') ? 'selected' : '' }">
+                                                        {! item }
+                                                    </a>
+                                                </span>
+                                            </aura:iteration>
+                                            <div class="{! $Browser.formFactor == 'DESKTOP' ? '' : 'slds-p-bottom_small' }" />
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <!-- display total record and selected record count -->
+                                            <p class="slds-m-bottom_small">
+                                                <span class="slds-badge slds-badge_lightest" style="display: inline-block;">
+                                                    Records : <lightning:formattedNumber value="{! v.selectedCount }"/> / <lightning:formattedNumber value="{! v.totalRecords }"/>
+                                                </span>
+                                            </p>
+                                            <!-- data table (start) -->
+                                            <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                                <tbody>
+                                                    <aura:iteration items="{! v.dataTableList }" var="record" >
+                                                        <tr>
+                                                            <th scope="row" class="slds-text-align_right">
+                                                                <div class="slds-form-element">
+                                                                    <div class="slds-form-element__control">
+                                                                        <label class="slds-checkbox">
+                                                                            <ui:inputCheckbox text="{! record.prod2.Id }"
+                                                                                              value="true"
+                                                                                              change="{! c.checkboxSelect }"/>
+                                                                            <span class="slds-checkbox_faux"></span>
+                                                                            <span class="slds-form-element__label text">
+                                                                                {! record.prod2.Name }
+                                                                            </span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                    </aura:iteration>
+                                                </tbody>
+                                            </table>
+                                            <!-- data table (end) -->
+                                            <br />
+                                            <div class="{! $Browser.formFactor == 'DESKTOP' ? 'slds-align_absolute-center' : 'slds-scrollable_x' }">
+                                                <aura:iteration items="{! v.listOfAlphabet }" var="item">
+                                                    <span class="slds-p-horizontal_xx-small">
+                                                        <a onclick="{! c.filterByLetter }" name="{! item }"
+                                                           class="{! (v.selectedAlphabet == 'item') ? 'selected' : '' }">
+                                                            {! item }
+                                                        </a>
+                                                    </span>
+                                                </aura:iteration>
+                                                <div class="{! $Browser.formFactor == 'DESKTOP' ? '' : 'slds-p-bottom_small' }" />
+                                            </div>
+                                            <br />
+                                            <!-- pagination (start) -->
+                                            <div class="slds-align_absolute-center">         
+                                                <lightning:buttonIcon disabled="{! v.startPage == 0 }" onclick="{! c.pageNavigation }"
+                                                                      variant="brand" iconName="utility:back" name="previous" />
+                                                <span class="slds-badge slds-badge_lightest"
+                                                      style="margin-right: 10px; margin-left: 10px;">
+                                                    Page <lightning:formattedNumber value="{! v.currentPage }"/> out of
+                                                    <lightning:formattedNumber value="{! v.totalPages }"/>
+                                                </span>
+                                                <lightning:buttonIcon name="next" variant="brand" iconName="utility:forward"
+                                                                      disabled="{! (v.endPage + 1) >= v.totalRecords }" onclick="{! c.pageNavigation }" />
+                                            </div>
+                                            <!-- pagination (end) -->
+                                        </aura:set>
+                                    </aura:if>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning:button label="Cancel" onclick="{! c.closeProductsModal }"
+                                              disabled="{! v.recordLoaded }" />
+                            <lightning:button variant="brand" label="Add" onclick="{! c.addSelectedProducts }"
+                                              disabled="{! v.selectedCount == 0 }" />
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+            
+            <!-- MODAL DISPLAY AFTER SUBMIT BUTTON -->
+            <aura:if isTrue="{! v.showSubmitConfirmationModal }">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon class="slds-modal__close" iconName="utility:close"
+                                                  variant="bare-inverse" alternativeText="Close"
+                                                  onclick="{! c.closeSubmitConfirmationModal }" />
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                <strong>
+                                    Please confirm
+                                </strong>
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <h2 class="slds-align_absolute-center" style="font-size: medium;">
+                                        Are you sure you want to submit this form?
+                                    </h2>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning:button label="Cancel" onclick="{! c.closeSubmitConfirmationModal }" />
+                            <lightning:button aura:id="submittedRecord" name="submittedRecord"
+                                              variant="brand" label="Submit" onclick="{! c.saveRecord }" />
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+            
+        </div>
+        
+    </div>
+</aura:component>

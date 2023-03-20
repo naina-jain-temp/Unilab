@@ -1,0 +1,93 @@
+<aura:component controller="UNILAB_BranchInfo_AcctSched"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+     <aura:attribute name="data" type="List" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	
+    <div aura:id="containerDiv">
+        <div style="{! $Browser.formFactor == 'DESKTOP' ? '' : 'height: 100%; overflow:auto; display: flex; flex-direction: column;' }">
+            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                <lightning:layoutItem padding="around-small" size="12">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                        <!--<thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col" style="width: 10px;">
+                                    <div class="slds-truncate slds-align_absolute-center" title="Account">Criteria</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate_container slds-align_absolute-center" title="Date">Yes/No</div>
+                                </th>
+                            </tr>
+                        </thead>-->
+                        <tbody>
+                            <aura:iteration items="{! v.data }" var="record" >
+                           	<tr>
+                                <th scope="row" style="width: 40%;color:#0e119e;">
+                                    <div class="slds-truncate slds-align_left">
+                                        PO Schedule
+                                    </div>
+                                </th>
+                                <th scope="row" style="width: 60%;">
+                                    <div class="slds-truncate_container slds-align_absolute-center">
+                                       	{! record.PO_Day__c }
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;color:#0e119e;">
+                                    <div class="slds-truncate slds-align_left">
+                                        Delivery Schedule
+                                    </div>
+                                </th>
+                                <th scope="row">
+                                    <div class="slds-truncate_container slds-align_absolute-center">
+                                       	{! record.Delivery_Day__c }
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;color:#0e119e;">
+                                    <div class="slds-truncate slds-align_left">
+                                        Merchandiser Schedule
+                                    </div>
+                                </th>
+                                <th scope="row">
+                                    <div class="slds-truncate_container slds-align_absolute-center">
+                                       	{! record.TPA_Schedule__c }
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;color:#0e119e;">
+                                    <div class="slds-truncate slds-align_left">
+                                        RPH Schedule
+                                    </div>
+                                </th>
+                                <th scope="row">
+                                    <div class="slds-truncate_container slds-align_absolute-center">
+                                       	For Update
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 40%;color:#0e119e;">
+                                    <div class="slds-truncate slds-align_left">
+                                        PA Schedule
+                                    </div>
+                                </th>
+                                <th scope="row">
+                                    <div class="slds-truncate_container slds-align_absolute-center">
+                                       	For Update
+                                    </div>
+                                </th>
+                            </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </lightning:layoutItem>	
+            </lightning:layout>
+        </div>	
+    </div>
+</aura:component>

@@ -1,0 +1,35 @@
+<apex:page standardController="Product2" recordSetVar="prod2    ">
+    <html>
+    <script type="text/javascript">
+         window.onload = new function() { checkCondition(); };
+
+        function checkCondition()
+        
+        {
+            var urlString=window.location.href;
+            var baseURL = urlString.substring(0, urlString.indexOf("/_ui"));
+            var siteBaseURL = baseURL;// + '/s';
+            var redirectUrl = siteBaseURL + '/servlet/PrintableViewDownloadServlet?isdtp=p1&reportId=00O7F00000BB0RaUAL'
+            window.open(redirectUrl,'_blank').focus(); 
+            window.history.back();
+            
+            //windows.open('/servlet/PrintableViewDownloadServlet?isdtp=p1&reportId=00O7F00000BAzskUAD');
+            
+        }
+        /*
+    var detailURL= parent.document.referrer;
+    detailURL = detailURL.substring(detailURL.lastIndexOf('/')+1);
+    
+    function init() {
+        
+        if ((detailURL > "" ) && (detailURL.length == 15)) {
+            alert('pushing '+detailURL);
+            nowPushURL(detailURL);
+            
+        }
+    }
+    parent.onload = init; //window.onload;*/
+    </script>
+    <!--<body onLoad="init()"/>-->
+    </html>
+</apex:page>

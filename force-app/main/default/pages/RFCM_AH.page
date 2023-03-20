@@ -1,0 +1,11 @@
+<apex:page standardController="RFCM__c">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js" type="text/javascript"></script>
+<script>
+      $j = jQuery.noConflict();
+    $j(document).ready(function() {    
+      $j("input[name='piSubmit']").hide();
+      $j(".pbHeader").hide();
+      $j(".pShowMore").hide();
+    });
+</script>
+</apex:page>

@@ -1,0 +1,17 @@
+<template>
+    <section class="mainsec">
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col">
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-align_absolute-center">
+                        <lightning-datatable class="custom-tbl" key-field="id" data={hatAllocationData}
+                            columns={columns} hide-checkbox-column default-sort-direction={defaultSortDirection}
+                            sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort}
+                            onrowaction={handleRowAction}>
+                        </lightning-datatable>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>

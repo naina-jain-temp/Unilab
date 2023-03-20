@@ -1,0 +1,24 @@
+.THIS .input-variable{
+    display:'none';
+}
+
+.THIS button.slds-button_neutral {
+    
+    float: none !important;
+    
+}
+
+.THIS button.slds-button.slds-button_brand {
+    
+    float: none !important;
+}
+
+.THIS textarea{
+    height:33px !important;
+    
+}
+
+.THIS button.slds-button.slds-button_icon.slds-button_icon-brand{
+    
+    float:right;
+}

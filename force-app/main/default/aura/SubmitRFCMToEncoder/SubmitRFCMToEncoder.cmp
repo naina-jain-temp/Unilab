@@ -1,0 +1,36 @@
+<aura:component controller="RFCMApprovalProcessController" implements="force:lightningQuickActionWithoutHeader,force:hasRecordId">
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="resp" type="RFCMApprovalProcessController.RFCMApprovalProcessResponse"/>
+    <aura:attribute name="showForm" type="boolean" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{!v.showForm}">
+        <aura:if isTrue="{! v.resp.errorFlag == false}">
+            <div class="slds-grid slds-grid_vertical">
+                <div class="slds-col">
+                    Encoder : {!v.resp.rfcm.Encoder__r.Name}
+                </div>
+                <div class="slds-col">
+                    &nbsp;
+                </div>
+                
+                <div class="slds-col" style="height:150px;padding:10px">
+                    <lightning:textarea  required="true" value="{!v.resp.projectOwnerComments}" placeholder="Please add your comments" label="Comments" />
+                </div>
+                  <div class="slds-col">
+                    &nbsp;
+                </div>
+                
+                <div class="slds-col">
+                    <lightning:button variant="brand" label="Submit" title="Submit" onclick="{! c.handleSubmit }" />
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{! v.resp.errorFlag == true}">
+            Error : {!v.resp.message}
+        </aura:if>
+    </aura:if>
+    
+</aura:component>

@@ -1,0 +1,13 @@
+<aura:component controller="UNILAB_TCB_Form"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="recordId" type="String" />
+    <!--<aura:registerEvent name="compTAFTInsertModal" type="c:UNILAB_TCB_TAFT_LE"/>-->
+    
+    <aura:attribute name="tFields" type="String[]" default="['Activity_Title__c','Market_Activity_Type__c','Affected_BU__c','Competitor_Brand__c','Competitor_Company__c','Start_Date__c','End_Date__c','Remarks__c']" />
+    
+    
+    <lightning:recordForm aura:id="myform"  objectApiName="TAFT__c" fields="{!v.tFields}" onsubmit='{!c.submitRecord}'/>
+	
+</aura:component>

@@ -1,0 +1,18 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <aura:attribute name="container1" type="Aura.Component[]" />
+    <aura:attribute name="container2" type="Aura.Component[]" />
+    <aura:attribute name="container3" type="Aura.Component[]" />
+    
+	<lightning:tabset selectedTabId="t1">
+        <lightning:tab label="IDS-1" id="t1">
+           	{!v.container1}
+        </lightning:tab>
+        <lightning:tab label="IDS-2" id="t2">
+            {!v.container2}
+        </lightning:tab>
+        <lightning:tab label="Others" id="t3">
+            
+        </lightning:tab>
+    </lightning:tabset>
+</aura:component>

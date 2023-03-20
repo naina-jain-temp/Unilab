@@ -1,0 +1,37 @@
+<aura:component implements="lightning:homeTemplate" description="Full Width Header with an 8x4 and 6x6 Grid Layout">
+    
+    <aura:attribute name="headerElement" type="Aura.Component[]" />
+    <aura:attribute name="firstLeftElement" type="Aura.Component[]" />
+    <aura:attribute name="firstRightElement" type="Aura.Component[]" />
+    <aura:attribute name="secondLeftElement" type="Aura.Component[]" />
+    <aura:attribute name="secondRightElement" type="Aura.Component[]" />
+    
+    <div>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow" size="12" padding="around-small">
+                {! v.headerElement }
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow" size="8" padding="around-small">
+                {! v.firstLeftElement }
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" size="4" padding="around-small">
+                {! v.firstRightElement }
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem size="8" padding="around-small">
+                <lightning:layout>
+                    <lightning:layoutItem size="6" padding="around-small">
+                        {! v.secondLeftElement }
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="6" padding="around-small">
+                        {! v.secondRightElement }
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

@@ -1,0 +1,17 @@
+.THIS .prompt{
+    font-size: 18px;
+    padding-top: 20px;
+}
+
+.THIS.exampleHolder{
+    position: relative;
+    display: inline-block;
+    margin-left: 15px;
+    width: 55px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.THIS .question{
+    font-size: 18px;
+}

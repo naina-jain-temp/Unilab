@@ -1,0 +1,396 @@
+<aura:component controller="UNILAB_CreatePromo_Controller" implements="flexipage:availableForRecordHome,force:appHostable,lightning:actionOverride,force:hasRecordId" access="global">
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="promoId" type="String" />
+    <aura:attribute name="promo" type="Promo__c" default="{'sobjectType':'Promo__c', 'Promo_Name__c': '', 'Promo_Type__c': '', 'Start_Date__c': 0, 'End_Date__c': 0}"/>
+    <aura:attribute name="promoTypeOptions" type="Promo__c" default="{sobjectType: 'Promo__c'}"/>
+    <aura:attribute name="promoSubTypeOptions" type="Promo__c" default="{sobjectType: 'Promo__c'}"/>
+    <aura:attribute name="promoMaterialOptions" type="Promo__c" default="{sobjectType: 'Promo__c'}"/>
+    <aura:attribute name="selectBrand" type="sObject" default="{}"/>
+    <aura:attribute name="selectbaseProdOptions" type="List" default="[]"/>
+    <aura:attribute name="selectbaseProdTemp" type="List" default="[]"/>
+    <aura:attribute name="selectbaseProdValues" type="List" default="[]"/>
+    <aura:attribute name="selectsubBrandsOptions" type="List" default="[]"/>
+    <aura:attribute name="selectsubBrandsTemp" type="List" default="[]"/>
+    <aura:attribute name="selectsubBrandsValues" type="List" default="[]"/>
+    <aura:attribute name="selectSKUOptions" type="List" default="[]"/>
+    <aura:attribute name="selectSKUTemp" type="List" default="[]"/>
+    <aura:attribute name="selectSKUValues" type="List" default="[]"/>
+    
+    <aura:attribute name="successToast" type="String" default=""/>
+    <aura:attribute name="warningToast" type="String" default=""/>
+    <aura:attribute name="errorToast" type="String" default=""/>
+    
+    <aura:attribute name="isIncludeAllChecked" type="boolean" default="false"/>
+    <aura:attribute name="isIncludeAllDisabled" type="boolean" default="true"/>
+    <aura:attribute name="isSubBrandButtonDisabled" type="boolean" default="true"/>
+    <aura:attribute name="isBaseProductButtonDisabled" type="boolean" default="true"/>
+    <aura:attribute name="isSKUButtonDisabled" type="boolean" default="true"/>
+    <aura:attribute name="isRecordSubmit" type="boolean" default="false"/>
+    
+    <aura:attribute name="isBaseProductModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isSubBrandModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isSKUModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isSubmitModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isInProgress" type="boolean" default="true"/>
+    <aura:attribute name="isCreateSuccess" type="boolean" default="false"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:handler name="change" value="{!v.selectBrand}" action="{!c.dofetchSubBrands}"/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    
+    
+    <aura:attribute name="promoTobeCloned" type="Id"/>
+    
+    <div  style="height: 100%; margin: 0; overflow:auto;">
+        
+        <aura:if isTrue="{!v.spinner}">
+            <c:UNILAB_PAL_Spinner/>
+        </aura:if>
+        
+        <article class="slds-card" >
+            <div class="slds-card__header slds-grid"></div>
+            <aura:if isTrue="{!v.isCreateSuccess}">
+                <div class="slds-p-around_xx-large">
+                    <lightning:layout>
+                        <lightning:layoutItem size="12" class="slds-p-left_x-large">
+                            <div class="slds-align_absolute-center">
+                                <lightning:icon class="iconsCss" size="large" iconName="utility:success" />
+                                <span class="slds-p-left_x-small slds-text-heading_large">SUCCESS</span>
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    <lightning:layout>
+                        <lightning:layoutItem size="12" class="slds-p-left_x-large slds-p-left_x-small">
+                            <div class="slds-align_absolute-center">
+                                <span class="slds-text-heading_medium">Promo "<span class="slds-text-heading_large">{!v.promo.Promo_Name__c}</span>" was created</span>
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                    <lightning:layout>
+                        <lightning:layoutItem size="12" class="slds-p-left_xx-large slds-p-top_xx-large">
+                            <div class="slds-align_absolute-center">
+                                <lightning:button variant="brand" label="Go to Record page" onclick="{!c.goToRecordPage}" />
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.isInProgress}">
+                <div class="slds-card__body slds-card__body_inner" style="margin-left:200px; margin-right:200px; margin-top:50px;margin-bottom:50px;">
+                    <article class="slds-card slds-card_boundary">
+                        
+                        <!-- Promo Information !-->
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <div class="slds-page-header" style="padding:0.50rem">
+                                            <div class="slds-page-header__row">
+                                                <div class="slds-page-header__col-title">
+                                                    <div class="slds-media">
+                                                        <div class="slds-media__body">
+                                                            <div class="slds-page-header__name">
+                                                                <div class="slds-page-header__name-title">
+                                                                    <h1>
+                                                                        <span class="slds-page-header__title slds-truncate" style="font-size:medium;" title="Promo Information">Promo Information</span>
+                                                                    </h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">Promo Name</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <div class="slds-form-element">
+                                                    <div class="slds-form-element__control">
+                                                        <lightning:input aura:id="promoName"
+                                                                         type="text" 
+                                                                         name="promoName" 
+                                                                         label="Input Promo Name"
+                                                                         value="{!v.promo.Promo_Name__c}"
+                                                                         required="true"/>
+                                                    </div>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="2"></lightning:layoutItem>
+                                            <lightning:layoutItem size="4" padding="around-small">
+                                                <lightning:input aura:id="promoStartDate"
+                                                                 type="date" 
+                                                                 name="startdate" 
+                                                                 label="Start Date" 
+                                                                 value="{!v.promo.Start_Date__c}"
+                                                                 required="true"/>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                        
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">Promo Type</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <lightning:combobox aura:id="promoType"
+                                                                    name="promoTypeOptions"
+                                                                    label="Select Promo Type"
+                                                                    options="{!v.promoTypeOptions}" 
+                                                                    value="{!v.promo.Promo_Type__c}"
+                                                                    required="true"/>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="2"></lightning:layoutItem>
+                                            <lightning:layoutItem size="4" padding="around-small">
+                                                <lightning:input aura:id="promoEndDate"
+                                                                 type="date" 
+                                                                 name="enddate" 
+                                                                 label="End Date" 
+                                                                 value="{!v.promo.End_Date__c}"
+                                                                 required="true"/>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                        
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">Promo Sub-Type</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <lightning:combobox aura:id="promoSubType"
+                                                                    name="promoSubTypeOptions"
+                                                                    label="Select Promo Sub-Type"
+                                                                    options="{!v.promoSubTypeOptions}" 
+                                                                    value="{!v.promo.Promo_Sub_Type__c}"
+                                                                    required="false"/>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="2"></lightning:layoutItem>
+                                            <lightning:layoutItem size="4" padding="around-small">
+                                                <lightning:combobox aura:id="promoMaterials"
+                                                                    name="promoMaterialOptions"
+                                                                    label="Select Promo Materials"
+                                                                    options="{!v.promoMaterialOptions}" 
+                                                                    value="{!v.promo.Promo_Materials__c}"
+                                                                    required="false"/>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </h2>
+                                </div>
+                            </header>
+                        </div>
+                        
+                        <!-- Product and SKU's !-->
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <div class="slds-page-header" style="padding:0.50rem">
+                                            <div class="slds-page-header__row">
+                                                <div class="slds-page-header__col-title">
+                                                    <div class="slds-media">
+                                                        <div class="slds-media__body">
+                                                            <div class="slds-page-header__name">
+                                                                <div class="slds-page-header__name-title">
+                                                                    <h1>
+                                                                        <span class="slds-page-header__title slds-truncate" style="font-size:medium;" title="Product and SKU's">Product and SKU's</span>
+                                                                    </h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <lightning:layout >
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">* Brand</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem padding="horizontal-large" flexibility="grow" size="3" class ="slds-p-bottom_small">
+                                                <c:UNILAB_LEX_CustomLookup required="false" 
+                                                                           aura:id="userLookup" 
+                                                                           objectAPIName="ProductBrand" 
+                                                                           IconName="standard:orders" 
+                                                                           selectedRecord= "{!v.selectBrand}" 
+                                                                           />
+                                                <div class="slds-form-element">
+                                                    <div class="slds-checkbox">
+                                                        <span class="slds-form-element__label">
+                                                            <lightning:input aura:id="includeAll"
+                                                                             type="checkbox" label="Include all Sub-Brand" 
+                                                                             checked="{!v.isIncludeAllChecked}" 
+                                                                             disabled="{!v.isIncludeAllDisabled}"
+                                                                             onchange="{!c.doIncludeAllSubBrand}"/>
+                                                        </span>
+                                                    </div>
+                                                </div> 
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">* Base Product</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <button class="slds-button slds-button_brand slds-button_stretch" 
+                                                        disabled="{!v.isBaseProductButtonDisabled}"  
+                                                        onclick="{!c.openBaseProductModal}">Select Base Product</button>
+                                                
+                                                <!-- BASE PRODUCT MODAL !-->
+                                                <aura:if isTrue="{!v.isBaseProductModalOpen}">
+                                                    
+                                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                                        <div class="slds-modal__container">
+                                                            <header class="slds-modal__header">
+                                                                <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" iconName="utility:close" variant="bare" onclick="{! c.closeBaseProductModal }" alternativeText="Close" />
+                                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Base Product</h2>
+                                                            </header>
+                                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                                <div>
+                                                                    <lightning:dualListbox aura:id="baseProduct"
+                                                                                           name="baseproduct"  
+                                                                                           label= "CHOOSE BASE PRODUCT" 
+                                                                                           sourceLabel="Not Selected" 
+                                                                                           selectedLabel="Selected" 
+                                                                                           options="{!v.selectbaseProdOptions}" 
+                                                                                           disableReordering="true"
+                                                                                           value="{!v.selectbaseProdValues}"
+                                                                                           />
+                                                                </div>
+                                                            </div>
+                                                            <footer class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral" onclick="{!c.closeBaseProductModal}">Cancel</button>
+                                                                <button class="slds-button slds-button_brand" onclick="{!c.doFetchProdSKU}">Save</button>
+                                                            </footer>
+                                                        </div>
+                                                    </section>
+                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                    
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                        
+                                        
+                                        <lightning:layout >
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">* Sub-Brand</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <button class="slds-button slds-button_brand slds-button_stretch" 
+                                                        disabled="{!v.isSubBrandButtonDisabled}" 
+                                                        onclick="{!c.openSubBrandModal}">Select Sub-Brand</button>
+                                                <!-- SUB BRAND MODAL !-->
+                                                <aura:if isTrue="{!v.isSubBrandModalOpen}">
+                                                    
+                                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                                        <div class="slds-modal__container">
+                                                            <header class="slds-modal__header">
+                                                                <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" iconName="utility:close" variant="bare" onclick="{! c.closeSubBrandModal }" alternativeText="Close" />
+                                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Sub-Brand </h2>
+                                                            </header>
+                                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                                <div>
+                                                                    <lightning:dualListbox aura:id="subBrand"
+                                                                                           name="subbrand"  
+                                                                                           label= "CHOOSE SUB BRAND" 
+                                                                                           sourceLabel="Not Selected" 
+                                                                                           selectedLabel="Selected" 
+                                                                                           options="{!v.selectsubBrandsOptions}" 
+                                                                                           disableReordering="true"
+                                                                                           value="{!v.selectsubBrandsValues}"
+                                                                                           />
+                                                                </div>
+                                                            </div>
+                                                            <footer class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral" onclick="{!c.closeSubBrandModal}">Cancel</button>
+                                                                <button class="slds-button slds-button_brand" onclick="{!c.doFetchBaseProd}">Save</button>
+                                                            </footer>
+                                                        </div>
+                                                    </section>
+                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                    
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <span style="float:right">SKU's to include</span>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="3" padding="around-small">
+                                                <button class="slds-button slds-button_brand slds-button_stretch" 
+                                                        disabled="{!v.isSKUButtonDisabled}" 
+                                                        onclick="{!c.openSKUModal}">Select SKU's</button>
+                                                <!-- SKU MODAL !-->
+                                                <aura:if isTrue="{!v.isSKUModalOpen}">
+                                                    
+                                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                                        <div class="slds-modal__container">
+                                                            <header class="slds-modal__header">
+                                                                <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" 
+                                                                                      iconName="utility:close" 
+                                                                                      variant="bare" 
+                                                                                      onclick="{! c.closeSKUModal }" 
+                                                                                      alternativeText="Close" />
+                                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Historical SKU's</h2>
+                                                            </header>
+                                                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                                <div>
+                                                                    <lightning:dualListbox aura:id="productSKU"
+                                                                                           name="sku"  
+                                                                                           label= "CHOOSE SKU" 
+                                                                                           sourceLabel="Not Selected" 
+                                                                                           selectedLabel="Selected" 
+                                                                                           options="{!v.selectSKUOptions}" 
+                                                                                           disableReordering="true"
+                                                                                           value="{!v.selectSKUValues}"
+                                                                                           />
+                                                                </div>
+                                                            </div>
+                                                            <footer class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral" onclick="{!c.closeSKUModal}">Cancel</button>
+                                                                <button class="slds-button slds-button_brand" onclick="{!c.saveSKUModal}">Save</button>
+                                                            </footer>
+                                                        </div>
+                                                    </section>
+                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                    
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </h2>
+                                </div>
+                            </header>
+                        </div>
+                    </article>      
+                </div>
+                <!-- END OF INNER CARD !-->
+                
+                <div style="display:flex; justify-content:center; margin-bottom:20px;">
+                    <button class="slds-button slds-button_brand" onclick="{!c.openSubmitModal}">Save and Submit</button>
+                    <aura:if isTrue="{!v.isSubmitModalOpen}">
+                        
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <header class="slds-modal__header">
+                                    <lightning:buttonIcon class="slds-modal__close slds-button_icon-inverse" 
+                                                          iconName="utility:close" 
+                                                          variant="bare" 
+                                                          onclick="{! c.closeSubmitModal }" 
+                                                          alternativeText="Close" />
+                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Confirm Submission</h2>
+                                </header>
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                    <div>
+                                        <center><span>Are you sure? This cannot be undone.</span></center>
+                                    </div>
+                                </div>
+                                <footer class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick="{!c.closeSubmitModal}">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick="{!c.saveAndSubmit}">Submit</button>
+                                </footer>
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                        
+                    </aura:if>
+                </div>
+            </aura:if>
+        </article>
+    </div>
+    
+</aura:component>

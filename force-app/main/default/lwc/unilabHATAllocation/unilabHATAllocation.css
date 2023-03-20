@@ -1,0 +1,103 @@
+.mainsec {
+    background: #fff;
+    /* height:calc(100vh - 175px); */
+    height: calc(100vh - 110px);
+    overflow: auto;
+    border: #d7d7d7 1px solid;
+    border-radius: 6px;
+    box-shadow: 0px 0px 5px #d8d8d891;
+    position: fixed; width:calc(100vw - 20px);
+}
+
+.custom-tbl {
+    display: inline-block;
+    height: calc(100% - 40px);
+    width: 100%;
+}
+
+.custom-tbl .slds-table th.slds-has-focus {
+    box-shadow: none;
+}
+
+.custom-tbl .slds-button_neutral {
+    border: 0;
+    padding: 0;
+    color: #1366f3;
+    background: none;
+}
+
+.custom-tbl-supr-case .slds-button_neutral {
+    border: 0;
+    padding: 0;
+    color: #1366f3;
+    background: none;
+}
+
+.custom-tbl .slds-table_bordered thead th,
+.custom-tbl .slds-table--bordered thead th {
+    border-bottom: 1px solid #e8e8e8 !important;
+}
+
+.custom-tbl .slds-table td {
+    padding-left: 18px !important;
+}
+
+.custom-tbl tbody th:nth-child(1) {
+    padding-left: 18px;
+}
+
+.custom-tbl-supr {
+    display: inline-block;
+    height: calc(100% - 47px);
+    width: 100%;
+}
+
+.custom-tbl-supr-case {
+    display: inline-block;
+    height: calc(100% - 120px);
+    width: 100%;
+}
+
+.custom-tbl-supr .slds-table td {
+    padding-left: 18px !important;
+}
+
+.custom-tbl-supr .slds-button_neutral {
+    border: 0;
+    padding: 0;
+    color: #1366f3;
+    background: none;
+}
+.text-right{text-align: right;}
+.main-tabs{padding:25px 15px 15px; margin: 0 auto; position: relative;}
+
+.popborder {
+    /* border: 1px solid #ccc; */
+    border: 0;
+}
+
+.popborder .slds-table_bordered tbody td {
+    padding: 10px 10px 10px 10px;
+}
+
+.popup-dropbox {
+    /* position: absolute; */
+    z-index: 500;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 2px 3px #45414e29;
+    border-radius: 3px;
+    max-height: 200px;
+    overflow-y: auto;
+    /* width: 30%; */
+}
+
+
+.slds-modal__header{text-align: left;}
+.slds-modal__header .close-button {
+    position: absolute;
+    right: 10px;
+    background-color: transparent;
+    border: 0;
+    font-size: 18px;
+    top: 10px;
+}

@@ -1,0 +1,277 @@
+<aura:component controller="UNILAB_PerDiem"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global">
+    <aura:attribute name="activityJuncData" type="List"/>
+    <aura:attribute name="eventData" type="List"/>
+    <aura:attribute name="existEventData" type="List"/>
+    <aura:attribute name="removeEventData" type="List"/>
+    <aura:attribute name="existPerDiemData" type="List"/>
+    <aura:attribute name="perDiemData" type="List"/>
+    <aura:attribute name="startDate" type="date"/>
+    <aura:attribute name="endDate" type="date"/>
+    <aura:attribute name="isEdit" type="Boolean" default="false"/>
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="selectAll" type="Boolean" default="false"/>
+    <aura:attribute name="selectAllExist" type="Boolean" default="false"/>
+
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="20"/>
+    <aura:attribute name="bNoRecordsFound" type="boolean"/>
+    <aura:attribute name="exNoRecordsFound" type="boolean"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{! v.isEdit }">
+        <lightning:layout multipleRows="true" >
+            <aura:if isTrue="{!v.showSpinner}">
+                <div aura:id="spinnerId" class="slds-spinner_container">
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </aura:if>
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-page-header">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    <lightning:icon iconName="custom:custom41" size="medium"/>
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>
+                                                <span class="slds-page-header__title slds-truncate">Per Diem</span>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6" 
+                                              padding="around-small">
+                            <lightning:input type="date" 
+                                             aura:id="startDate" 
+                                             name="startDate"
+                                             label="Start Date" 
+                                             value="{! v.startDate }"
+                                             onchange="{! c.dateFilter}"/>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6" 
+                                              padding="around-small">
+                            <lightning:input type="date" 
+                                             aura:id="endDate" 
+                                             name="endDate"
+                                             label="End Date" 
+                                             value="{! v.endDate }" 
+                                             onchange="{! c.dateFilter}"/>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6" 
+                                              padding="around-small">
+                            
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </div>
+                <br/>
+                <div class="slds-media__body">
+                    <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                            <h1>
+                                <span class="slds-page-header__title slds-truncate">Draft Event</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            
+            <aura:if isTrue="{!v.exNoRecordsFound}">
+                <!--display error message if there is no records available -->
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <h2>No record found.</h2>
+                    </div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-scrollable_x">
+                            <table class="slds-table slds-table_bordered slds-table_col-bordered">
+                                <thead>
+                                    <tr class="slds-text-title">
+                                        <th scope="row" class="slds-text-title">
+                                            <div class="slds-text-body_small">
+                                                <lightning:input type="checkbox" 
+                                                                 class="slds-checkbox__label"
+                                                                 aura:id="selectAllExist"
+                                                                 name="selectAllExist"
+                                                                 checked="{! v.selectAllExist}"
+                                                                 onchange="{! c.selectAllExistChange}"/>
+                                            </div>
+                                        </th>
+                                        <th scope="col">Exemption Tag</th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Assigned To">Assigned To</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Start Date">Start Date</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="End Date">End Date</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Event Type">Event Type</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Event Sub-type">Event Sub-type</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Status">Status</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Mode of Contact">Mode of Contact</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Location Based">Location Based</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Location">Location</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Related To Account">Related To Account</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{! v.existPerDiemData }" var="record" >
+                                        <c:UNILAB_PerDiemItem_Edit activity="{!record.objEvent}"
+                                                                   selectedRow="{!record.isChecked}"
+                                                                   perDiemData="{! record}"
+                                                                   existEventData="{! v.existEventData}"
+                                                                   removeEventData="{! v.removeEventData}"/>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-media__body">
+                    <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                            <h1>
+                                <span class="slds-page-header__title slds-truncate">New PDE</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            <aura:if isTrue="{!v.bNoRecordsFound}">
+                <!--display error message if there is no records available -->
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <h2>No record found.</h2>
+                    </div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-scrollable_x">
+                            <table class="slds-table slds-table_bordered slds-table_col-bordered">
+                                <thead>
+                                    <tr class="slds-text-title">
+                                        <th scope="row" class="slds-text-title">
+                                            <div class="slds-text-body_small">
+                                                <lightning:input type="checkbox" 
+                                                                 class="slds-checkbox__label"
+                                                                 aura:id="selectAll"
+                                                                 name="selectAll"
+                                                                 checked="{! v.selectAll}"
+                                                                 onchange="{! c.selectAllChange}"/>
+                                            </div>
+                                        </th>
+                                        <th scope="col">Exemption Tag</th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Assigned To">Assigned To</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Start Date">Start Date</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="End Date">End Date</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Event Type">Event Type</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Event Sub-type">Event Sub-type</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Status">Status</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Mode of Contact">Mode of Contact</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Location Based">Location Based</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Location">Location</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="Related To Account">Related To Account</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{! v.activityJuncData }" var="record" >
+                                        <c:UNILAB_PerDiemItem activity="{!record.objEvent}"
+                                                              selectedRow="{!record.isChecked}"
+                                                              perDiemData="{! record}"
+                                                              eventData="{! v.eventData}"/>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning:layoutItem>
+                    
+                </aura:set>
+            </aura:if>
+            <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-text-align_center">
+                        <lightning:button aura:id="submittedRecord" 
+                                          name="submittedRecord" 
+                                          label="Save" 
+                                          variant="success"
+                                          onclick="{! c.update}"
+                                          disabled="{! v.showSpinner}"/>
+                    </div>
+                </lightning:layoutItem>
+        </lightning:layout>
+        
+        <!--NOT EDITABLE-->
+        <aura:set attribute="else">
+            <aura:if isTrue="{!v.showSpinner}">
+                <div aura:id="spinnerId" class="slds-spinner_container">
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </aura:if>
+            <c:UNILAB_PerDiem_EditView recordId = "{! v.recordId}"/>
+        </aura:set>
+    </aura:if>
+</aura:component>

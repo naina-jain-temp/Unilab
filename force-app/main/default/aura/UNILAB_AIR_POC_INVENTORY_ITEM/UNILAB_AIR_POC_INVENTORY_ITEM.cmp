@@ -1,0 +1,93 @@
+<aura:component controller="UNILAB_POC_INVENTORY"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <aura:attribute name="product" type="Product2"/>
+    <aura:attribute name="inventory" type="Inventory__c"/>
+    <aura:attribute name="inventoryData" type="List"/>
+    <aura:attribute name="prevData" type="List"/>
+    <aura:attribute name="withoutRec" type="boolean" default="false"/>
+    <aura:attribute name="availableBool" type="boolean" default="false"/>
+    <aura:attribute name="outofstockBool" type="boolean" default="false"/>
+    <aura:attribute name="notcarriedBool" type="boolean" default="false"/>
+	<aura:attribute name="inventoryValue" type="Integer"/>
+    <aura:attribute name="offtakeValue" type="Integer"/>
+	<aura:attribute name="prevInventoryValue" type="Integer"/>
+    <aura:attribute name="prevOfftakeValue" type="Integer"/>
+    <aura:attribute name="submittedBtn" type="boolean"/>
+    <aura:attribute name="periodVal" type="Integer"/>
+    <aura:attribute name="lastModifiedDate" type="Date"/>
+    <aura:attribute name="lastModifiedName" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <tr>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                {! v.product.Must_Brand__c }
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-line-clamp">
+                {! v.product.Name }
+            </div>
+        </th>
+        <th scope="row" class="slds-cell-wrap">
+            <div class="slds-truncate slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning:input type="number"
+                                     label="Inventory"
+                                     value="{! v.prevInventoryValue}"
+                                     disabled="true"/>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning:input type="number"
+                                     label="Offtake"
+                                     value="{! v.prevOfftakeValue}"
+                                     disabled="true"/>
+            	</div>
+            </div>
+        </th>
+        <th scope="row" class="slds-cell-wrap">
+            <aura:if isTrue="{! equals(v.inventory.Form_Status__c, 'Submit') }">
+                <div class="slds-truncate slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning:input type="number"
+                                     label="Inventory"
+                                     pattern="[0-9]*"
+                                     value="{! v.inventory.Current_Inventory__c }"
+                                     disabled="true"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning:input type="number"
+                                     label="Offtake"
+                                     pattern="[0-9]*"
+                                     value="{! v.inventory.Current_Offtake__c }"
+                                     disabled="true"/>
+                    </div>
+                </div>
+                <aura:set attribute="else">
+                    <div class="slds-truncate slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:input type="number"
+                                         aura:id="inventoryInput"
+                                         label="Inventory"
+                                         pattern="[0-9]*"
+                                         value="{! v.inventoryValue }"
+                                         onchange="{! c.inventoryChange}"
+                                         disabled="{! v.submittedBtn}"/>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:input type="number"
+                                         aura:id="offtakeInput"
+                                         label="Offtake"
+                                         pattern="[0-9]*"
+                                         value="{! v.offtakeValue }"
+                                         onchange="{! c.offtakeChange}"
+                                         disabled="{! v.submittedBtn}"/>
+                        </div>
+                    </div>
+                </aura:set>
+            </aura:if>
+        </th>
+    </tr>
+</aura:component>

@@ -1,0 +1,65 @@
+<aura:component controller="UNILAB_TrainingContactController" implements="force:lightningQuickAction,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride,force:hasSObjectName" access="global" >
+    
+    <aura:attribute name="tcr" type="sObject" default="{}"/>    
+    <aura:attribute name="isPendingConcurrence" type="Boolean" default="false"/> 
+    <aura:attribute name="isPendingApproval" type="Boolean" default="false"/>     
+    <aura:attribute name="isShowApprovalConfirm" type="Boolean" default="false"/>
+    <aura:attribute name="isValidUser" type="Boolean" default="false"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="isT3" type="Boolean" default="false"/>  
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />  
+     <lightning:notificationsLibrary aura:id="notifLib"/>
+
+     <aura:if isTrue="{! v.isPendingConcurrence}" >
+         Updating Status...
+    </aura:if>
+    
+    <aura:if isTrue="{! v.isPendingApproval}" >
+   
+        <lightning:textarea aura:id="approval_remarks" name="approval_remarks"
+                            placeholder="" maxLength="255"
+                            value="{! v.tcr.Approval_Remarks__c }"
+                            label="{! $Label.c.Approval_Remarks_Label}"
+                            />
+        
+        <div style="float:right;">
+            <lightning:button variant="brand" label="{! $Label.c.TCR_Button_Submit}" 
+                              title="Submit" onclick="{! c.handleApprove }" />
+        </div>    
+    </aura:if>    
+    
+    <!-- APPROVAL CONFIRMATION -->
+    <aura:if isTrue="{!v.isShowApprovalConfirm}">
+        <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            
+                            <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                        </button>
+                        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Confirmation}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                        <aura:if isTrue="{! v.isPendingApproval}">
+                            <h2>Approve this TCR?</h2>  
+                            <aura:set attribute="else">
+                                <h2>Concur to this TCR?</h2>
+                            </aura:set>                                                        
+                        </aura:if>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        
+                        <button class="slds-button slds-button_neutral"  onclick="{!c.handleUpdateStatus}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                        
+                        <button class="slds-button slds-button_neutral" onclick="{!c.handleCancelApproval}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                        
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </lightning:layoutItem>            
+    </aura:if>
+</aura:component>

@@ -1,0 +1,67 @@
+<aura:component controller="UNILAB_Complete_Workplan"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <!-- control form -->
+    <aura:attribute name="enableForm" type="Boolean" default="false"/>
+    <aura:attribute name="enableForm2" type="Boolean" default="false"/>
+	
+    <aura:attribute name="eventId" type="String" />
+    
+    <aura:attribute name="modeOfContactList" type="List" default="[]"/>
+    <aura:attribute name="modeOfContactSelValue" type="String" />
+    
+    <aura:attribute name="locationBaseList" type="List" default="[]"/>
+    <aura:attribute name="locationBaseSelValue" type="String" />
+    
+    <aura:attribute name="locationList" type="List" default="[]"/>
+    <aura:attribute name="locationSelValue" type="String" />
+    
+    <aura:attribute name="descValue" type="String" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:navigation aura:id="navigation"/>
+    
+    <aura:if isTrue="{! or(v.enableForm, v.enableForm2) }">
+        <div aura:id="containerDiv">
+            <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Mobile' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <lightning:select name="selModeOfContact" label="Mode of Contact" aura:id="selModeOfContact" variant="label-stacked" value="{!v.modeOfContactSelValue}">
+                            <aura:iteration items="{!v.modeOfContactList}" var="option">
+                                <option text="{!option}" value="{!option}" selected="{!option==v.modeOfContactSelValue}" />
+                            </aura:iteration>
+                        </lightning:select>              
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <lightning:select name="locationBase" label="Location Base" aura:id="selLocationBase" variant="label-stacked" value="{!v.locationBaseSelValue}" onchange='{! c.locationBaseChange }'>
+                            <aura:iteration items="{!v.locationBaseList}" var="option">
+                                <option text="{!option}" value="{!option}" selected="{!option==v.locationBaseSelValue}" />
+                            </aura:iteration>
+                        </lightning:select>      
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <lightning:select name="location" label="Location" aura:id="selLocation" variant="label-stacked" value="{!v.locationSelValue}">
+                            <aura:iteration items="{!v.locationList}" var="option">
+                                <option text="{!option}" value="{!option}" selected="{!option==v.locationSelValue}"/>
+                            </aura:iteration>
+                        </lightning:select>  
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <lightning:textarea aura:id="description" label="Analysis/Learnings/Wins" name="description" value="{!v.descValue}"/>              
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12" class="slds-align_absolute-center">
+                        <lightning:button variant="brand" type="button" name="save" label="Save-as-Draft" onclick="{!c.saveRecord}" />
+                        <!--<lightning:button class="slds-m-top_small" variant="destructive" type="button" name="endCall" label="End Call" onclick="{!c.handleEndCall}" />	-->
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="12" class="slds-align_absolute-center">
+                        <lightning:button variant="success" type="button" name="submit" label="Submit Report and End Call" onclick="{!c.submitRecord}" />	
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <h1>Workplan is Locked!</h1>
+        </aura:set>
+    </aura:if>
+</aura:component>

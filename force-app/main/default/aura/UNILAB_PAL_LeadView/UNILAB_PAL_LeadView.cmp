@@ -1,0 +1,151 @@
+<aura:component controller="UNILAB_PAL_Lead_Controller" access="global" implements="lightning:isUrlAddressable,force:appHostable,lightning:actionOverride,force:hasRecordId,flexipage:availableForAllPageTypes" >
+    <!-- PAGE LOAD -->    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.doInit}" />
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="allocList" type="List" default="[]"/>
+    <aura:attribute name="accAllocations" type="List" />
+    <aura:attribute name="totalAllocation" type="Decimal" />
+    <aura:attribute name="promoName" type="String"/>
+    <aura:attribute name="idValue" type="String"/>
+    <aura:attribute name="promoStatus" type="String" />
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    
+    <!-- TREE GRID -->
+    <aura:attribute name="gridColumns" type="List"  />
+    <aura:attribute name="gridData" type="Object" default="[]"/>
+    <aura:attribute name="gridExpandedRows" type="Object" />
+    <aura:attribute name="currentExpandedRows" type="String" />
+    <aura:attribute name="selectedRows" type="List" default="[]"/>
+    
+    <!-- Count data-->
+    <aura:attribute name="totalNumberOfRows" type="Integer" />
+    <aura:attribute name="totalAccountTeam" type="Integer" />
+    <aura:attribute name="totalAccountGroup" type="Integer" />
+    
+    <!--CheckBoxes -->
+    <aura:attribute name="accountTeams" type="boolean" default = "false"/>
+    <aura:attribute name="accountGroups" type="boolean" default = "false"/>
+    
+    <div  style="height: 100%; margin: 0; overflow:auto;">
+        <aura:if isTrue="{!v.spinner}">
+            <c:UNILAB_PAL_Spinner/>
+        </aura:if>
+        <lightning:layout multipleRows="true" verticalAlign="stretch">
+            
+            <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                <div class="slds-card-wrapper">
+                    <article class="slds-card">
+                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                            <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                <div class="slds-page-header slds-page-header_record-home">
+                                    <div class="slds-page-header__row">
+                                        <div class="slds-page-header__col-title">
+                                            <div class="slds-media">
+                                                <div class="slds-media__figure">
+                                                    <span class="slds-icon_container slds-icon-standard-opportunity">
+                                                        <span class="slds-icon_container slds-icon-standard-investment_account">
+                                                            <lightning:icon iconName="standard:investment_account" size="xx-large" />
+                                                            
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-media__body">
+                                                    <div class="slds-page-header__name">
+                                                        <div class="slds-page-header__name-title">
+                                                            <h1 class="slds-p-bottom_xx-small">
+                                                                <span class="slds-page-header__title slds-truncate">{!v.promoName}</span>
+                                                                <span>
+                                                                    Total Allocation : <lightning:formattedNumber value="{!v.totalAllocation}"/>
+                                                                </span> 
+                                                            </h1>
+                                                            <span>
+                                                                <strong>Status: </strong>
+                                                                <span class="slds-badge slds-badge_inverse">{!v.promoStatus}</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-page-header__row slds-page-header__row_gutters">
+                                        <div class="slds-page-header__col-details">
+                                            <ul class="slds-page-header__detail-row">
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Teams">
+                                                        Teams: {!v.totalAccountTeam}
+                                                    </div>
+                                                </li>
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Account Groups">
+                                                        Account Groups: {!v.totalAccountGroup}
+                                                    </div>
+                                                </li>
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Accounts in Total" >
+                                                        Accounts in Total: {!v.totalNumberOfRows}
+                                                    </div>
+                                                </li>
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Table Sort">
+                                                        Table Sort:
+                                                    </div>
+                                                </li>
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Account Teams">
+                                                        <div class="slds-form-element">
+                                                            <div class="slds-form-element__control">
+                                                                <div class="slds-checkbox">
+                                                                    <lightning:input aura:id="accountTeamCheckBox" type="checkbox"
+                                                                                     label="Account Teams" checked="{!v.accountTeams}"
+                                                                                     name="accountTeamCheckBox" value="accountTeamCheckBox" onchange="{!c.handleTeamCheck}" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </li>
+                                                <li class="slds-page-header__detail-block">
+                                                    <div class="slds-text-title slds-truncate" title="Account Groups">
+                                                        <div class="slds-form-element">
+                                                            <div class="slds-form-element__control">
+                                                                <div class="slds-checkbox">
+                                                                    <lightning:input aura:id="accountGroupCheckBox" type="checkbox"
+                                                                                     label="Account Groups" checked="{!v.accountGroups}"
+                                                                                     name="accountGroupCheckBox" value="accountGroupCheckBox" onchange="{!c.handleGroupCheck}" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <lightning:layout multipleRows="true" verticalAlign="stretch">
+                            <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                <lightning:treeGrid columns="{! v.gridColumns }"
+                                                    data="{! v.gridData }"
+                                                    keyField="name"
+                                                    aura:id="mytree"
+                                                    hideCheckboxColumn="true"
+                                                    />
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <div class="slds-p-bottom_small" />
+                        <div class="slds-align_absolute-center">
+                            <lightning:button variant="brand"  
+                                              label="Return"
+                                              onclick="{!c.navigateToRecord }" 
+                                              value="generateNextButtonClicked"/>			  
+                        </div>
+                    </article>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

@@ -1,0 +1,73 @@
+<aura:component controller="UNILAB_TCB_TCP_View"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+	
+    <!-- control form -->
+    <aura:attribute name="enableForm" type="Boolean" default="false"/>
+    <aura:attribute name="enableForm2" type="Boolean" default="false"/>
+    
+    <aura:attribute name="eventId" type="String" />
+    
+    <aura:attribute name="activeSections" type="List" default="['A','B','C','D','E','F','G']" />
+    
+    <aura:attribute name="newProductData" type="List" />
+    <aura:attribute name="topPromoData" type="List" />
+    <aura:attribute name="topMerchData" type="List" />
+    <aura:attribute name="priceIncreaseData" type="List" />
+    <aura:attribute name="acctInitActivitiesData" type="List" />
+    <aura:attribute name="competitiveActivitiesData" type="List" />
+    
+    <aura:attribute name="prevJournal" type="String" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{! or(v.enableForm, v.enableForm2) }">
+        <div aura:id="containerDiv">
+            <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Mobile' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                         <lightning:accordion allowMultipleSectionsOpen="true"
+                                activeSectionName="{! v.activeSections }">
+                             <lightning:accordionSection name="A" label="New Product">
+                                 <aura:iteration items="{! v.newProductData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="B" label="TOP Promo">
+                                 <aura:iteration items="{! v.topPromoData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="C" label="TOP Merchandising">
+                                 <aura:iteration items="{! v.topMerchData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="D" label="Price Increase">
+                                 <aura:iteration items="{! v.priceIncreaseData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="E" label="Account Initiated Activities">
+                                 <aura:iteration items="{! v.acctInitActivitiesData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="F" label="Competitor Activities">
+                                 <aura:iteration items="{! v.competitiveActivitiesData }" var="record" >
+                                     <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!record.Description__c}</div>
+                                 </aura:iteration>
+                             </lightning:accordionSection>
+                             <lightning:accordionSection name="G" label="Notes on Previous Visit">
+                                 <div class="slds-text-heading_small slds-m-left_large" style="color: #000000;font-weight: normal;">{!v.prevJournal}</div>
+                             </lightning:accordionSection>
+                        </lightning:accordion>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <h1>Trade Check Priorities is Locked!</h1>
+        </aura:set>
+    </aura:if>
+</aura:component>

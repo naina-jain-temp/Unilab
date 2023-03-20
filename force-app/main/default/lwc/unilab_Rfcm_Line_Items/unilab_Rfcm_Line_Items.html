@@ -1,0 +1,20 @@
+<template>
+    
+    <div  style="text-align: center; font-weight:bold; padding: 10px; ">RFCM LINE ITEMS</div>
+            <div class="slds-scrollable_y" style="height:350px;width:103%;">
+                <template if:true={items}>
+                    <lightning-datatable  key-field="Id" data={items} columns={columns} hide-checkbox-column onsave={handleSave} draft-values={saveDraftValues}
+                    onrowaction={navigateToRecordViewPage} onrowselection={handleChange} sorted-by={sortedBy}
+                          >
+                    </lightning-datatable>
+               
+                    </template>
+                    <template if:true={empty}>
+                        No data to display
+                    </template>
+           </div>
+    
+        
+        
+   
+</template>

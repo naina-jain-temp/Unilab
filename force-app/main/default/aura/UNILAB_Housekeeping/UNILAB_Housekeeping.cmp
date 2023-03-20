@@ -1,0 +1,657 @@
+<aura:component controller="UNILAB_Housekeeping"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+
+   
+    <aura:attribute name="openModal" type="boolean"/>
+    <aura:attribute name="hideModal" type="boolean"/>  
+    <aura:attribute name="openModal2" type="boolean"/>    
+    <aura:attribute name="hideModal2" type="boolean"/>
+    <aura:attribute name="openConfirmationBox" type="boolean"/>
+    <aura:attribute name="closeConfirmationBox"  type="boolean"/>
+    <aura:attribute name="yes" type="boolean"/>
+    <aura:attribute name="no" type="boolean"/>
+      
+       <aura:attribute name="Assessment" type="Map" />   
+       <aura:attribute name="Summary" type="Map" />  
+       
+       <aura:attribute name="aData" type="List" />   
+       <aura:attribute name="Data" type="Object"/>
+       <aura:attribute name="CategoryB" type="Object"/>
+       <aura:attribute name="Columns" type="List"/> 
+       <aura:attribute name="aaBulkarea" type="List"/>
+       <aura:attribute name="aaReceiving" type="List"/>  
+       <aura:attribute name="aaLPA" type="List"/>
+       <aura:attribute name="aaPackingArea" type="List"/> 
+       <aura:attribute name="aaStagingArea" type="List"/>
+       <aura:attribute name="aaMH" type="List"/>  
+       <aura:attribute name="aaBOArea" type="List"/> 
+       <aura:attribute name="aaCheckingArea" type="List"/>
+       <aura:attribute name="aaCSA" type="List"/>     
+       <aura:attribute name="aaJPMA" type="List"/> 
+       <aura:attribute name="aaWTF" type="List"/>
+       <aura:attribute name="aaDispatchArea" type="List"/> 
+       <aura:attribute name="aaVS" type="List"/> 
+       <aura:attribute name="aaOa" type="List"/> 
+       <aura:attribute name="aaOther" type="List"/> 
+       <aura:attribute name="aaTM" type="List"/>
+    
+       <aura:attribute name="period" type="String"/> 
+       <aura:attribute name="month" type="String"/>
+       <aura:attribute name="year" type="String"/>
+       <aura:attribute name="notice" type="Boolean"/>
+      <!--clear  <aura:attribute name="withData" type="Integer"/> -->  	
+    
+    	<aura:attribute name="progressbar" type="Integer" default="0"/>
+        <aura:attribute name="progresscomplete" type="Boolean"/>
+        <aura:attribute name="openProgressModal" type="Boolean" default="false"/>
+        <aura:attribute name="progresstitle" type="String" default="Inprogress"/>
+        <aura:attribute name="progressmessage" type="String" default="Please kindly wait for saving to complete."/>
+        <aura:attribute name="validatemessage" type="String" />
+                   
+    			   <aura:attribute name="disableButton" type="Boolean" default="false"/>
+                   <aura:attribute name="isSubmitted" type="Boolean" />
+    <!--clear-->   <aura:attribute name="clearChecklist" type="Boolean" />   
+    <!--disable--> <aura:attribute name="disableSubmit" type="Boolean" default="false"/>
+        
+       <aura:handler name="change" value="{!v.isSubmitted}" action="{!c.disableSubmit}"/>
+       <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+       <aura:handler name="change" value="{! v.Assessment }" action="{! c.calculate }"/>
+        <div style="width:100%; padding:20px;">
+          
+        <aura:if isTrue="{!v.notice}">
+            <div class="slds-grid slds-gutters slds-grid slds-grid_vertical-align-center slds-grid_align-center" style="width:100%; padding:20px;">
+                
+                <div class="slds-col slds-large-size_12-of-12" style="background-color:lightgreen;padding:20px;">
+                    <h1 style="font-weight: bold; font-size:16px; text-align:center ">Information</h1>
+                    <br/>
+                    <ul style="font-size:12px;">
+                        <li> <p style="font-weight:bold; font-size:14px; text-align:center"> <b>You already have submitted Housekeeping for {!v.month}&nbsp;{!v.year} </b> </p> </li>
+                    </ul>
+                </div>
+                
+            </div>
+        </aura:if>
+        
+        <table >
+            <tr>
+               
+                <td style="padding:0px 20px 0px 20px;width:45%">
+                    <div >
+                        <lightning:select name="months" label="Month" required="true" value="{!v.period}">
+                           
+                                <option text="{!v.month}"/>
+                         
+                        </lightning:select>
+                    </div>
+                </td>
+                <td style="width:5%"></td>
+                
+                <td >
+                    <div >
+                        <lightning:select name="year" label="Year" required="true" value="{!v.year}">
+                            <aura:iteration items="year" var="year">
+                                <option text="2022"/>
+                            </aura:iteration>
+                        </lightning:select>
+                    </div>
+                </td>
+                 
+            </tr>
+        </table>
+    </div>
+
+   
+        <c:UNILAB_Housekeeping_summary aura:id="child" 
+                                       
+                                       Summary = "{!v.Summary}"/> 
+        
+        <!--Assessment = "{!v.Assessment}-->
+        
+        
+        <aura:if isTrue="{!v.openConfirmationBox}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                     aria-modal="true" aria-describedby="modal-content-id-1" 
+                     class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+                        <h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Confirmation</h1>                                           
+                    </header>
+                    <div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">                                		
+                        <p style="text-align:center; font-size:14px;"> Are you sure you want to submit the record?</p>                                        
+                    </div>
+                    <footer class="slds-modal__footer "> 
+                        <div style="margin-right:70px;"> 
+                            <lightning:button variant="brand" name="yes" label="Submit" onclick="{! c.submit}"/>
+                            <lightning:button variant="neutral" name="no" label="Cancel" onclick="{! c.hideConfirmationBox}"/>                                    
+                        </div>
+                    </footer>
+                    
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>            
+        </aura:if>
+        
+        <aura:if isTrue="{!v.openProgressModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                     aria-modal="true" aria-describedby="modal-content-id-1" 
+                     class="slds-modal slds-fade-in-open" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+                        <h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Saving {!v.progresstitle}</h1>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_small" id="modal-content-id-1"> 
+                        <aura:if isTrue="{!v.progresscomplete}">
+                            <div class="slds-progress-bar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-label="{{Placeholder for description of progress bar}}" role="progressbar">
+                                <span class="slds-progress-bar__value" style="{!'width:'+v.progressbar+'%'}">
+                                    <span class="slds-assistive-text">Progress: {!v.progressbar}%</span>
+                                </span>
+                            </div>
+                            <aura:set attribute="else">
+                                <div class="slds-progress-bar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-label="{{Placeholder for description of progress bar}}" role="progressbar">
+                                    <span class="slds-progress-bar__value failed" style="{!'width:'+v.progressbar+'%'}">
+                                        <span class="slds-assistive-text">Progress: {!v.progressbar}%</span>
+                                    </span>
+                                </div>
+                            </aura:set>
+                        </aura:if> 
+                        
+                        <br/>
+                        
+                        <p style="text-align:center;">{!v.progressmessage}</p>
+                        <p style="text-align:center;">{!v.validatemessage}</p>
+                    </div>
+                    <div class="slds-modal__footer "> 
+                        <div> 
+                            <lightning:button variant="neutral" name="Close" label="Close" onclick="{! c.hideInprogressModal}"/>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>            
+        </aura:if>	
+        <!-- start of accordion-->          
+        <article class="slds-card" style="margin-bottom:20px; padding-bottom:20px;"> 
+            <lightning:accordion aura:id="accordion" activeSectionName="A">
+                <lightning:accordionSection name="A" label="A. - Receiving Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">  
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaReceiving}" var="aar" indexVar="counter">          
+                                    <tbody>         
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aar}"                                                                 
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                        
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>  <!-- End of accordion--> 
+                
+                
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="B" label="B - Bulk Area">
+                    <aura:set attribute="body">
+                        <div  class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaBulkarea}" var="aaB" indexVar="counter">
+                                    <tbody>   
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaB}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"   
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                        
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>
+                
+                <!-- End of accordion B--> 
+                
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="C" label="C - Loose-Pick Area">
+                    <aura:set attribute="body">
+                        <div  class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaLPA}" var="LPA" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!LPA}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>            
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>
+                
+                <!-- End of accordion C--> 
+                
+                
+                <lightning:accordionSection name="D" label="D - Checking Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaCheckingArea}" var="aaCA" indexVar="counter">
+                                    
+                                    <tbody>  
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaCA}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration> 
+                                
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>
+                
+                <!-- End of accordion D--> 
+                
+                
+                <lightning:accordionSection name="E" label="E - Packing Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaPackingArea}" var="aaP" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaP}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"   
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion E--> 
+                
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="F" label="F - Staging Area"> 
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaStagingArea}" var="aaS" indexVar="counter">
+                                    <tbody>  
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child"          
+                                                                     Dataa = "{!aaS}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion F--> 
+                
+                <!-- start of accordion-->   
+                <lightning:accordionSection name="G" label="G - B.O. Area">  
+                    <aura:set attribute="body">
+                        <div class="tableDiv">    
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaBOArea}" var="aaBO" indexVar="counter">
+                                    <tbody>    
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaBO}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion G--> 
+                
+                <!-- start of accordion-->   
+                <lightning:accordionSection name="H" label="H - Dispatch Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">     
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaDispatchArea}" var="aaD" indexVar="counter">
+                                    <tbody>     
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaD}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion H--> 
+                
+                <!-- start of accordion-->      
+                <lightning:accordionSection name="I" label="I - Cold Storage Area (Bio-Ref)/Air-Con Room">
+                    
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaCSA}" var="aaCSA" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaCSA}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion I--> 
+                
+                
+                <!-- start of accordion-->   
+                <lightning:accordionSection name="J" label="J - Promo Merch Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>                             </thead>
+                                <aura:iteration items="{! v.aaJPMA}" var="aaJPMA" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaJPMA}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion J--> 
+                
+                <!-- start of accordion-->   
+                <lightning:accordionSection name="K" label="K - Ventilation System">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaVS}" var="aaVS" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaVS}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"
+                                                                     disableButton = "{!v.disableButton}"/>
+                                        
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion K--> 
+                
+                
+                
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="L" label="L - Material Handling">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaMH}" var="aaMH" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaMH}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"  
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>
+                
+                <!-- End of accordion L--> 
+                
+                <!-- start of accordion-->
+                <lightning:accordionSection name="M" label="M - Office Area">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">    
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaOa}" var="aaOa" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaOa}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"             
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                    
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion M--> 
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="N" label="N - Washing Toilet Facilities">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaWTF}" var="aaWTF" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaWTF}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"        
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>  <!-- End of accordion N--> 
+                
+                <!-- start of accordion-->  
+                
+                <lightning:accordionSection name="O" label="O - Temperature Monitoring">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaTM}" var="aaTM" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaTM}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"        
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>  <!-- End of accordion P--> 
+                
+                
+                <!-- start of accordion-->
+                <lightning:accordionSection name="P" label="P - Others">
+                    <aura:set attribute="body">
+                        <div class="tableDiv">   
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered" >   
+                                <thead>     
+                                    <th class="header1">Areas/Items to be checked</th> 
+                                    <th  class= "header2">Yes</th>
+                                    <th  class="header3" >No</th>
+                                    <th  class="header4" >N/A</th>
+                                    <th  class="header5" >Remarks</th>
+                                </thead>
+                                <aura:iteration items="{! v.aaOther}" var="aaO" indexVar="counter">
+                                    <tbody>    
+                                        <!--Get From child --> 
+                                        <c:UNILAB_Housekeeping_table aura:id="child" 
+                                                                     Dataa = "{!aaO}"
+                                                                     Assessment ="{!v.Assessment}"
+                                                                     clearChecklist="{!v.clearChecklist}"                   
+                                                                     disableButton = "{!v.disableButton}"
+                                                                     />
+                                    </tbody>
+                                </aura:iteration>
+                            </table>     
+                        </div>
+                    </aura:set>
+                </lightning:accordionSection>     <!-- End of accordion 0--> 
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </lightning:accordion>
+            
+            <lightning:button variant="brand" label="Submit" title="Submit" onclick="{!c.openConfirmationBox}"  disabled="{!v.disableSubmit}"  />
+            
+            
+            
+        </article>
+
+
+</aura:component>

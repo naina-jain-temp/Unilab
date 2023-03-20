@@ -1,0 +1,164 @@
+<aura:component controller="UNILAB_NEON_PACC"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <ltng:require styles="{!$Resource.QuickActionModalStyle}" />
+	<aura:attribute name="minPipelineDateValue" default="2022-01-01" type="String"/>
+    <aura:attribute name="maxPipelineDateValue" default="2023-12-31" type="String"/>
+    <aura:attribute name="selPipelineDate" type="String" />
+    <aura:attribute name="maxSaturationDateValue" default="2023-12-31" type="String"/>
+    <aura:attribute name="selSaturationDate" type="String"/>
+    
+    <aura:attribute name="selAcctPipelineDate" type="String" />
+    <aura:attribute name="selAcctSaturationDate" type="String"/>
+    
+    <aura:attribute name="acctGroupData" type="Object" />
+    <aura:attribute name="acctGroupPriorityData" type="List" />
+    
+    <aura:attribute name="activeSections" type="List" default="['A','B']" />
+    
+    <aura:attribute name="teamOptions" type="List" default="[{'label':'Customer Team 1','value':'Customer Team 1'},
+                                                         {'label':'Customer Team 2','value':'Customer Team 2'},
+                                                         {'label':'Customer Team 3','value':'Customer Team 3'},
+                                                         {'label':'Customer Team 4','value':'Customer Team 4'},
+                                                         {'label':'Customer Team 5','value':'Customer Team 5'}]" />
+    <aura:attribute name="selectedTeams" type="List" default="[]" description="Selected value in Multi Select" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:navigation aura:id="navigation"/>
+    <div aura:id="containerDiv">
+        <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Mobile' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+           <lightning:accordion aura:id="accordion" activeSectionName="{! v.activeSections }" allowMultipleSectionsOpen="true">
+               <lightning:accordionSection name="A" label="Set New Product Duration">
+                  <lightning:layout pullToBoundary="small" verticalAlign="center" multipleRows="true">
+                      <lightning:layoutItem size="12" padding="around-small">
+                          <div class="slds-page-header">
+                              <div class="slds-page-header__row">
+                                  <div class="slds-page-header__col-title">
+                                      <div class="slds-media">
+                                          <div class="slds-media__body">
+                                              <div class="slds-page-header__name">
+                                                  <div class="slds-page-header__name-title">
+                                                      <lightning:layout multipleRows="true">
+                                                           <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                                 mediumDeviceSize="6" largeDeviceSize="6" 
+                                                                                 padding="around-small">
+                                                               <legend class="slds-form-element__legend slds-form-element__label">Pipeline Date</legend>
+                                                               <lightning:input type="date" name="pipelineDate" variant="label-hidden" label="Pipeline Date" value='{! v.selPipelineDate}' min='{! v.minPipelineDateValue}' max='{! v.maxPipelineDateValue}' placeholder="Pipeline Date" />
+                                                           </lightning:layoutItem>
+                                                           <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                                 mediumDeviceSize="6" largeDeviceSize="6" 
+                                                                                 padding="around-small">
+                                                               <legend class="slds-form-element__legend slds-form-element__label">Saturation Date</legend>
+                                                               <lightning:input type="date" name="saturationDate" variant="label-hidden" label="Saturation Date" value='{! v.selSaturationDate}' min='{! v.selPipelineDate}' max='{! v.maxSaturationDateValue}' placeholder="Saturation Date" />
+                                                           </lightning:layoutItem>
+                                                 
+                                                          <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                                mediumDeviceSize="12" largeDeviceSize="12" 
+                                                                                padding="around-small">
+                                                              <!--<c:MultiSelectCombobox options="{!v.teamOptions}" values="{!v.selectedTeams}" multiSelect="true" label="Customer Teams" />-->
+                                                              <lightning:checkboxGroup name="Customer Teams"
+                                                                 label="Customer Teams"
+                                                                 options="{! v.teamOptions }"
+                                                                 value="{! v.selectedTeams }"
+                                                                 variant="label-stacked"/>
+                                                          </lightning:layoutItem>
+                                                          <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                                mediumDeviceSize="12" largeDeviceSize="12" 
+                                                                                padding="around-small">
+                                                              <div class="slds-align_absolute-center" style="height:3rem">
+                                                                  <!--<lightning:button variant="brand" label="Load Accounts" onclick="{! c.loadAccountsHandleClick}" />-->
+                                                                  <lightning:button variant="brand" label="Apply to Selected Teams" onclick="{! c.applyToSelectedTeamsHandleClick }" />
+                                                                  <lightning:button variant="brand" label="Save Changes" onclick="{! c.saveChangesHandleClick}" />
+                                                              </div>
+                                                          </lightning:layoutItem>
+                                                          
+                                                          <!--<lightning:layoutItem size="12" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="12" largeDeviceSize="12" 
+                                                                              padding="around-small">
+                                                            <div class="slds-align_absolute-center" style="height:3rem">
+                                                                
+                                                            </div>
+                                                        </lightning:layoutItem>-->
+                                                      </lightning:layout>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </lightning:layoutItem>
+                   </lightning:layout>
+               </lightning:accordionSection>
+               <lightning:accordionSection name="B" label="Account Matrix">
+                   <lightning:layout pullToBoundary="small" verticalAlign="stretch">
+                       <lightning:layoutItem size="12" padding="around-small">
+                           <table class="slds-table slds-table_bordered slds-table--fixed-layout slds-table_col-bordered slds-text-body_small">
+                               <thead>
+                                   <tr class="slds-text-title_caps">
+                                       <th scope="col" style="width: 40%;">
+                                           <div class="slds-truncate slds-align_left" title="Account">Accounts</div>
+                                       </th>
+                                       <th scope="col" style="width: 25%;">
+                                           <div class="slds-truncate slds-align_left" title="Account">Pipeline</div>
+                                       </th>
+                                       <th scope="col" style="width: 25%;">
+                                           <div class="slds-truncate slds-align_left" title="Account">Saturation</div>
+                                       </th>
+                                       <th scope="col" style="width: 10%;">
+                                           <div class="slds-truncate slds-align_left" title="Account"></div>
+                                       </th>
+                                       <!--
+                                                <th scope="col" style="width: 5%;">
+                                                    <div class="slds-truncate slds-align_absolute-center" title="Account">Target</div>
+                                                </th>-->
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   <aura:iteration items="{! v.acctGroupData }" var="record" >
+                                       <!--<c:UNILAB_NEON_PACC_Item aData="{! acctGroupRecord}"
+                                                         selPipelineDate="{! v.selPipelineDate}"
+                                                         selSaturationDate="{! v.selSaturationDate}"/>-->
+                                       <c:UNILAB_NEON_PACC_Item acctGroupRef = "{! record.objNAcctGroupRef}"
+                                                                productAcctGroupData="{! record.objNAcctGroupData}"
+                                                                aInitData="{! record.objNAcctGroupRef}" 
+                                                                acctGroupPriorityData="{! v.acctGroupPriorityData}" 
+                                                                selAcctPipelineDate="{! v.selPipelineDate}"
+                                                                selAcctSaturationDate="{! v.selSaturationDate}" />
+                                   </aura:iteration>
+                               </tbody>
+                           </table>
+                           <!--
+                    <lightning:accordion aura:id="accordion" activeSectionName="A">
+                        <lightning:accordionSection name="A" label="Customer Team 1">
+                            
+                            
+                        </lightning:accordionSection>
+                        <lightning:accordionSection name="B" label="Customer Team 2">
+                            <p>This is the content area for section B.</p>
+                            <p>Nam at elit et justo scelerisque ullamcorper vel a felis. Mauris sit amet lorem sed est sagittis blandit nec ac turpis. Ut a mi id turpis pharetra ornare. Nullam rhoncus feugiat nunc, ac pulvinar felis pulvinar at. Nullam efficitur aliquet justo et ultricies. Maecenas eu felis aliquam, tincidunt elit at, suscipit leo. Duis ut urna nec nibh hendrerit lacinia. Sed non auctor libero. Sed pellentesque tempor mollis.</p>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection name="C" label="Customer Team 3">
+                            <p>This is the content area for section C.</p>
+                            <p>Nulla ornare ipsum felis, vel aliquet dui blandit vel. Integer accumsan velit quis mauris pharetra, nec sollicitudin dui eleifend. Cras condimentum odio mi, nec ullamcorper arcu ullamcorper sed. Proin massa arcu, rutrum a ullamcorper nec, hendrerit in sem. Etiam tempus eros ut lorem tincidunt, id condimentum nulla molestie. Morbi hendrerit elit pretium, ultrices neque non, ullamcorper justo. Quisque vel nisi eget eros efficitur semper. Nulla pulvinar venenatis quam vitae efficitur. Nam facilisis sollicitudin quam ac imperdiet.</p>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection name="D" label="Customer Team 4">
+                            <p>This is the content area for section D.</p>
+                            <p>Suspendisse est eros, maximus et risus a, luctus bibendum eros. Etiam ultrices tellus vehicula neque ornare, viverra venenatis purus accumsan. Aenean viverra finibus odio, vitae bibendum nisi tincidunt sed. Ut at porta dui. Praesent varius eleifend quam eget gravida. Curabitur maximus, leo sit amet dapibus gravida, mi ligula lacinia turpis, id feugiat tellus urna quis odio. Nullam tristique orci eu magna hendrerit vestibulum. Sed id purus at metus tristique tristique et vitae arcu. Sed molestie odio felis, sit amet lacinia mauris rutrum nec. Morbi semper lacinia tellus bibendum faucibus. Vestibulum eget ornare sapien, eget ultrices orci.</p>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection name="D" label="Customer Team 5">
+                            <p>This is the content area for section D.</p>
+                            <p>Suspendisse est eros, maximus et risus a, luctus bibendum eros. Etiam ultrices tellus vehicula neque ornare, viverra venenatis purus accumsan. Aenean viverra finibus odio, vitae bibendum nisi tincidunt sed. Ut at porta dui. Praesent varius eleifend quam eget gravida. Curabitur maximus, leo sit amet dapibus gravida, mi ligula lacinia turpis, id feugiat tellus urna quis odio. Nullam tristique orci eu magna hendrerit vestibulum. Sed id purus at metus tristique tristique et vitae arcu. Sed molestie odio felis, sit amet lacinia mauris rutrum nec. Morbi semper lacinia tellus bibendum faucibus. Vestibulum eget ornare sapien, eget ultrices orci.</p>
+                        </lightning:accordionSection>
+                </lightning:accordion>-->
+                       </lightning:layoutItem>
+                   </lightning:layout>
+               </lightning:accordionSection>
+            </lightning:accordion>
+            
+            
+            
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,35 @@
+<template>            
+    <lightning-card style="text-align:center;">
+        <lightning-quick-action-panel>
+            <div style="width:100%">
+                <lightning-card>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col--padded slds-p-left_none slds-size_1-of-1 slds-medium-size--1-of-2 slds-large-size_1-of-2">
+                            <lightning-radio-group type="radio" name="type" options={uploadOptions} value={uploadObj.type} class="customRadioCls" onchange={handleOnChange}></lightning-radio-group>
+
+                            <lightning-combobox name="objectName" label="Uploading Object Name" value={uploadObj.objectName} placeholder="Select Object Name" options={objectOptions} onchange={handleOnChange}></lightning-combobox>
+                        </div>
+
+                        <div if:false={showDownloadButtons}>
+                            <b>Upload CSV File</b>
+                            <lightning-input type="file" name="file uploader" onchange={handleUploadFinished}></lightning-input>
+                            <div class="slds-text-body_small slds-text-color_error">&nbsp;&nbsp;{fileName}</div>
+                            <lightning-button  class="slds-m-top--large"  onclick={handleUpload} label="Upload" variant="brand"></lightning-button>   
+                        </div>
+
+                        <div if:true={showDownloadButtons}>
+                            <lightning-button icon-name="utility:download" label="View Success" title="Download CSV File" onclick={getSuccessData} class="slds-m-right--large" variant="brand"></lightning-button>
+                            <span class="slds-badge slds-theme_success" style="position: absolute;left: 15.5rem;top: 0.5rem;">{successCount}</span>
+                            <lightning-button icon-name="utility:download" label="View Error" title="Download CSV File" onclick={getFailedData} variant="brand"></lightning-button>
+                            <span class="slds-badge slds-theme_error" style="position: absolute;left: 25rem;top: 0.5rem;">{failureCount}</span>
+                        </div>
+                    </div>
+                </lightning-card>
+            </div>
+
+            <template if:true={showSpinner}>
+                <lightning-spinner alternative-text="Loading" size="medium" style="z-index: 10000 !important;"></lightning-spinner>
+            </template>
+        </lightning-quick-action-panel>
+    </lightning-card>
+</template>

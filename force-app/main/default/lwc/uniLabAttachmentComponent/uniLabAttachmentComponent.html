@@ -1,0 +1,185 @@
+<template>
+    <template if:true={openModalpopupForFileupload}>
+     <!--   <section role="dialog" aria-modal="true"  class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModalPopupForFileupload}>
+                        <lightning-icon icon-name="utility:close"
+                             alternative-text="close"
+                             variant="inverse"
+                             size="small"></lightning-icon>
+                    </button>
+                    <div class="slds-align_absolute-left">
+                        <h1  class="slds-text-heading_small ">Attachments</h1>
+                    </div>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                     
+                 -->
+            <div class="slds-form-element slds-modal__content slds-p-around_medium" style="height:420px;">
+                <div class="slds-modal__content slds-form-element__control ">
+                   <!--Proof Of Account Concurrence--> 
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_6-of-12">
+                            <h5 style="margin: 27px 0 0 10px; font-weight:500; font-size:14px">Proof Of Account Concurrence</h5>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-file-upload 
+                                name="fileUploader"
+                                record-id={rfId}
+                                file-field-name="final1"
+                                onuploadfinished={handleUploadFinished1}
+                                required
+                                multiple></lightning-file-upload>
+                        </div>
+                    </div>
+                    <br/> 
+                    <table class="slds-table slds-table--bordered">
+                        <!-- hide the table header if file is empty -->
+                        <template if:true={filesAccountConc}>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>File Type</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </template>
+                        <tbody>
+                            <template if:true={filesAccountConc}>
+                                <template for:each={filesAccountConc} for:item="fileRec">
+                                    <tr key={fileRec.Id}>
+                                        <td>
+                                            <a  href="javascript:void(0)" data-id={fileRec.Id} onclick={navigateToFile}>
+                                                  {fileRec.Title}
+                                              </a>
+                                        </td>
+                                        <td>{fileRec.FileType}</td>
+                                        <td>
+                                            <a href="javascript:void(0)" id={fileRec.Id}>
+                                                <lightning-icon data-id={fileRec.Id} onclick={deleteSelectedFile}
+                                                    icon-name="utility:delete"
+                                                    size="x-small"
+                                                    alternative-text="Delete" id={fileRec.Id}></lightning-icon>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+
+
+                    <!--Proof Of Billing / Deduction-->
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_6-of-12">
+                            <h5 style="margin: 27px 0 0 10px; font-weight:500; font-size:14px">Proof Of Billing / Deduction</h5>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-file-upload 
+                                name="fileUploader"
+                                record-id={rfId}
+                                onuploadfinished={handleUploadFinished2}
+                                required
+                                multiple
+                            ></lightning-file-upload>
+                        </div>
+                    </div>
+                    <br/>
+                    <table class="slds-table slds-table--bordered">
+                        <!-- hide the table header if file is empty -->
+                        <template if:true={filesBilling}>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>File Type</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </template>
+                        <tbody>
+                            <template if:true={filesBilling}>
+                                <template for:each={filesBilling} for:item="fileRec">
+                                    <tr key={fileRec.Id}>
+                                        <td>
+                                            <a  href="javascript:void(0)" data-id={fileRec.Id} onclick={navigateToFile}>
+                                                  {fileRec.Title}
+                                              </a>
+                                        </td>
+                                        <td>{fileRec.FileType}</td>
+                                        <td>
+                                            <a href="javascript:void(0)" id={fileRec.Id}>
+                                                <lightning-icon data-id={fileRec.Id} onclick={deleteSelectedFile}
+                                                    icon-name="utility:delete"
+                                                    size="x-small"
+                                                    alternative-text="Delete" id={fileRec.Id}></lightning-icon>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <!--Proof Of Implementation-->
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_6-of-12">
+                            <h5 style="margin: 27px 0 0 10px; font-weight:500; font-size:14px">Proof Of Implementation</h5>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-file-upload name="fileUploader" 
+                                record-id={rfId} 
+                                onuploadfinished={handleUploadFinished3}  
+                                multiple></lightning-file-upload>
+                        </div>
+                    </div>
+                    <br/>
+                    <table class="slds-table slds-table--bordered">
+                        <!-- hide the table header if file is empty -->
+                        <template if:true={filesImplementation}>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>File Type</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </template>
+                        <tbody>
+                            <template if:true={filesImplementation}>
+                                <template for:each={filesImplementation} for:item="fileRec">
+                                    <tr key={fileRec.Id}>
+                                        <td>
+                                            <a  href="javascript:void(0)" data-id={fileRec.Id} onclick={navigateToFile}>
+                                                  {fileRec.Title}
+                                              </a>
+                                        </td>
+                                        <td>{fileRec.FileType}</td>
+                                        <td>
+                                            <a href="javascript:void(0)" id={fileRec.Id}>
+                                                <lightning-icon data-id={fileRec.Id} onclick={deleteSelectedFile}
+                                                    icon-name="utility:delete"
+                                                    size="x-small"
+                                                    alternative-text="Delete" id={fileRec.Id}></lightning-icon>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    <!--
+                </div>
+                <footer class="slds-modal__footer ">
+                    <div class="slds-align_absolute-center">
+                        <button class="slds-button slds-button_neutral " onclick={closeModalPopupForFileupload} title="Cancel">Cancel</button>
+                        <button class="slds-button slds-button_brand" onclick={handleChange} title="Finish">Finish</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div> -->
+    </template>
+</template>

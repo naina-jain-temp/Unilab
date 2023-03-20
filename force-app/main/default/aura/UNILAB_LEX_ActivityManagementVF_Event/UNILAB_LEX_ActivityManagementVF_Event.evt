@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="recordId" type="String" description="Response from calls" access="global" />
+    <aura:attribute name="actionType" type="String" description="Response from calls" access="global" />
+</aura:event>

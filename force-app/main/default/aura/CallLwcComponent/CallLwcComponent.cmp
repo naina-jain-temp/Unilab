@@ -1,0 +1,3 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride,force:lightningQuickAction,force:appHostable" access="global" >   
+    <c:unilabRFCMForms onclose="{!c.closeWidow}"></c:unilabRFCMForms>
+</aura:component>

@@ -1,0 +1,233 @@
+<template>
+    <!--<section class="mainsec">
+        <div class=" slds-m-around_medium text-right">
+            <lightning-button if:false={buttonDisable} variant="brand" label="ADD" onclick={handleAllocationModal}
+                class="btn btn-pri" style="top:0px;"></lightning-button>
+        </div>
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col">
+                <div class="slds-grid slds-wrap" if:false={noRecordsFound}>
+                    <div class="slds-align_absolute-center">
+                        <lightning-datatable class="custom-tbl" key-field="id" data={hatAllocationData}
+                            columns={columns} hide-checkbox-column default-sort-direction={defaultSortDirection}
+                            sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort}
+                            onrowaction={handleRowAction}>
+                        </lightning-datatable>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div if:true={noRecordsFound} class="applicationStaff-screen">
+            <div class="text-center file-upload slds-p-vertical--xx-large">
+                <img class="icon-attachment" src={attachmentIcon} style="width:89px;" />
+                <p class="font-bold padtop10">No HAT Allocation Details Available</p>
+                <p class="subfont">Add HAT Allocation details by clicking Add button</p>
+            </div>
+        </div>
+    </section>-->
+
+
+    <template if:true={showAllocationModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <div class="popborder">
+                        <header class="slds-modal__header">
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate fontweight">
+                                {title}</h2>
+                            <button class="close-button" title="Close" onclick={handleCloseAllocationModal}>X</button>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium overVisible" id="modal-content-id-1">
+
+                            <div class="main-tabs">
+                                <lightning-progress-indicator style="min-width: 300px;" current-step={currentStep}
+                                    type="base" variant="base">
+                                    <lightning-progress-step label="Product Information" value="1"
+                                        onclick={handleOnStepClick}></lightning-progress-step>
+                                    <lightning-progress-step label="Account Information" value="2"
+                                        onclick={handleOnStepClick}></lightning-progress-step>
+                                    <lightning-progress-step label="File Upload" value="3" onclick={handleOnStepClick}>
+                                    </lightning-progress-step>
+                                </lightning-progress-indicator>
+                            </div>
+                            <template if:true={isStepOne}>
+                                <lightning-layout multiple-rows="true">
+                                    <lightning-layout-item size="12">
+                                        <lightning-layout>
+                                            <!--<lightning-layout-item size="4" class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                    <lightning-input name="Name" label="Name" placeholder="Enter HAT Allocation Name" onchange={handleOnChange} value={allocationObj.Name} required disabled={fieldsDisable}></lightning-input>
+                                                </lightning-layout-item>-->
+                                            <lightning-layout-item size="4"
+                                                class="slds-p-around_x-small slds-p-top_none">
+                                                <lightning-input type="search" label="Product" name="Product"
+                                                    data-adr="to" value={allocationObj.Product}
+                                                    placeholder="Search Product" class="inputMil"
+                                                    onchange={handleOnChange} required dsiabled={fieldsDisable}>
+                                                </lightning-input>
+                                                <div if:true={showProductModal} id="listbox-id-1"
+                                                    class="slds-dropdown_length-with-icon-7 popup-dropbox"
+                                                    role="listbox">
+                                                    <ul class="slds-listbox slds-listbox_vertical slds-has-dividers_bottom slds-has-block-links_space"
+                                                        role="presentation">
+                                                        <template for:each={filteredProductArr} for:item="item">
+                                                            <li key={item.id} role="presentation"
+                                                                class="slds-listbox__item">
+                                                                <div data-id={item.Id} data-value={item.Value}
+                                                                    class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                                                    role="option" onclick={handleSelectProduct}>
+                                                                    {item.Value}
+                                                                </div>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4"
+                                                class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                <lightning-input type="number" name="Quantity" label="SKU SOH Qty"
+                                                    placeholder="Enter Qty" onchange={handleOnChange}
+                                                    value={allocationObj.Qty} required disabled={fieldsDisable}>
+                                                </lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4"
+                                                class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                <lightning-input type="number" name="Amount" label="SKU SOH Amount"
+                                                    placeholder="Enter Amount" onchange={handleOnChange}
+                                                    value={allocationObj.Amount} required disabled={fieldsDisable}>
+                                                </lightning-input>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+                            <template if:true={isStepTwo}>
+                                <h2 class="sec-title">ACCOUNT INFORMATION</h2>
+                                <div class="slds-grid-wrap">
+                                    <div class="slds-modal__content slds-p-around_medium overVisible"
+                                        id="modal-content-id-2">
+                                        <lightning-layout multiple-rows="true">
+                                            <lightning-layout-item size="12">
+                                                <lightning-layout>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small slds-p-top_none">
+                                                        <lightning-input type="search" label="Account" name="Account"
+                                                            data-adr="to" value={allocationObj.Account}
+                                                            placeholder="Search Account" class="inputMil"
+                                                            onchange={handleOnChange} disabled={fieldsDisable}>
+                                                        </lightning-input>
+                                                        <div if:true={showAccountModal} id="listbox-id-2"
+                                                            class="slds-dropdown_length-with-icon-7 popup-dropbox"
+                                                            role="listbox">
+                                                            <ul class="slds-listbox slds-listbox_vertical slds-has-dividers_bottom slds-has-block-links_space"
+                                                                role="presentation">
+                                                                <template for:each={filteredAccountArr} for:item="item">
+                                                                    <li key={item.id} role="presentation"
+                                                                        class="slds-listbox__item">
+                                                                        <div data-id={item.Id} data-value={item.Value}
+                                                                            class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                                                            role="option" onclick={handleSelectAccount}>
+                                                                            {item.Value}
+                                                                        </div>
+                                                                    </li>
+                                                                </template>
+                                                            </ul>
+                                                        </div>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-input name="TeamName" label="CT Team Name"
+                                                            onchange={handleOnChange} value={allocationObj.TeamName}
+                                                            placeholder="Enter CT Team Name" disabled={fieldsDisable}>
+                                                        </lightning-input>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-input name="ItemPrice" label="Item Price W/O VAT"
+                                                            onchange={handleOnChange} value={allocationObj.ItemPrice}
+                                                            placeholder="Enter Item Price" disabled={fieldsDisable}>
+                                                        </lightning-input>
+                                                    </lightning-layout-item>
+                                                </lightning-layout>
+                                               
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </div>
+                                </div>
+
+                                <h2 class="sec-title">OTHER INFORMATION</h2>
+                                <div class="slds-grid-wrap">
+                                    <div class="slds-modal__content slds-p-around_medium overVisible">
+                                        <lightning-layout multiple-rows="true">
+                                            <lightning-layout-item size="12">
+                                                <lightning-layout>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-input name="StorageLocation" label="Storage Location"
+                                                            onchange={handleOnChange}
+                                                            value={allocationObj.StorageLocation}
+                                                            placeholder="Enter Storage Location"
+                                                            disabled={fieldsDisable}></lightning-input>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-combobox name="AllocationType"
+                                                            label="Allocation Type" onchange={handleOnChange}
+                                                            placeholder="Select Allocation Type"
+                                                            options={allocationTypeOptions}
+                                                            value={allocationObj.AllocationType}></lightning-combobox>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-input name="ProductAllocation"
+                                                            label="Product Allocation Object Number"
+                                                            onchange={handleOnChange}
+                                                            value={allocationObj.AllocationObjectNumber}
+                                                            placeholder="Enter Product Allocation Number"
+                                                            disabled={fieldsDisable}></lightning-input>
+                                                    </lightning-layout-item>
+                                                </lightning-layout>
+                                                <lightning-layout>
+                                                    <lightning-layout-item size="4"
+                                                        class="slds-p-around_x-small custom-dropdwon slds-p-top_none">
+                                                        <lightning-input type="date" name="AllocationMonth" label="Allocation Month"
+                                                            onchange={handleOnChange}
+                                                            value={allocationObj.AllocationMonth}
+                                                            placeholder="Enter Allocation Month"
+                                                            disabled={fieldsDisable}></lightning-input>
+                                                    </lightning-layout-item>
+                                                </lightning-layout>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </div>
+                                </div>
+
+                            </template>
+                            <template if:true={isStepThree}>
+                                <c-unilab-h-a-t-upload record-id={recordId} onredirecttoallocation={handleCloseUpload} class="text-center"></c-unilab-h-a-t-upload>
+                            </template>
+                        </div>
+
+                        <footer class="slds-modal__footer" if:false={isStepThree}>
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_1-of-1">                                   
+                                    <div class="btnSec pr-0">
+                                        <lightning-button label="Previous" class="btn btn-pri"
+                                            onclick={handlePrev} disabled={buttonDisable} if:true={isStepTwo}></lightning-button>
+                                        <lightning-button label={btnLabel} class="btn btn-pri slds-m-left_small"
+                                            onclick={handleNext} disabled={buttonDisable}></lightning-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <div if:true={Spinner} class="slds-spinner_inline spinner-padding">
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+</template>

@@ -1,0 +1,321 @@
+<aura:component controller="UNILAB_TrainingContactController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    
+    <aura:attribute name="tcr" type="Training_Contact_Report__c"/>
+    <aura:attribute name="tcrCalls" type="List" default="{}" />
+        
+    <aura:attribute name="callFieldLabels" type="List" />    
+    <aura:attribute name="requiredFields" type="List" /> 
+    <aura:attribute name="v.selectedAccount" type="sObject" default="{}" />        
+    
+    <aura:attribute name="callCount" type="String" default="0"/>
+    <aura:attribute name="validateCallSection" type="Boolean" default="false" />    
+    <!-- <aura:attribute name="isShowSaveAndNewTaskModal" type="Boolean" default="false"/> -->
+    <aura:attribute name="isDisabled" type="Boolean" default="false"/>    
+    <aura:attribute name="isSectionValid" type="Boolean" default="false" />
+    <aura:attribute name="isRequired" type="Boolean" default="false" />
+    <aura:attribute name="isWithUnsaved" type="Boolean" default="false" />     
+ 	<aura:attribute name="isShowPill" type="Boolean" default="false" />      
+    <aura:attribute name="isShowDelete" type="Boolean" default="false" />      
+     <aura:attribute name="accountTcr" type="String" default="Account TCR" />    
+    <aura:attribute name="t3Tcr" type="String" default="T3 TCR" />
+    <aura:attribute name="callToDeleteId" type="String" default="" />
+    <aura:attribute name="isEmptyCalls" type="Boolean" default="false" />
+   
+     <aura:attribute name="toastMessage" type="String" default="" />   
+    <aura:attribute name="showNotifToast" type="Boolean" default="false" />
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+     <aura:attribute name="errorMessage" type="String" default="" />
+    
+    <aura:attribute name="accountRec" type="sObject" default="{}"/>   <!-- check for delete -->
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />   
+    <aura:handler name="change" value="{!v.tcrCalls}" action="{!c.tcrCallsChange}"/>     
+    <aura:handler name="change" value="{!v.validateCallSection}" action="{!c.handleValidateSection}"/>   
+        
+    <!--   <aura:registerEvent name="saveEvent" type="c:tcrCallSaveEvent"/>   -->
+        
+        <!--ACCOUNT TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS)-->
+   
+     <!--ACCOUNT TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS)-->
+        <aura:if isTrue="{! v.tcr.RecordType.Name == v.accountTcr}">
+            <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                    <lightning:accordion activeSectionName="A">
+                        <lightning:accordionSection aura:id="review_plans_prior_to_entering_call__c" name="A">                            
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="review_plans_prior_to_entering_call__c"
+                                                                  name="{! 'reviewPlans' + tcrCall.Call_No__c}"
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Review_Plans_Prior_to_Entering_Call__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="selling_display_area_activities__c" name="B" >
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="selling_display_area_activities__c"
+                                                                  name="{! 'sellingDisplay' + tcrCall.Call_No__c}"
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Selling_Display_Area_Activities__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="collection_and_settlements__c" name="C">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="collection_and_settlements__c"
+                                                                  name="{! 'collectionAndSettlements' + tcrCall.Call_No__c}"   
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Collection_and_Settlements__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="presentation_follow_thru_negotiations__c" name="D">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="presentation_follow_thru_negotiations__c"
+                                                                  name="{! 'callPresentation' + tcrCall.Call_No__c}"    
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Presentation_Follow_thru_Negotiations__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="secure_approval_and_final_agreements__c" name="E">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="secure_approval_and_final_agreements__c"
+                                                                  name="{! 'secureApproval' + tcrCall.Call_No__c}"     
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Secure_Approval_and_Final_Agreements__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="post_call_activities__c" name="F">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="post_call_activities__c"
+                                                                  name="{! 'postCallActivities' + tcrCall.Call_No__c}"       
+                                                                  label="{! tcrCall.Account__r.Name}"    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Post_Call_Activities__c}" 
+                                                                  disabled="{! v.isDisabled}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"
+                                                                  required="{! v.isRequired}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                    </lightning:accordion>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:if>
+        
+        <!--T3 TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS)-->
+        
+        <aura:if isTrue="{! v.tcr.RecordType.Name == v.t3Tcr}">            
+            <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="6" mediumDeviceSize="6" largeDeviceSize="6">                    
+                    <lightning:combobox aura:id="selectCall" name="progress" label="Select Account" value="1" 
+                                        placeholder="Select" options="{}" 
+                                        onchange="{! c.handleSetAccount }" disabled="{! v.isDisabled}"/>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="6" mediumDeviceSize="6" largeDeviceSize="6">
+                    <c:UNILAB_LEX_CustomLookup aura:id="accountLookup"  objectAPIName="accountWithBranchCode" 
+                                               IconName="standard:account" selectedRecord ="{! v.selectedAccount}" />
+                    <div class="slds-p-top_small" />
+                    <lightning:button label="Add Account" title="" onclick="{! c. handleAddAccount}" disabled="{! v.isDisabled}"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                    <lightning:accordion activeSectionName="A">
+                        <lightning:accordionSection aura:id="explain_training_objectives__c" name="A">                            
+                            <aura:set attribute="body">                                
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">                                      
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                                                                
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                            
+                                           <aura:if isTrue="{! v.isShowPill}">
+                                            <lightning:pill name="{! tcrCall.Account__c}" label="{! tcrCall.Account__r.Name}"  
+                                                            onremove="{! c.handleDeleteAccount }" />                                             
+                                               </aura:if>
+                                            <lightning:radioGroup class="customRadioLabel"
+                                                                  aura:id="explain_training_objectives__c"
+                                                                  name="{! 'explainTrainingObjectives' + tcrCall.Call_No__c}"                                                                   
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Explain_training_objectives__c}" 
+                                                                  disabled="{! v.isDisabled}"    
+                                                                  required="{! v.isRequired}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"                                                                 
+                                                                  type="button" />                                                                                  
+                                        </lightning:layoutItem>
+                                    </aura:iteration>                                      
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="observe__c" name="B" >
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                           
+                                            <lightning:radioGroup class="customRadioLabel" aura:id="observe__c"
+                                                                  name="{! 'observe' + tcrCall.Call_No__c}"                                                              
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Observe__c}" 
+                                                                  disabled="{! v.isDisabled}"  
+                                                                  required="{! v.isRequired}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"   
+                                                                  label="{! tcrCall.Account__r.Name}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="critique__c" name="C">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                            
+                                            <lightning:radioGroup class="customRadioLabel" aura:id="critique__c"
+                                                                  name="{! 'critique' + tcrCall.Call_No__c}"                                                                 
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Critique__c}" 
+                                                                  disabled="{! v.isDisabled}"   
+                                                                  required="{! v.isRequired}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"     
+                                                                  label="{! tcrCall.Account__r.Name}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>
+                        <lightning:accordionSection aura:id="recommend__c" name="D">
+                            <aura:set attribute="body">
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <aura:iteration items="{! v.tcrCalls}" var="tcrCall">                                        
+                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                             
+                                            <lightning:radioGroup class="customRadioLabel" aura:id="recommend__c"
+                                                                  name="{! 'recommend' + tcrCall.Call_No__c}"                                                                    
+                                                                  options="{}"
+                                                                  value="{! tcrCall.Recommend__c}" 
+                                                                  disabled="{! v.isDisabled}"  
+                                                                  required="{! v.isRequired}"
+                                                                  onchange="{! c.handleChangeTcrCalls}"   
+                                                                  label="{! tcrCall.Account__r.Name}"
+                                                                  type="button" />                                               
+                                        </lightning:layoutItem>
+                                    </aura:iteration>
+                                </lightning:layout>
+                            </aura:set>
+                        </lightning:accordionSection>                    
+                    </lightning:accordion>
+                </lightning:layoutItem>    
+            </lightning:layout>
+            
+             <!-- DELETION CONFIRMATION -->
+            <aura:if isTrue="{!v.isShowDelete}">
+                <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+                    <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    
+                                    <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                                </button>
+                                <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Confirmation}</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                                <h2>Are you sure you want remove this account?</h2>                        
+                            </div>
+                            <footer class="slds-modal__footer slds-theme_default">
+                                
+                                <button class="slds-button slds-button_neutral"  onclick="{!c.handleConfirmDelete}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                                
+                                <button class="slds-button slds-button_neutral" onclick="{!c.handleCancelDelete}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                                
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </lightning:layoutItem>            
+            </aura:if>
+                        
+        </aura:if>                      
+</aura:component>

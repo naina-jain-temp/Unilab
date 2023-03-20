@@ -1,0 +1,259 @@
+<aura:component controller="UNILAB_TCB_Form"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <!-- control form -->
+    <aura:attribute name="enableForm" type="Boolean" default="false"/>
+    <aura:attribute name="enableForm2" type="Boolean" default="false"/>
+    
+    <aura:attribute name="eventId" type="String" />
+    
+	<aura:attribute name="categoryList" type="List" default="[]"/>
+    <aura:attribute name="categorySelValue" type="String" />
+    
+    <aura:attribute name="acctRES" type="String"/>
+    <aura:attribute name="acctGroup" type="String"/>
+    <aura:attribute name="mtAcctGroup" type="String"/>
+    
+    <aura:attribute name="dataCount" type="Integer" default="0" />
+    
+    <aura:attribute name="visibData" type="List" />
+    <aura:attribute name="visibPriorityData" type="List"/>
+    
+    <!--
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="2"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/>-->
+    
+    <aura:attribute name="totalRecords" type="Integer" default="0" description="Total Records Returned From Apex Controller" />
+    <aura:attribute name="pageSize" type="Integer" default="25" description="Number of Records that will be Displayed per Page" />
+    <aura:attribute name="totalPages" type="Integer" default="0" description="Total Page (Navigation)" />
+    <aura:attribute name="currentPage" type="Integer" default="1" description="Current Page (Navigation)" />
+    <aura:attribute name="startPage" type="Integer" default="0" description="Start Page (Navigation)" />
+    <aura:attribute name="endPage" type="Integer" default="0" description="End Page (Navigation)" />
+    
+    <aura:attribute name="updatedListOfRecords" type="List" default="[]" description="Temporary Placeholder for any changes" />
+    <aura:attribute name="assortData" type="List" />
+    <aura:attribute name="filteredAssortData" type="List" />
+    <aura:attribute name="assortPriorityData" type="List"/>
+    
+    <aura:attribute name="topData" type="List" />
+    <aura:attribute name="topPriorityData" type="List"/>
+    
+    <aura:attribute name="showTAFTModal" type="Boolean" default="false" />
+    <aura:attribute name="taftData" type="List" />
+    <aura:attribute name="modalPromise" type="Aura.Component" />
+    <aura:handler name="lightningEvent" event="c:UNILAB_TCB_TAFT_View_LE" action="{!c.handleTAFTDeleteEvent}"/>
+    <!--<aura:handler name="compTAFTInsertModal" event="c:UNILAB_TCB_TAFT_LE" action="{!c.closeTAFTForm}"/> 
+    <aura:attribute name="taftColumns" type="List" />-->
+    
+    <aura:attribute name="prevJournal" type="String" />
+    <aura:attribute name="journal" type="String"/>
+    <aura:attribute name="currentEventId" type="String"/>
+    <aura:attribute name="withoutRec" type="Boolean" default="{!not(empty(v.currentEventId)) ? false : true}"/>
+    
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg']" />
+    <aura:attribute name="fileCount" type="Integer" default="0" />
+    
+    <aura:attribute name="activeSections" type="List" default="['A','B','C','D','E','F']" />
+    
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+   	<aura:if isTrue="{! or(v.enableForm, v.enableForm2) }">
+        <div aura:id="containerDiv">
+        <!--<lightning:input name="input2" label="Text field with predefined value" value='{! v.test }' />-->
+            <div class="slds-tabs-mobile__container" style="{! $Browser.formFactor == 'Mobile' ? '' : 'height: 100%; overflow:hidden; display: flex; flex-direction: column;' }">
+                <lightning:layout pullToBoundary="small" verticalAlign="stretch">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <span class="slds-page-header__title slds-truncate slds-p-left_medium slds-truncate slds-p-right_medium ">
+                            <lightning:select name="category" label="Category Selection" aura:id="selCategory" variant="label-stacked" value="{!v.categorySelValue}" onchange='{! c.categoryChangeHandle }'>
+                                <option text="Please Select a Category..." value="No Selection" />
+                                <aura:iteration items="{!v.categoryList}" var="option">
+                                    <option text="{!option.Category__c}" value="{!option.Category__c}" />
+                                </aura:iteration>
+                            </lightning:select>
+                        </span>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                
+                <lightning:layout multipleRows="true" verticalAlign="stretch">
+                    <lightning:layoutItem padding="around-small" size="12">
+                         <lightning:accordion
+                                allowMultipleSectionsOpen="true"
+                                activeSectionName="{! v.activeSections }"
+                            >
+                             <lightning:accordionSection name="A" label="Visibility">
+                                <table class="slds-table slds-table_bordered slds-table--fixed-layout slds-table_col-bordered slds-text-body_small">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col" style="width: 60%;">
+                                                <div class="slds-truncate slds-align_left" title="Account">Criteria:Targets</div>
+                                            </th>
+                                            <!--
+                                                <th scope="col" style="width: 5%;">
+                                                    <div class="slds-truncate slds-align_absolute-center" title="Account">Target</div>
+                                                </th>-->
+                                            <th scope="col" style="width: 40%;">
+                                                <div class="slds-truncate_container slds-align_absolute-center" title="Date">Yes/No</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{! v.visibData }" var="vRecord" >
+                                            <c:UNILAB_TCB_Form_Visibility_Item vData="{!vRecord}"
+                                                                               vPriorityData="{! v.visibPriorityData}"/>
+                                        </aura:iteration>
+                                    </tbody>
+                                 </table>
+                            </lightning:accordionSection>
+                             <lightning:accordionSection name="B" label="Assortment">
+                                <span onkeypress="{!c.filterByKeyword}" class="slds-size--11-of-12">
+                                    <lightning:input aura:id="searchBox" name="SearchBox" label="Product Search...." />
+                                </span>
+                                <br/>
+                                <table class="slds-table slds-table_bordered slds-table--fixed-layout slds-table_col-bordered slds-text-body_small">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col" style="width: 60%;">
+                                                <div class="slds-truncate slds-align_left" title="Account">Description</div>
+                                            </th>
+                                            <!--
+                                                <th scope="col" style="width: 5%;">
+                                                    <div class="slds-truncate slds-align_absolute-center" title="Account">Target</div>
+                                                </th>-->
+                                            <th scope="col" style="width: 40%;">
+                                                <div class="slds-truncate_container slds-align_absolute-center" title="Date">Yes/No</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{! v.filteredAssortData }" var="aRecord" >
+                                            <c:UNILAB_TCB_Form_Assortment_Item aData="{!aRecord}"
+                                                                               aPriorityData="{! v.assortPriorityData}"/>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                               	<!--
+                                <lightning:layout verticalAlign="center" class="x-large">
+                                    <lightning:layoutItem padding="around-small" size="6">
+                                        <span>
+                                            Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*(v.pageSize)+1)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}
+                                        </span>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem padding="around-small" size="6">
+                                        <span class="slds-float_right">
+                                        	<lightning:button label="Prev" 
+                                                              iconName="utility:chevronleft" 
+                                                              iconPosition="left"
+                                                              variant="base"
+                                                              onclick="{!c.handlePrev}" 
+                                                              disabled="{! v.pageNumber == 1}"/>
+                                            <lightning:button label="Next" 
+                                                              iconName="utility:chevronright" 
+                                                              iconPosition="right"
+                                                              variant="base"
+                                                              disabled="{! v.isLastPage}" 
+                                                              onclick="{!c.handleNext}"/>  
+                                        </span>
+                                    </lightning:layoutItem>
+                                 </lightning:layout>-->
+                                 
+                                 <!-- pagination (start) -->
+                                 <lightning:layout verticalAlign="center" class="x-large">
+                                    <lightning:layoutItem padding="around-small" size="12">
+                                         <div class="slds-align_absolute-center">         
+                                             <lightning:buttonIcon disabled="{! v.startPage == 0 }" onclick="{! c.pageNavigation }"
+                                                                   variant="brand" iconName="utility:back" name="previous" />
+                                             <span class="slds-badge slds-badge_lightest"
+                                                   style="margin-right: 10px; margin-left: 10px;">
+                                                 Page <lightning:formattedNumber value="{! v.currentPage }"/> out of
+                                                 <lightning:formattedNumber value="{! v.totalPages }"/>
+                                             </span>
+                                             <lightning:buttonIcon name="next" variant="brand" iconName="utility:forward"
+                                                                   disabled="{! (v.endPage + 1) >= v.totalRecords }" onclick="{! c.pageNavigation }" />
+                                         </div>
+                                     </lightning:layoutItem>
+                                 </lightning:layout>
+                                 <!-- pagination (end) -->
+                            </lightning:accordionSection>
+                            <lightning:accordionSection name="C" label="Priorities">
+                                <table class="slds-table slds-table_bordered slds-table--fixed-layout slds-table_col-bordered slds-text-body_small">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col" style="width: 60%;">
+                                                <div class="slds-truncate slds-align_left" title="Account">Description</div>
+                                            </th>
+                                            <!--
+                                                <th scope="col" style="width: 5%;">
+                                                    <div class="slds-truncate slds-align_absolute-center" title="Account">Target</div>
+                                                </th>-->
+                                            <th scope="col" style="width: 40%;">
+                                                <div class="slds-truncate_container slds-align_absolute-center" title="Date">Yes/No</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{! v.topData }" var="tRecord" >
+                                            <c:UNILAB_TCB_Form_TOPP_Item tData="{!tRecord}"
+                                                                               tPriorityData="{! v.topPriorityData}"/>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </lightning:accordionSection>
+                            <lightning:accordionSection name="D" label="Competitors">
+                                <aura:set attribute="actions">
+                                    <lightning:buttonMenu aura:id="competitorsMenu" alternativeText="Show menu" iconSize="x-small" menuAlignment="right" onselect="{! c.showTAFTForm}">
+                                        <lightning:menuItem value="New" label="New TAF" />
+                                    </lightning:buttonMenu>
+                                </aura:set>
+                                <lightning:overlayLibrary aura:id="overlayLib"/>
+                                <!--<c:UNILAB_TCB_TAFT recordId="{!v.recordId}"/>-->
+                                <table class="slds-table slds-table_bordered slds-table--fixed-layout slds-table_col-bordered slds-text-body_small">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col" style="width: 60%;">
+                                                <div class="slds-truncate slds-align_left" title="Account">Activity</div>
+                                            </th>
+                                            <th scope="col" style="width: 40%;">
+                                                <div class="slds-truncate_container slds-align_absolute-center" title="Date">Action</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{! v.taftData }" var="taftRecord" >
+                                            <c:UNILAB_TCB_TAFT_View taftData="{!taftRecord}" />
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </lightning:accordionSection>
+                            <lightning:accordionSection name="E" label="Journal">
+                                <div class="slds-text-heading_small slds-m-left_large">{!v.prevJournal}
+                                <lightning:textarea name="txtJournal" value="{! v.journal }" placeholder="Write a Learnings and Insights..."/></div>
+                            </lightning:accordionSection>
+                            <lightning:accordionSection name="F" label="Upload Photos">
+                                <div class="slds-m-left_large">
+                                    <lightning:fileUpload label="Accepted file types: .JPEG, .JPG, .PNG"
+                                                          name="fileUploader"
+                                                          multiple="false"
+                                                          accept="{!v.filetype}"
+                                                          recordId="{!v.recordId}"
+                                                          onuploadfinished="{!c.handleUploadFinished}"
+                                                          style="width: 100%;" />
+                                </div>
+                            </lightning:accordionSection>
+                        </lightning:accordion>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <div class="slds-align_absolute-center slds-p-bottom_large">
+                    <lightning:button class="slds-m-top_small" variant="brand" type="button" name="save" label="Save" onclick='{!c.saveRecord}' />	
+                </div>
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <h1>Trade Check Buddy is Locked!</h1>
+        </aura:set>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,54 @@
+.THIS .hideModal {
+    
+    display: none;
+    
+}
+
+
+.THIS .customHeader {
+    
+    padding: 0.50rem;
+    
+}
+
+.THIS .setupHeader svg {
+    
+    fill: white;
+    background-color: #005fb2;
+    
+}
+
+.THIS .overAllocatedCSS svg {
+    
+    fill: red;
+    
+}
+
+.THIS .finishCSS svg {
+    
+    fill: #4bca81;
+    color: white;
+    
+}
+
+.THIS .customAccordionCSS .slds-accordion__summary-heading {
+    
+    display: flex;
+    flex-grow: 1;
+    font-size: 1rem;
+    line-height: 2;
+    background-color: #ecebea;
+    color: black;
+    padding-left: 5px;
+    
+}
+
+.THIS .floatRight {
+    
+    float: right;
+    
+}
+
+.THIS .toastMessage .forceActionsText{
+     white-space : pre-line !important;
+}

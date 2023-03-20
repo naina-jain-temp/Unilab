@@ -1,0 +1,115 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    
+    <aura:attribute name="sumActualRating1" type="Map"/>  
+    <aura:attribute name="sumActualRating2" type="Map"/> 
+    <aura:attribute name="sumActualRating3" type="Map"/>  
+    <aura:attribute name="sumActualRating4" type="Map"/>  
+    <aura:attribute name="sumActualRating5" type="Map"/>  
+    <aura:attribute name="sumActualRating6" type="Map"/>  
+    <aura:attribute name="totalSumActualRating" type="Map"/>		
+    
+    <aura:attribute name="overallRating1" type="Map"/>  
+    <aura:attribute name="overallRating2" type="Map"/> 
+    <aura:attribute name="overallRating3" type="Map"/>  
+    <aura:attribute name="overallRating4" type="Map"/>  
+    <aura:attribute name="overallRating5" type="Map"/>  
+    <aura:attribute name="overallRating6" type="Map"/>  
+    <aura:attribute name="totalOverallRating" type="Map"/>  
+    
+    <aura:attribute name="totalLine1" type="Map"/> 
+    <aura:attribute name="totalLine2" type="Map"/>
+    <aura:attribute name="totalLine3" type="Map"/>
+    <aura:attribute name="totalLine4" type="Map"/>
+    <aura:attribute name="totalLine5" type="Map"/>
+    <aura:attribute name="totalLine6" type="Map"/>    
+    <aura:attribute name="totalRequired" type="Map"/>
+    <aura:attribute name="totalScore" type="Map"/>
+ 
+    
+    <div class="slds-grid slds-grid_vertical slds-wrap slds-grid_align-center">
+    
+    	<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-border_top slds-border_left slds-border_right
+                  slds-border_bottom"  style="margin-bottom:30px;">  
+              <thead style="height:10px;">      
+                <tr class="slds-line-height_reset">
+                  <th>
+                    <div style="font-size:14px; margin-left: 60px;">Category</div>
+                  </th>
+                  <th>
+                    <div style="font-size:14px; margin-left:-35px;">Required Rating</div>
+                  </th>
+                  <th>
+                    <div style="font-size:14px;">Actual Rating</div>
+                  </th>
+                  <th>
+                    <div style="font-size:14px;">Overall Rating</div>
+                  </th>     	                    
+                </tr>
+     		 </thead>
+
+    		<tbody>
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems">A. Functional Areas</div></td>               
+                  <td><div class="catReqRating">{!v. totalLine1}</div></td>
+                  <td><div class="catActualRating">{!v. sumActualRating1}</div></td>
+                  <td><div class="catOverallRating" >{!v. overallRating1}</div></td>      
+                </tr>
+                  
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems">B. Material Handling Equipment</div></td>               
+                  <td><div class="catReqRating">{!v. totalLine2}</div></td>
+                  <td><div class="catActualRating">{!v. sumActualRating2}</div></td>
+                  <td><div class="catOverallRating">{!v. overallRating2}</div></td>      
+                </tr>
+                  
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems">C. Storage Equipment</div></td>               
+                  <td><div class="catReqRating"></div>{!v. totalLine3}</td>
+                  <td><div class="catActualRating">{!v. sumActualRating3}</div></td>
+                  <td><div class="catOverallRating">{!v. overallRating3}</div></td>      
+                </tr>
+                  
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems">D. Personal Protective Equipment (PPEs)</div></td>               
+                  <td><div class="catReqRating">{!v. totalLine4}</div></td>
+                  <td><div class="catActualRating">{!v. sumActualRating4}</div></td>
+                  <td><div class="catOverallRating">{!v. overallRating4}</div></td>      
+                </tr>
+                  
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems">E. Thermometers</div></td>               
+                  <td><div class="catReqRating" >{!v. totalLine5}</div></td>
+                  <td><div class="catActualRating">{!v. sumActualRating5}</div></td>
+                  <td><div class="catOverallRating">{!v. overallRating5}</div></td>      
+                </tr>
+        
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate"><div class="catItems"> F. Others</div></td>               
+                  <td><div class="catReqRating">{!v. totalLine6}</div></td>
+                  <td><div class="catActualRating">{!v. sumActualRating6}</div></td>
+                  <td><div class="catOverallRating">{!v. overallRating6}</div></td>      
+                </tr>          
+       
+                <tr class="slds-hint-parent">              
+                  <td class="slds-truncate" label="{!v.totalScore}"><div style="font-weight:bold; font-size:14px; margin-left:50px;">Total Ratings</div></td>               
+                  <td><div class="catReqRating" style="font-size:14px; font-weight:bold">{!v.totalRequired}</div></td>
+                  <td><div class="catActualRating" style=" font-size:14px; font-weight:bold">{!v. totalSumActualRating}</div></td>
+                  <td><div class="catOverallRating" style="font-size:14px; font-weight:bold">{!v.totalOverallRating}</div></td>      
+                </tr>                                 
+			</tbody>             
+    	</table>   
+    </div>
+    
+     <div class="slds-grid slds-grid_align-end">
+         <div class="slds-col">
+            <table class= "slds-border_left slds-border_right
+                          slds-border_bottom" style="width:150px; margin-left:521px; margin-top:-30px; margin-bottom:50px;" >
+                <thead>
+                    <th style="font-size:15px"> Total Score = {!v.totalScore} </th>
+                </thead>
+            </table>
+    	 </div>
+    </div>
+
+</aura:component>

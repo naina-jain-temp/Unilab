@@ -1,0 +1,43 @@
+<aura:component 
+                controller="UNILAB_ProcessCompliance_Checklist"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    			
+    			<aura:attribute name="assessmentLocal" type="Map"/>
+    			<aura:attribute name="assessmentItem" type="List" />
+    			<aura:attribute name="assessmentResults" type="Map" />
+    			<aura:attribute name="clearChecklist" type="Boolean" default="false"/>
+    			<aura:attribute name="section" type="String" />
+    			<aura:attribute name="line" type="Integer" />
+    			<aura:attribute name="category" type="String" />
+    			<aura:attribute name="title" type="String" />
+    			<aura:attribute name="rating" type="Boolean" />
+    			<aura:attribute name="remarks" type="String"/>
+    			<aura:attribute name="year" type="String" />
+    			<aura:attribute name="period" type="String"/>
+    			<aura:attribute name="disableButton" type="Boolean" />
+    
+    			<aura:handler name="init" value="{!this}" action="{! c.init }"/>
+    			<aura:handler name="change" value="{!v.rating }" action="{! c.setResults }"/>
+    			<aura:handler name="change" value="{!v.clearChecklist }" action="{! c.clearChecklist }"/>
+    			
+    			<tr>
+                    <td style="border: 1px solid black;text-align:center;width:5%;padding:5px 10px 5px 5px;">{!v.line}</td>
+                    <td style="border: 1px solid black;width:40%;padding:5px 10px 5px 10px;">{!v.title}</td>
+                    <td style="border: 1px solid black;text-align:right;width:5%;padding:5px 10px 5px 10px;">
+                    	<lightning:input 
+                                         type="checkbox"  
+                                         name="processcompliance-rating" 
+                                         value = "{!v.rating}"
+                                         aura:id="ratings"
+                                         checked = "{!v.rating}"
+                                         style="padding-right:5px;"
+                                         disabled="{!v.disableButton}"
+                                         />
+                    </td>
+                    <td style="border: 1px solid black;text-align:center;width:20%;padding:0px 10px 10px;">
+                    	<lightning:textarea name="processcompliance-remarks" value="{!v.remarks}" onblur="{!c.setRemarks}" disabled="{!v.disableButton}"/>
+                    </td>
+                </tr>          
+	
+</aura:component>

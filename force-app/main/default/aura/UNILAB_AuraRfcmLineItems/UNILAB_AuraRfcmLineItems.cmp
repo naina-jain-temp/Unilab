@@ -1,0 +1,25 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:lightningQuickActionWithoutHeader" >
+	<aura:html tag="style">
+        <div class="slds-modal__content slds-p-around--medium slds-is-relative">
+                        <div class="slds-spinner_container">
+                            <div class="slds-spinner--brand slds-spinner slds-spinner--small" role="alert">
+                                <span class="slds-assistive-text">Loading...</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                            </div>
+                        </div>
+        </div>
+        .slds-modal__container {
+             width : 85% !important;
+             max-width : 85% !important;
+         }
+         
+    </aura:html>
+    
+        
+    
+    <c:unilab_Rfcm_Line_Items recordId="{!v.recordId}"></c:unilab_Rfcm_Line_Items>
+     
+    
+    
+</aura:component>

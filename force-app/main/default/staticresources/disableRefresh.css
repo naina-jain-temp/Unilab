@@ -1,0 +1,12 @@
+div.pullToRefresh + div {
+height: 100%;
+}
+
+.viewport {
+height: 100%;
+}
+
+.scroller.actionBarPlugin {
+padding-bottom: 0px !important;
+height: 100%;
+}

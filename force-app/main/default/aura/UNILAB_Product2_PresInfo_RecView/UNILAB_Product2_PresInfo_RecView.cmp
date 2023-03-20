@@ -1,0 +1,38 @@
+<aura:component controller="UNILAB_Product2_PresInfo_RecView"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="ppiRecId" type="String" />
+    
+	<lightning:recordViewForm recordId="{!v.ppiRecId}" objectApiName="Prescribing_Info__c" density="default">
+        <div class="slds-box">
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Product_Information__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Administration__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Recommended_Dosage__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Formulation__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Precautions__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Adverse_Reaction__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Storage__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Regulatory_Classification__c" />
+            </div>
+            <div class="slds-border_bottom">
+            	<lightning:outputField fieldName="Shelf_Life__c" />
+            </div>
+        </div>
+    </lightning:recordViewForm>
+</aura:component>

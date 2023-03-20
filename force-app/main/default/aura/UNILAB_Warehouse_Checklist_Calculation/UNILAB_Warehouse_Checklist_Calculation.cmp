@@ -1,0 +1,64 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    
+    
+
+    <aura:attribute name="objectData" type="Map"/> 
+    <aura:attribute name="assessment" type="Map"/>
+        
+    <aura:attribute name="category" type="List" default="{!v.objectData.Category__c}" />
+    <aura:attribute name="title" type="List" default="{!v.objectData.Title__c}"/> 
+    <aura:attribute name="requiredSize" type="integer" default="{!v.objectData.Required_Size__c}"/>
+    <aura:attribute name="actualSize" type="integer"/>
+    <aura:attribute name="deficit" type="integer" default="0"/>
+    <aura:attribute name="ratings" type="integer" default="0"/>
+    <aura:attribute name="line" type="integer"/>
+    <aura:attribute name="sumRating" type="Map" />
+    <aura:attribute name="remarks" type="String" />
+	<aura:attribute name="draftData" type="Map" />	
+	<aura:attribute name="clearData" type="Map" />
+    <aura:attribute name="disabledInput" type="Map" />
+    <aura:attribute name="savedData" type="Map" />	
+   
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+    <aura:handler name="change" value="{!v.draftData}" action="{! c.setDraft }"/>
+    <aura:handler name="change" value="{!v.draftData}" action="{! c.calculate }"/>
+    <aura:handler name="change" value="{!v.clearData}" action="{! c.clearFields }"/>
+    <aura:handler name="change" value="{!v.savedData}" action="{! c.setSavedData }"/>
+     <aura:handler name="change" value="{!v.savedData}" action="{! c.calculate }"/>
+
+
+    <tr>
+           <td style=" border: 0.1px solid black;  border-collapse: collapse; " >
+                <th>
+                   <div class= "items" escape="true" >{! v.title}</div>
+                </th> 
+            </td>
+             <td style=" border: 0.1px solid black;  border-collapse: collapse;">
+                <th>
+                    <div class="requiredQty">{! v.requiredSize}</div>
+                </th> 
+            </td>
+             <td style=" border: 0.1px solid black;  border-collapse: collapse;">
+                <th>
+                     <lightning:input class="actualQty" required="true" type="number" disabled="{!v.disabledInput}" min="0" onchange="{! c.calculate}" value="{!v.actualSize}"></lightning:input>
+                </th>
+            </td>
+             <td style=" border: 0.1px solid black;  border-collapse: collapse; ">
+                 <th>
+                     <div class = "deficitQty">{! v.deficit}</div>                                            
+                </th>  
+            </td>
+             <td style=" border: 0.1px solid black; border-collapse: collapse;">
+                 <th>
+                   <span id="ratings" style="visibility:visible"><div  class="ratings">{! v.ratings}</div></span>                                         
+                </th> 
+            </td>
+             <td style=" border: 0.1px solid black;  border-collapse: collapse;">
+                 <th>
+                    <lightning:textarea name="remarks" value="{!v.remarks}" onblur="{!c.setRemarks}" />
+                </th>    
+            </td>
+         </tr>
+                                   
+</aura:component>

@@ -1,0 +1,72 @@
+<aura:component 
+                controller="UNILAB_ProcessCompliance_Checklist"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <aura:attribute name="assessmentSummary" type="Map"/>
+    <aura:attribute name="summary" type="Map" />
+    
+    <aura:attribute name="period" type="string" />
+    <aura:attribute name="ordermanagement" type="Map" default="{!v.summary.ordermanagement}"/>
+    <aura:attribute name="inventorymanagement" type="Map" default="{!v.summary.im}"/>
+    <aura:attribute name="accountsreceivable" type="Map" default="{!v.summary.ar}"/>
+    <aura:attribute name="formsanddocuments" type="Map" default="{!v.summary.formsanddocuments}"/>
+    <aura:attribute name="total" type="Map" default="{!v.summary.total}"/>
+    
+    <aura:handler name="change" value="{!v.assessmentSummary }" action="{! c.executeSummary }"/>
+    
+    <div style="width:100%; padding:20px;" class="slds-col slds-large-size_1-of-2 slds-small-size_1-of-1">
+        	<table style="border-collapse:collapse;">
+                	<thead>
+                		<tr style="background-color: #f3f3f3; font-weight:bold;">
+                            <th style="text-align:center;border: 1px solid black; width:50%">Section</th>
+                            <th style="text-align:center;border: 1px solid black;">Score</th>
+                            <th style="text-align:center;border: 1px solid black;">Item</th>
+                            <th style="text-align:center;border: 1px solid black;">Rating</th>
+                        </tr>
+                	</thead>
+                    <tbody>
+                    	<tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">I. ULBSDG- Total Order Management (TOM)</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.ordermanagement.score}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.ordermanagement.itemcount}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.ordermanagement.rating}%</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">II. ULBSDG- Inventory Management (IM)</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.inventorymanagement.score}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.inventorymanagement.itemcount}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.inventorymanagement.rating}%</td>
+                  
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">III. ULBSDG- Accounts Receivable (AR)</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.accountsreceivable.score}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.accountsreceivable.itemcount}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.accountsreceivable.rating}%</td>
+                          
+                        </tr>
+                     
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">IV. ULBSDG- Forms and Documents</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.formsanddocuments.score}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.formsanddocuments.itemcount}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.formsanddocuments.rating}%</td>
+                            <td></td>
+                        </tr>
+                        <tr style="background-color: #f3f3f3; font-weight:bold;">
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; text-align: right;font-weight:bold; ">Total</td>
+                            <td style="border: 1px solid black; text-align:center;font-weight:bold;">{!v.total.score}</td>
+                            <td style="border: 1px solid black; text-align:center;font-weight:bold;">{!v.total.itemcount}</td>
+                            <td style="border: 1px solid black; text-align:center;font-weight:bold;">{!v.total.rating}%</td>
+                        </tr>
+                        <tr style="background-color: #c803031f; font-weight:bold;">
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; text-align: right;" colspan="3">{!v.period} Rating:</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.total.ratingscale}</td>
+                        </tr>
+                	</tbody>
+                
+			</table>
+        </div>
+	
+</aura:component>

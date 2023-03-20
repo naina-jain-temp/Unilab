@@ -1,0 +1,52 @@
+.slds-modal__container {
+    max-width: 80rem !important;
+    width: 60% !important;
+}
+
+.RecType_div{
+    float: left;
+    text-align: right;
+    padding-right: var(--lwc-spacingLarge,1.5rem);
+    width: 40%;
+    font-size: 13px;
+    color: var(--lwc-colorTextWeak,rgb(68, 68, 68));
+}
+.RecType_subdiv{
+    display: inline;
+    padding-top: 0;
+    line-height: var(--lwc-lineHeightHeading,1.25);
+    font-size: 13px;
+}
+.RecType_subdiv1{
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: var(--lwc-spacingSmall,0.75rem);
+    padding-left: var(--lwc-spacingLarge,1.5rem);
+    word-wrap: break-word;
+}
+.RecType_subdiv2{
+    display: inline;
+    padding-top: 0;
+    line-height: var(--lwc-lineHeightHeading,1.25);
+    font-size: 13px;
+}
+.displaydata{
+    width: 90%;
+    float: right;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.displaygap{
+    display: block;
+    margin-top: var(--lwc-spacingXxSmall,0.25rem);
+}
+.displaydata1{
+    float: right;
+    text-align: left;
+    width: 65%;
+}
+.checkbox{
+    width: 10%;
+    float: left;
+}

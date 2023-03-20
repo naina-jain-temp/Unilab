@@ -1,0 +1,41 @@
+<aura:component controller="UNILAB_Product_Pricing"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >	
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--aura attributes-->  
+    <aura:attribute name="pricePBStandard" type="string" default="000.00"/>
+    <aura:attribute name="pricePBSRPBox" type="string" default="000.00"/>
+    <aura:attribute name="pricePBSRPPcs" type="string" default="000.00"/>
+    <aura:attribute name="title" type="String" default="Price Book"/>
+    
+    <lightning:card variant="Narrow" title="{!v.title}" iconName="standard:account">
+        <div class="slds-p-horizontal_small">
+            <lightning:layout class="slds-border_bottom">
+                <lightning:layoutItem flexibility="auto" padding="around-small">                    
+                    <div class="slds-text-heading_small">🏷️ Cost Price</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto, no-grow" padding="around-small">
+                    <div class="slds-text-heading_small"><strong>Php {!v.pricePBStandard}</strong></div>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <lightning:layout class="slds-border_bottom">
+                <lightning:layoutItem flexibility="auto" padding="around-small">
+                    <div class="slds-text-heading_small">🏷️ SRP (Box)</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto, no-grow" padding="around-small">
+                    <div class="slds-text-heading_small"><strong>Php 000.00</strong></div>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <lightning:layout class="slds-border_bottom">
+                <lightning:layoutItem flexibility="auto" padding="around-small">
+                    <div class="slds-text-heading_small">🏷️ SRP (Pcs)</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto, no-grow" padding="around-small">
+                    <div class="slds-text-heading_small"><strong>Php 000.00</strong></div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </lightning:card>
+</aura:component>

@@ -1,0 +1,173 @@
+<apex:page standardController="Account" extensions="Unilab_CloseAccount" showHeader="TRUE" label="Close Account" >
+    <apex:slds />
+    <style>
+        .center { 
+        text-align: center;
+        }
+    </style>
+    <div class="slds-scope">
+        
+        <!-- RENDERED ONLY IN SALESFORCE LIGHTNING -->
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3'}">
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media slds-no-space slds-grow" >                                
+                            <div class="slds-media__figure">
+                                
+                                <span class="slds-icon_container slds-icon-standard-account" title="Description of icon when needed"  >                                         
+                                    <svg aria-hidden="true" class="slds-icon">                    
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account')}"></use>                    
+                                    </svg>                                          
+                                </span>
+                                
+                            </div>                                
+                            <div class="slds-media__body">       
+                                
+                                <p class="slds-line-height_reset">                                        
+                                    UNILAB                                        
+                                </p>
+                                
+                                <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                    Account Closure                                   
+                                </h1>    
+                                
+                            </div>                                
+                        </div>                            
+                    </header>
+                </div>
+                
+                <div class="slds-card__body slds-card__body_inner">
+                    <article class="slds-card slds-card_boundary">
+                        <apex:form >
+                            <div class="slds-card__header slds-grid">
+                                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                    <div class="slds-media__body">
+                                        <div class="slds-p-top_medium">
+                                            <div class="slds-align_absolute-center">
+                                                <p class="slds-card__header-title">
+                                                    <span class="slds-line-height_reset">Set Account Close Date</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </header>
+                            </div>
+                            
+                            
+                            <div class="slds-card__body slds-card__body_inner">                                
+                                <div class="slds-form-element">
+                                    
+                                    <label class="slds-form-element__label">Account Status</label>                                     
+                                    <apex:inputText id="accountStatus" value="{!Account.Account_Status__c}" disabled="true" label="Status" styleClass="slds-select center"/>
+                                    
+                                    <label class="slds-form-element__label">Account Sub-Status</label>                                     
+                                    <apex:inputText id="accountSubStatus" value="{!Account.Account_Sub_Status__c}" disabled="true" label="Sub-Status" styleClass="slds-select center"/>
+                                    
+                                    <div class="slds-p-top_medium">
+                                        <label class="slds-form-element__label" >Account Closure Date</label>  
+                                    </div>
+                                    <c:noDateLink >
+                                        <apex:inputField id="acctClosureDate" value="{!acctRecord.Account_Closure_Date__c}" label="Close Date" required="TRUE" styleClass="slds-input center"/>
+                                    </c:noDateLink>
+                                    
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="slds-p-vertical_medium">
+                                <div class="slds-align_absolute-center">                                    
+                                    <apex:commandButton value="Save" action="{!saveRecord}" styleClass="slds-button slds-button_brand"/>
+                                    <apex:commandButton value="Cancel" action="{!Cancel}" styleClass="slds-button slds-button_neutral"/>                                                                        
+                                </div>                            
+                            </div>   
+                        </apex:form> 
+                    </article>
+                </div>
+                
+            </article>
+        </apex:outputPanel>
+        
+        
+        <!-- RENDERED ONLY IN SALESFORCE CLASSIC -->
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3'}">
+            <div class="slds-template_bottom-magnet">                
+                <div class="slds-page-header">                    
+                    <div class="slds-grid" >                        
+                        <div class="slds-col slds-has-flexi-truncate">                           
+                            <div class="slds-media slds-no-space slds-grow" >                                
+                                <div class="slds-media__figure">
+                                    
+                                    <span class="slds-icon_container slds-icon-standard-account" title="Description of icon when needed"  >                                         
+                                        <svg aria-hidden="true" class="slds-icon">                    
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account')}"></use>                    
+                                        </svg>                                          
+                                    </span>
+                                    
+                                </div>                                
+                                <div class="slds-media__body">       
+                                    
+                                    <p class="slds-line-height_reset">                                        
+                                        UNILAB                                        
+                                    </p>
+                                    
+                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                        Account Closure                                   
+                                    </h1>    
+                                    
+                                </div>                                
+                            </div>                            
+                        </div>                        
+                    </div>                   
+                </div>               
+            </div>
+            
+            
+            <div class="slds-template_bottom-magnet"> 
+                <apex:form >           
+                    <apex:pageBlock >
+                        <div class="slds-form-element">
+                            <div class="slds-p-top_medium ">
+                                <label class="slds-form-element__label font-size-heading-large" >Set Account close Date</label>                           
+                            </div>
+                            
+                            <div class="slds-p-top_medium">
+                                <label class="slds-form-element__label" >Account Status</label>                                
+                            </div>
+                            
+                            <apex:inputText id="accountStatus" value="{!Account.Account_Status__c}"  disabled="true" label="Status" styleClass="slds-select center"/>
+                            
+                            <div class="slds-p-top_medium">
+                                <label class="slds-form-element__label" >Account Sub-Status</label>                                
+                            </div>
+                            
+                            <apex:inputText id="accountSubStatus" value="{!Account.Account_Sub_Status__c}"  disabled="true" label="Sub-Status" styleClass="slds-select center"/>
+                            
+                            <div class="slds-p-top_medium">
+                                <apex:outputLabel styleClass="slds-form-element__label" for="acctClosureDate">Account Closure Date</apex:outputLabel>
+                            </div>    
+                            
+                            
+                            <c:noDateLink >
+                                <apex:inputField id="acctClosureDate" value="{!acctRecord.Account_Closure_Date__c}" label="Close Date" required="TRUE" styleClass="slds-input center"/>
+                            </c:noDateLink>
+                            
+                            <div class="slds-p-vertical_medium">
+                                <div class="slds-align_absolute-center">
+                                    <apex:commandButton value="Save" action="{!saveRecord}"  styleClass="slds-button slds-button_brand"/>
+                                    <apex:commandButton value="Cancel" action="{!Cancel}" styleClass="slds-button slds-button_neutral"/>
+                                </div>                            
+                            </div>                        
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </div>
+        </apex:outputPanel>
+    </div>
+    
+   <script>
+    document.querySelector('[id$=accountStatus]').value = 'Closed';
+    document.querySelector('[id$=accountSubStatus]').value = 'Closed';
+   </script>
+    
+</apex:page>

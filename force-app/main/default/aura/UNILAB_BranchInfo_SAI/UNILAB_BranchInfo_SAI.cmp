@@ -1,0 +1,34 @@
+<aura:component controller="UNILAB_BranchInfo_SAI"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <!-- backing data -->
+    <aura:attribute name="data" type="List" />
+
+    <!-- data table attributes -->
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="filteredData" type="List" />
+
+    <!-- filter input -->
+    <aura:attribute name="pickListFilterSet" type="List" default="[{'label': 'All BUs', 'value': 'All BUs'},{'label': 'Unilab, Inc. Group', 'value': 'Unilab, Inc. Group'},{'label': 'Ritemed Group', 'value': 'Ritemed Group'},{'label': 'Skin Science Group', 'value': 'Skin Science Group'}]" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <lightning:layout multipleRows="true">
+         <lightning:layoutItem padding="around-small" size="12">
+             <lightning:combobox
+                name="select1"
+                label="BU Company"
+                value="Unilab, Inc. Group"
+                placeholder="Select BU"
+                options="{!v.pickListFilterSet}"
+                onchange="{!c.filter}" ></lightning:combobox>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="around-small" size="12">
+    		<lightning:datatable keyField="bU_company__c" columns="{!v.columns}" data="{!v.filteredData}" hideCheckboxColumn="true" />    	
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+    <hr />
+    
+</aura:component>

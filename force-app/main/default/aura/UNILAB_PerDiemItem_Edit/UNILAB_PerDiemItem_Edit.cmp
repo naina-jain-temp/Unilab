@@ -1,0 +1,137 @@
+<aura:component controller="UNILAB_PerDiem"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global">
+    
+    <aura:attribute name="activity" type="Event"/>
+    <aura:attribute name="existEventData" type="List"/>
+    <aura:attribute name="removeEventData" type="List"/>
+    <aura:attribute name="perDiemData" type="List"/>
+    <aura:attribute name="statusValue" type="String"/>
+    <aura:attribute name="statusBool" type="Boolean" default="false"/>
+    <aura:attribute name="exemptValue" type="String"/>
+    <aura:attribute name="selectedRow" type="Boolean"/>
+    <aura:attribute name="forExemption" type="Boolean" default="false"/>
+    <aura:attribute name="mocValue" type="String" default="Online"/>
+    <aura:attribute name="locBasedValue" type="String" default="Home Base"/>
+    <aura:attribute name="locValue" type="String"/>
+    <aura:attribute name="options" type="List"/>
+    
+    <aura:handler init="init" name="init" action="{!c.doInit}" value="{!this}"/>
+  
+    <tr>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-text-body_small">
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 aura:id="selectedRow"
+                                 name="selectedRow"
+                                 checked="{! v.selectedRow}"
+                                 onchange="{! c.selectedRowChange}"/>
+                </div>
+        </th>
+        <th>
+            <div class="slds-text-body_small">
+                <lightning:input type="checkbox" 
+                                 label="For exemption"
+                                 class="slds-checkbox__label"
+                                 aura:id="forExemption"
+                                 name="forExemption"
+                                 checked="{! v.forExemption}"
+                                 disabled="{! not(v.selectedRow)}"/>
+                <aura:if isTrue="{! v.forExemption }">
+                    <lightning:input type="text"
+                                     label="Remarks"
+                                     aura:id="exemptStatus"
+                                     value="{! v.exemptValue}"
+                                     onchange="{! c.valueChange}"
+                                     disabled="{! not(v.selectedRow)}"/>
+                </aura:if>
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+            	{! v.activity.Owner.Name }
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                <lightning:formattedDateTime value="{! v.activity.StartDateTime }"/>
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                <lightning:formattedDateTime value="{! v.activity.EndDate }"/>
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                {! v.activity.Event_Type__c }
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+                {! v.activity.Event_Sub_type__c }
+            </div>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <aura:if isTrue="{! v.statusBool }">
+                <div class="slds-truncate" style="width:100px">
+                    <lightning:select name="status" 
+                                      value="{! v.statusValue}" 
+                                      onchange="{! c.valueChange }"
+                                      disabled="{! not(v.selectedRow)}">
+                    	<option value="New">New</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Missed">Missed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </lightning:select>
+                </div>
+                <aura:set attribute="else">
+                    <div class="slds-truncate">
+                        {! v.activity.Status__c }
+                    </div>
+                </aura:set>
+            </aura:if>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <!--<div class="slds-truncate">
+                {! v.activity.Mode_of_Contact__c }
+            </div>-->
+            <lightning:select name="moc" 
+                              value="{! v.mocValue}" 
+                              onchange="{! c.valueChange }"
+                              disabled="{! not(v.selectedRow)}">
+                <option value="Online">Online</option>
+                <aura:if isTrue="{! not(v.activity.Event_Type__c == 'Leave/Holiday') }">
+                    <option value="Onsite">Onsite</option>
+                </aura:if>
+            </lightning:select>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <lightning:select name="locationBased" 
+                              value="{! v.locBasedValue}" 
+                              onchange="{! c.locationChange }"
+                              disabled="{! not(v.selectedRow)}">
+                <option value="Home Base">Home Base</option>
+                <aura:if isTrue="{! not(v.mocValue == 'Online') }">
+                    <option value="Out of Home Base">Out of Home Base</option>
+                </aura:if>
+            </lightning:select>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <lightning:select name="location" 
+                              value="{! v.locValue}" 
+                              onchange="{! c.locValueChange }"
+                              disabled="{! not(v.selectedRow)}">
+                <aura:iteration items="{! v.options}" var="option">
+                    <option text="{! option.value }" value="{! option.value }" selected="{! option.selected}"/>
+                </aura:iteration>
+            </lightning:select>
+        </th>
+        <th scope="row" class="slds-text-title">
+            <div class="slds-truncate">
+            	{! v.activity.Related_To_Account__r.Name }
+            </div>
+        </th>
+    </tr>
+</aura:component>

@@ -1,0 +1,28 @@
+<template>
+    <lightning-card icon-name="custom:custom19" title='CSV File Upload'>
+        Venkat
+        <lightning-radio-group name="radioGroup"
+                          label="Radio Group"
+                          options={options}
+                          value={value}
+                          type="radio"
+                          class="customRadioCls"></lightning-radio-group>
+        <div style="margin-left: 3%">
+            <lightning-file-upload accept={acceptedCSVFormats} label="Upload New File" name="fileUploader" onuploadfinished={handleUploadFinished} record-id={recordId}></lightning-file-upload>
+        </div>
+        <div if:true={isFileUploaded}>
+            <p>Added File Name is: {fileName}</p>
+            <br/>
+            <span>Click on below Upload button to Insert the CSV file records</span>
+        </div>
+        <div if:true={error}>
+            {error}
+        </div>
+        <br/>
+        
+        <div class="btnSec pr-0">
+            <lightning-button label="Upload" class="btn btn-pri slds-m-left_x-small" onclick={uploadFileHandler} disabled={buttonDisable}></lightning-button>
+        </div>
+
+    </lightning-card>
+</template>

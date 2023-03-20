@@ -1,0 +1,1216 @@
+<apex:page standardController="Event" extensions="UNILAB_ActivityManagementCX" title="Activity Management" >
+    
+    <!-- CLASSIC STYLING -->
+    
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3' }">
+        
+        <style>
+            
+            .eventTab .tertiaryPalette, .individualPalette .eventBlock .tertiaryPalette,            
+            .layoutEdit .individualPalette .eventBlock .tertiaryPalette {
+            
+            background-color: #1797c0;
+            color: white;
+            
+            }
+            
+        </style>
+        
+    </apex:outputPanel>
+    
+    <!-- LIGHTNING STYLING -->
+    
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3' }">
+        
+        <style>
+            
+            .slds-scope .slds-checkbox [type=checkbox][disabled]+.slds-checkbox_faux:after, 
+            .slds-scope .slds-checkbox [type=checkbox][disabled]+.slds-checkbox--faux:after, 
+            .slds-scope .slds-checkbox [type=checkbox][disabled]~.slds-checkbox_faux:after, 
+            .slds-scope .slds-checkbox [type=checkbox][disabled]~.slds-checkbox--faux:after, 
+            .slds-scope .slds-checkbox [type=checkbox][disabled]+.slds-checkbox__label .slds-checkbox_faux:after, 
+            .slds-scope .slds-checkbox [type=checkbox][disabled]+.slds-checkbox__label .slds-checkbox--faux:after { 
+            border-color: black;
+            }
+            
+        </style>
+        
+    </apex:outputPanel>
+    
+    <apex:form >
+        
+        <apex:variable var="count" value="{! 0 }" />
+        
+        <!-- CLASSIC -->
+        
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3' }">
+            
+            <apex:sectionHeader title="Activity Management" />
+            
+            <br />
+            
+            <!-- DETAILS -->
+            
+            <apex:pageBlock title="Details">
+                <apex:pageBlockSection >
+                    <apex:outputField label="Assigned To" value="{! eventRecord.OwnerId }" />
+                    <apex:outputField label="Start Date" value="{! eventRecord.StartDateTime }" />
+                    <apex:outputField label="Event Type" value="{! eventRecord.Event_Type__c }" />
+                    <apex:outputField label="End Date" value="{! eventRecord.EndDateTime }" />
+                    <apex:outputField label="Event Sub-Type" value="{! eventRecord.Event_Sub_type__c }" />
+                    <apex:outputField label="Workplan" value="{! eventRecord.Work_Plan__c }" />
+                    <apex:outputField label="Location" value="{! eventRecord.Location_Custom__c }" />
+                    <apex:outputField label="All Day Event" value="{! eventRecord.IsAllDayEvent }" />
+                    <apex:outputField label="Location Based" value="{! eventRecord.Location_Based__c }" />
+                    <apex:outputField label="Validated" value="{! eventRecord.Validated__c }" />
+                    <apex:outputField label="Description" value="{! eventRecord.Description }" />
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+            
+            <!-- RELATED TO -->
+            
+            <apex:outputPanel rendered="{! (eventRecord.Event_Type__c == 'Field Work') && (eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                <apex:pageBlock title="Related To">
+                    <apex:pageBlockSection rendered="{! userRole == 'Team Lead' }">
+                        <apex:outputField label="Related To (Account)" value="{! eventRecord.Related_To_Account__c }" />
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >Work with (User)</apex:outputLabel>
+                            <apex:outputLink value="{! '/' + eventRecord.Work_With_ID__c }">
+                                {! userWorkWith.Name }
+                            </apex:outputLink>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection rendered="{! userRole == 'CDS' }">
+                        <apex:outputField label="Related To (Account)" value="{! eventRecord.Related_To_Account__c }" />
+                        <apex:outputField label="Work With (Contact)" value="{! eventRecord.WhoId }" />
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection rendered="{! userRole == 'Administrator' }">
+                        <apex:outputField label="Related To (Account)" value="{! eventRecord.Related_To_Account__c }" />
+                        <apex:outputField label="Work With (Contact)" value="{! eventRecord.WhoId }" />
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >Work with (User)</apex:outputLabel>
+                            <apex:outputLink value="{! '/' + eventRecord.Work_With_ID__c }">
+                                {! userWorkWith.Name }
+                            </apex:outputLink>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>                    
+                </apex:pageBlock>
+            </apex:outputPanel>
+            
+            <apex:outputPanel rendered="{! (eventRecord.Event_Type__c != 'Field Work') && (eventRecord.Event_Sub_type__c != 'Training Contact') }">
+                <apex:pageBlock title="Related To">
+                    <apex:pageBlockSection >
+                        <apex:outputField label="Related To (Account)" value="{! eventRecord.Related_To_Account__c }" />
+                        <apex:outputField label="Work With (Contact)" value="{! eventRecord.WhoId }" />
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+            </apex:outputPanel>
+            
+            <!-- TCR -->
+            
+            <apex:outputPanel rendered="{! (eventRecord.Event_Type__c == 'Field Work') && (eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                <apex:pageBlock title="TCR">
+                    <apex:pageBlockSection >
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >Training Contact Reports</apex:outputLabel>
+                            <apex:outputLink value="{! '/' + eventRecord.TCR_Id__c }">
+                                {! eventRecord.TCR_Name__c }
+                            </apex:outputLink>
+                        </apex:pageBlockSectionItem>
+                        <apex:outputField label="TCR Type" value="{! eventRecord.TCR_Type__c }" />
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+            </apex:outputPanel>
+            
+            <!-- EVENT TYPE EQUALS CALL -->
+            
+            <apex:pageBlock title="{! eventRecord.Event_Type__c }" rendered="{! eventRecord.Event_Type__c == 'Call' }">
+                <apex:pageBlockSection >
+                    <apex:outputField label="Target Order" value="{! eventRecord.Target_Order__c }" />
+                    <apex:outputField label="Actual Order" value="{! eventRecord.Actual_Order__c }" />
+                    <apex:outputField label="Target Collection" value="{! eventRecord.Target_Collection__c }" />
+                    <apex:outputField label="Amount Collected" value="{! eventRecord.Amount_Collection__c }" />
+                </apex:pageBlockSection>
+                <apex:repeat value="{! subActivityList }" var="item">
+                    <apex:variable var="count" value="{! count + 1 }" />
+                    <apex:pageBlockSection title="{! eventRecord.Event_Type__c } {! count }" rendered="{! eventRecord.Event_Type__c == 'Call' }">
+                        <apex:outputField label="{! eventRecord.Event_Type__c }" value="{!item.Activity_Name__c}" />
+                    </apex:pageBlockSection>
+                </apex:repeat>
+                <apex:pageBlockSection >
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel >
+                            Remarks/Analysis/Insights
+                        </apex:outputLabel>
+                        <apex:outputText >
+                            {! actJuncRemarks }
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+            
+            <!-- EVENT TYPE NOT NULL -->
+            
+            <apex:pageBlock title="{! eventRecord.Event_Type__c }" rendered="{! eventRecord.Event_Type__c != '' && eventRecord.Event_Type__c != 'Call' && eventRecord.Event_Type__c != 'Field Work' }">
+                
+                <apex:repeat value="{! subActivityList }" var="item">
+                    
+                    <apex:variable var="count" value="{! count + 1 }" />
+                    
+                    <!-- EVENT TYPE EQUALS ADMIN WORK -->
+                    
+                    <apex:pageBlockSection title="{! eventRecord.Event_Type__c } {! count }" rendered="{! eventRecord.Event_Type__c == 'Admin Work' }">
+                        <apex:outputField label="{! eventRecord.Event_Type__c }" value="{!item.Activity_Name__c}" />
+                        <apex:outputField label="Remarks" value="{! item.Remarks__c }" />
+                    </apex:pageBlockSection>
+                    
+                    <!-- EVENT TYPE EQUALS MEETING -->
+                    
+                    <apex:pageBlockSection title="{! eventRecord.Event_Type__c } {! count }" rendered="{! eventRecord.Event_Type__c == 'Meeting' }">
+                        <apex:outputField label="{! eventRecord.Event_Type__c }" value="{!item.Activity_Name__c}" />
+                        <apex:outputField label="Agenda" value="{! item.Agenda__c }" />
+                        <apex:outputField label="Attendees" value="{! item.Attendees__c }" />
+                        <apex:outputField label="Discussions/Agreements" value="{! item.Discussions__c }" />
+                        <apex:outputField label="Next Steps/Timings" value="{! item.Next_Steps_Directions__c }" />
+                    </apex:pageBlockSection>
+                    
+                    <!-- EVENT TYPE EQUALS Special Activity/Partnering -->
+                    
+                    <apex:pageBlockSection title="{! eventRecord.Event_Type__c } {! count }" rendered="{! eventRecord.Event_Type__c == 'Special Activity/Partnering' }">
+                        <apex:outputField label="{! eventRecord.Event_Type__c }" value="{!item.Activity_Name__c}" />
+                        <apex:outputField label="Objectives" value="{! item.Objectives__c }" />
+                        <apex:outputField label="Attendees" value="{! item.Attendees__c }" />
+                        <apex:outputField label="Remarks" value="{! item.Learnings_Insights__c }" />
+                    </apex:pageBlockSection>
+                    
+                    <!-- EVENT TYPE EQUALS POC Special Activity -->
+                    
+                    <apex:pageBlockSection title="{! eventRecord.Event_Type__c } {! count }" rendered="{! eventRecord.Event_Type__c == 'POC Special Activity' }">
+                        <apex:outputField label="{! eventRecord.Event_Type__c }" value="{!item.Activity_Name__c}" />
+                        <apex:outputField label="Objectives" value="{! item.Objectives__c }" />
+                        <apex:outputField label="Attendees" value="{! item.Attendees__c }" />
+                        <apex:outputField label="Remarks" value="{! item.Learnings_Insights__c }" />
+                        <apex:outputField label="Requirements Submitted" value="{! item.Requirements_Submitted__c }" />
+                    </apex:pageBlockSection>
+                    
+                </apex:repeat>
+                
+            </apex:pageBlock>
+            
+        </apex:outputPanel>
+        
+        <!-- LIGHTNING / MOBILE -->
+        
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3' }">
+            
+            <apex:slds />
+            
+            <div class="slds-scope">
+                
+                <article class="slds-card" style="background-color: white;">
+                    
+                    <!-- ACTIVITY MANAGEMENT HEADER -->
+                    
+                    <div class="slds-card__header slds-grid">
+                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                            <div class="slds-media__figure">
+                                <span class="slds-icon_container slds-icon-standard-event">
+                                    <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#event') }"></use>
+                                    </svg>
+                                    <span class="slds-assistive-text">Activity Management</span>
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <h2 class="slds-card__header-title">
+                                    <span class="slds-text-heading_small">Activity Management</span>
+                                </h2>
+                            </div>
+                            <div class="slds-no-flex">
+                                <a onclick="navSObject('{! eventRecord.Id }')" class="slds-button slds-button_neutral">
+                                    Close
+                                </a>
+                            </div>
+                        </header>
+                    </div>
+                    
+                    <!-- ACTIVITY MANAGEMENT DETAILS -->
+                    
+                    <div class="slds-card__body slds-card__body_inner">
+                        <div class="slds-form" role="list">
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Assigned to</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__figure">
+                                                        <span class="slds-avatar slds-avatar_x-small slds-avatar_circle">
+                                                            <img alt="{! userRecord.Name }" src="{! userRecord.SmallPhotoURL }" />
+                                                        </span>
+                                                    </span>
+                                                    <span class="slds-media__body">
+                                                        <apex:outputLink onclick="navSObject('{! eventRecord.OwnerId }')">
+                                                            {! userRecord.Name }
+                                                        </apex:outputLink>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Start Date</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        <apex:outputField value="{! eventRecord.StartDateTime }" />
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Event Type</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        {! eventRecord.Event_Type__c }
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">End Date</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        <apex:outputField value="{! eventRecord.EndDateTime }" />
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Event Sub-Type</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        {! eventRecord.Event_Sub_type__c }
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-checkbox slds-checkbox_stacked">
+                                                    <apex:outputPanel rendered="{! eventRecord.Work_Plan__c }">
+                                                        <input type="checkbox" checked="true" disabled="true" name="workplan" id="workplan" value="workplan" />
+                                                        <label class="slds-checkbox__label" for="workplan">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">Workplan</span>
+                                                        </label>
+                                                    </apex:outputPanel>
+                                                    <apex:outputPanel rendered="{! NOT(eventRecord.Work_Plan__c) }">
+                                                        <input type="checkbox" disabled="true" name="workplan" id="workplan" value="workplan" />
+                                                        <label class="slds-checkbox__label" for="workplan">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">Workplan</span>
+                                                        </label>
+                                                    </apex:outputPanel>                                        
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Location</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        {! eventRecord.Location_Custom__c }
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-checkbox slds-checkbox_stacked">
+                                                    <apex:outputPanel rendered="{! eventRecord.IsAllDayEvent }">
+                                                        <input type="checkbox" checked="true" disabled="true" name="allDayEvent" id="allDayEvent" value="allDayEvent" />
+                                                        <label class="slds-checkbox__label" for="allDayEvent">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">All Day Event</span>
+                                                        </label>
+                                                    </apex:outputPanel>
+                                                    <apex:outputPanel rendered="{! NOT(eventRecord.IsAllDayEvent) }">
+                                                        <input type="checkbox" disabled="true" name="allDayEvent" id="allDayEvent" value="allDayEvent" />
+                                                        <label class="slds-checkbox__label" for="allDayEvent">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">All Day Event</span>
+                                                        </label>
+                                                    </apex:outputPanel>                                        
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Location Based</span>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-media slds-media_small">
+                                                    <span class="slds-media__body">
+                                                        {! eventRecord.Location_Based__c }
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>                        
+                                </div>
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-form-element__static slds-border_bottom">
+                                                <span class="slds-checkbox slds-checkbox_stacked">
+                                                    <apex:outputPanel rendered="{! eventRecord.Validated__c }">
+                                                        <input type="checkbox" checked="true" disabled="true" name="validated" id="validated" value="validated" />
+                                                        <label class="slds-checkbox__label" for="validated">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">Validated</span>
+                                                        </label>
+                                                    </apex:outputPanel>
+                                                    <apex:outputPanel rendered="{! NOT(eventRecord.Validated__c) }">
+                                                        <input type="checkbox" disabled="true" name="validated" id="validated" value="validated" />
+                                                        <label class="slds-checkbox__label" for="validated">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label">Validated</span>
+                                                        </label>
+                                                    </apex:outputPanel>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters_small">
+                                <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                    <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                        <span class="slds-form-element__label">Description</span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                {! eventRecord.Description }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RELATED TO HEADER -->
+                    
+                    <div class="slds-card__body slds-card__body_inner">
+                        <article class="slds-card" style="background-color: #f3f2f2;" >
+                            <div class="slds-card__header slds-grid">
+                                <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                    <div class="slds-media__body">                                
+                                        <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                            RELATED TO
+                                        </h1>
+                                    </div>
+                                </header>
+                            </div>
+                        </article>
+                    </div>
+                    
+                    <!-- RELATED TO DETAILS (EVENT TYPE EQUALS FIELD WORK AND SUB TYPE EQUALS TRAINING CONTACT) -->
+                    
+                    <apex:outputPanel rendered="{! (eventRecord.Event_Type__c == 'Field Work') && (eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                        <apex:outputPanel rendered="{! userRole == 'Team Lead' }">
+                            <div class="slds-card__body slds-card__body_inner">
+                                <div class="slds-form" role="list">
+                                    <div class="slds-grid slds-gutters_small">
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Related To (Account)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-account">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputField value="{! eventRecord.Related_To_Account__c }" />
+                                                            </span>
+                                                        </span>                                            
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Work with (User)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-user">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#user') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputLink onclick="navSObject('{! eventRecord.Work_With_ID__c }')">
+                                                                    {! userWorkWith.Name }
+                                                                </apex:outputLink>
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{! userRole == 'CDS' }">
+                            <div class="slds-card__body slds-card__body_inner">
+                                <div class="slds-form" role="list">
+                                    <div class="slds-grid slds-gutters_small">
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Related To (Account)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-account">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputField value="{! eventRecord.Related_To_Account__c }" />
+                                                            </span>
+                                                        </span>                                            
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem" >
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Work with (Contact)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-contact">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#contact') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputField value="{! eventRecord.WhoId }" />
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{! userRole == 'Administrator' }">
+                            <div class="slds-card__body slds-card__body_inner">
+                                <div class="slds-form" role="list">
+                                    <div class="slds-grid slds-gutters_small">
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Related To (Account)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-account">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputField value="{! eventRecord.Related_To_Account__c }" />
+                                                            </span>
+                                                        </span>                                            
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem" >
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Work with (Contact)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-contact">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#contact') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputField value="{! eventRecord.WhoId }" />
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                            <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                <span class="slds-form-element__label">Work with (User)</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static slds-border_bottom">
+                                                        <span class="slds-media slds-media_small">
+                                                            <span class="slds-media__figure">
+                                                                <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-user">
+                                                                    <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#user') }"></use>
+                                                                    </svg>
+                                                                </span>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <apex:outputLink onclick="navSObject('{! eventRecord.Work_With_ID__c }')">
+                                                                    {! userWorkWith.Name }
+                                                                </apex:outputLink>
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                    
+                    <!-- RELATED TO DETAILS (EVENT TYPE NOT EQUALS FIELD WORK AND SUB TYPE NOT EQUALS TRAINING CONTACT) -->
+                    
+                    <apex:outputPanel rendered="{! (eventRecord.Event_Type__c != 'Field Work') && (eventRecord.Event_Sub_type__c != 'Training Contact') }">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form" role="list">
+                                <div class="slds-grid slds-gutters_small">
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Related To (Account)</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__figure">
+                                                            <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-account">
+                                                                <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#account') }"></use>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.Related_To_Account__c }" />
+                                                        </span>
+                                                    </span>                                            
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem" >
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Work with (Contact)</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__figure">
+                                                            <span class="slds-avatar slds-avatar_x-small slds-icon_container slds-icon-standard-contact">
+                                                                <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+                                                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#contact') }"></use>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.WhoId }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    
+                    <!-- TCR -->
+                    
+                    <apex:outputPanel rendered="{! (eventRecord.Event_Type__c == 'Field Work') && (eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <article class="slds-card" style="background-color: #f3f2f2;" >
+                                <div class="slds-card__header slds-grid">
+                                    <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                        <div class="slds-media__body">                                
+                                            <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                Training Contact Reports
+                                            </h1>
+                                        </div>
+                                    </header>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form" role="list">
+                                <div class="slds-grid slds-gutters_small">
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">TCR Record</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <a onclick="navSObject('{! eventRecord.TCR_Id__c }')">
+                                                                {! eventRecord.TCR_Name__c }
+                                                            </a>
+                                                        </span>
+                                                    </span>                                            
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem" >
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">TCR Type</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.TCR_Type__c }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    
+                    <!-- EVENT TYPE EQUALS CALL -->
+                    
+                    <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Call' }">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <article class="slds-card" style="background-color: #f3f2f2;" >
+                                <div class="slds-card__header slds-grid">
+                                    <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                        <div class="slds-media__body">                                
+                                            <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                ORDERS
+                                            </h1>
+                                        </div>
+                                    </header>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form" role="list">
+                                <div class="slds-grid slds-gutters_small">                    
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Target Order</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.Target_Order__c }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>                        
+                                    </div>
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Actual Order</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.Actual_Order__c }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <article class="slds-card" style="background-color: #f3f2f2;" >
+                                <div class="slds-card__header slds-grid">
+                                    <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                        <div class="slds-media__body">                                
+                                            <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                COLLECTIONS
+                                            </h1>
+                                        </div>
+                                    </header>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form" role="list">
+                                <div class="slds-grid slds-gutters_small">                    
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Target Collection</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.Actual_Order__c }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>                        
+                                    </div>
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Amount Collected</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static slds-border_bottom">
+                                                    <span class="slds-media slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <apex:outputField value="{! eventRecord.Amount_Collection__c }" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    
+                    <!-- EVENT TYPE NOT NULL -->
+                    
+                    <apex:outputPanel rendered="{! eventRecord.Event_Type__c != '' }">
+                        
+                        <apex:repeat value="{! subActivityList }" var="item">
+                            
+                            <!-- EVENT TYPE EQUALS ADMIN WORK -->
+                            
+                            <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Admin Work' }">
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <article class="slds-card" style="background-color: #f3f2f2;" >
+                                        <div class="slds-card__header slds-grid">
+                                            <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                                <div class="slds-media__body">                                
+                                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                        {! eventRecord.Event_Type__c }
+                                                    </h1>
+                                                </div>
+                                            </header>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">{! eventRecord.Event_Type__c }</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-border_bottom">
+                                                            <span class="slds-media slds-media_small">
+                                                                <span class="slds-media__body">
+                                                                    <apex:outputField value="{! item.Activity_Name__c }" />
+                                                                </span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>                        
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Remarks</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Remarks__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            
+                            <!-- EVENT TYPE EQUALS CALL -->
+                            
+                            <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Call' }">
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <article class="slds-card" style="background-color: #f3f2f2;" >
+                                        <div class="slds-card__header slds-grid">
+                                            <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                                <div class="slds-media__body">                                
+                                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                        {! eventRecord.Event_Type__c }
+                                                    </h1>
+                                                </div>
+                                            </header>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">{! eventRecord.Event_Type__c }</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-border_bottom">
+                                                            <span class="slds-media slds-media_small">
+                                                                <span class="slds-media__body">
+                                                                    <apex:outputField value="{! item.Activity_Name__c }" />
+                                                                </span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            
+                            <!-- EVENT TYPE EQUALS MEETING -->
+                            
+                            <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Meeting' }">
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <article class="slds-card" style="background-color: #f3f2f2;" >
+                                        <div class="slds-card__header slds-grid">
+                                            <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                                <div class="slds-media__body">                                
+                                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                        {! eventRecord.Event_Type__c }
+                                                    </h1>
+                                                </div>
+                                            </header>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">{! eventRecord.Event_Type__c }</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-border_bottom">
+                                                            <span class="slds-media slds-media_small">
+                                                                <span class="slds-media__body">
+                                                                    <apex:outputField value="{! item.Activity_Name__c }" />
+                                                                </span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>                        
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Agenda</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Agenda__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Attendees</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Attendees__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Discussions/Agreements</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Discussions__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Next Steps/Timings</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Next_Steps_Directions__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            
+                            <!-- EVENT TYPE EQUALS SPECIAL ACTIVITY/PARTNERING -->
+                            
+                            <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Special Activity/Partnering' }">
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <article class="slds-card" style="background-color: #f3f2f2;" >
+                                        <div class="slds-card__header slds-grid">
+                                            <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                                <div class="slds-media__body">                                
+                                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                        {! eventRecord.Event_Type__c }
+                                                    </h1>
+                                                </div>
+                                            </header>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">{! eventRecord.Event_Type__c }</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-border_bottom">
+                                                            <span class="slds-media slds-media_small">
+                                                                <span class="slds-media__body">
+                                                                    <apex:outputField value="{! item.Activity_Name__c }" />
+                                                                </span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>                        
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Objectives</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Objectives__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Attendees</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Attendees__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Remarks</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Learnings_Insights__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            
+                            <!-- EVENT TYPE EQUALS POC SPECIAL ACTIVITY -->
+                            
+                            <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'POC Special Activity' }">
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <article class="slds-card" style="background-color: #f3f2f2;" >
+                                        <div class="slds-card__header slds-grid">
+                                            <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                                <div class="slds-media__body">                                
+                                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate slds-text-title_caps" style="font-size: .75rem;" >
+                                                        {! eventRecord.Event_Type__c }
+                                                    </h1>
+                                                </div>
+                                            </header>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">{! eventRecord.Event_Type__c }</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-border_bottom">
+                                                            <span class="slds-media slds-media_small">
+                                                                <span class="slds-media__body">
+                                                                    <apex:outputField value="{! item.Activity_Name__c }" />
+                                                                </span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>                        
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Objectives</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Objectives__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Attendees</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Attendees__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Remarks</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Learnings_Insights__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters_small">
+                                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                                <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                                    <span class="slds-form-element__label">Requirements</span>
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                            {! item.Requirements_Submitted__c }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            
+                        </apex:repeat>
+                        
+                    </apex:outputPanel>
+                    
+                    <!-- EVENT TYPE EQUALS CALL -->
+                    
+                    <apex:outputPanel rendered="{! eventRecord.Event_Type__c == 'Call' }">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form" role="list">
+                                <div class="slds-grid slds-gutters_small">
+                                    <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                        <div class="slds-form-element slds-form-element_edit slds-hint-parent">
+                                            <span class="slds-form-element__label">Remarks/Analysis/Insights</span>
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__static slds-border_bottom slds-text-longform">
+                                                    {! actJuncRemarks }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    
+                </article>
+                
+                <div class="slds-p-bottom_x-small" />
+                
+            </div>
+            
+        </apex:outputPanel>
+        
+    </apex:form>    
+    
+    <script>
+    
+    function navSObject(recID) {
+        
+        sforce.one.navigateToSObject(recID, "detail");
+        
+    };
+    
+    </script>
+    
+</apex:page>

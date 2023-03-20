@@ -1,0 +1,23 @@
+<aura:component implements="forceCommunity:layout" access="global" description="UL Layout"> 
+    <aura:attribute name="container1" type="Aura.Component[]" />
+    <aura:attribute name="container2" type="Aura.Component[]" />
+    <aura:attribute name="container3" type="Aura.Component[]" />
+    
+    <div class="slds-grid slds-wrap">
+       
+        <div class="slds-size_2-of-2">
+            
+            <lightning:layoutItem size="12" padding="around-small">
+                <div style="background: #ffffff;">{!v.container2}</div>
+                <div style="background: #ffffff;">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+            				<div class="slds-m-around_x-small">{!v.container3}</div>
+                        </div>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+        </div>
+    </div>	
+	
+</aura:component>

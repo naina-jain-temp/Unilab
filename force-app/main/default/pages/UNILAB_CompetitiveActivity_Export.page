@@ -1,0 +1,306 @@
+<apex:page standardController="Competitive_Activity__c" extensions="UNILAB_CompetitiveActivity_Export" renderAs="pdf" standardStylesheets="false" applyHtmlTag="true" showHeader="false" sidebar="false" applyBodyTag="false" >
+    
+    <head>        
+        <style type="text/css" media="print">
+            @page {
+            	size: A4;
+                @top-center {
+                	content: element(header);
+                }
+                @bottom-left {
+                	content: element(footer);
+                }
+            }
+            div.header {
+                padding: 10px;
+            	font-family: sans-serif;
+            }
+            div.content {
+                padding: 10px;
+            	font-family: sans-serif;
+            }
+            div.footer {
+                display: block;
+            	position: center;
+                padding: 5px;
+                position: running(footer);
+            	text-align: center;
+            	color: #857c7b;
+            	font-family: sans-serif;
+            }
+            .pagenumber:before {
+            	content: counter(page);
+            }
+            .pagecount:before {
+            	content: counter(pages);
+            }
+            .titleTextSize {
+            	font-size: 24px;
+            	font-weight: bold;
+            	text-transform: uppercase;
+            }
+            .contentTextSize {
+            	font-size: 12px;
+            }
+            .paragraphNoSpace {
+            	margin: 0;
+            	padding: 0;
+            }
+            .textIndent {
+            	text-indent: 20px;
+            }
+            .textCenter {
+            	text-align: center;
+            }
+            .textJustify {
+            	text-align: justify;
+            }
+            .boldText {
+            	font-weight: bold;
+            }
+            .italicText {
+            	font-style: italic;
+            }
+            .pageBreak {
+            	page-break-after: always;
+            }
+            .tableFloatedLeft {
+            	float: left;
+            }
+        </style>
+    </head>
+    
+    <apex:variable value="{! 0 }" var="rowNum" />
+    
+    <!-- HEADER -->
+    <div class="header">
+        <table width="100%">
+            <tr>
+                <td width="15%">
+                    <apex:image url="{! $Resource.unilablogocircle }" style="height: 75px; width: 75px;" />
+                </td>
+                <td width="85%">
+                    <p class="titleTextSize">
+                        Trade Activity Feedback Report
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+        
+    <apex:outputPanel rendered="{! competitiveActivityList.size > 0 }">
+        
+        <apex:repeat value="{! competitiveActivityList }" var="competitiveActivityRec" >
+        
+            <apex:variable var="rowNum" value="{! rowNum + 1 }"/>
+            
+            <!-- CONTENT -->
+            <div class="content">
+                <div>
+                    <table border="1" cellspacing="0" cellpadding="2" class="tableFloatedLeft contentTextSize" width="60%">
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Trade Activity Name
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.competitiveName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Date
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{0,date,MMMMM' 'dd', 'yyyy}">
+                                        <apex:param value="{! competitiveActivityRec.dateValue }" /> 
+                                    </apex:outputText>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Channel Group
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.channelGroup }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Channel
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.channelName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Account
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.accountName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Contact
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.contactName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Trade Activity Type
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.activityType }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Trade Activity Sub Type
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.activitySubType }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Date Implemented
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{0,date,MMMMM' 'dd', 'yyyy}">
+                                        <apex:param value="{! competitiveActivityRec.dateImplementedValue }" /> 
+                                    </apex:outputText>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    BU
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.buName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Division
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.divisionName }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Brand
+                                </p>
+                            </td>
+                            <td>
+                                <ul style="margin-top: 0; margin-bottom: 0;">
+                                    <apex:repeat value="{! competitiveActivityRec.brandName }" var="brandName" >
+                                        <li>
+                                            <apex:outputText value="{! brandName }" />
+                                        </li>
+                                    </apex:repeat>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Description
+                                </p>
+                            </td>
+                            <td>
+                                <p class="textIndent textJustify">
+                                    <apex:outputText value="{! competitiveActivityRec.description }" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <p class="paragraphNoSpace boldText">
+                                    Reported By
+                                </p>
+                            </td>
+                            <td>
+                                <p class="paragraphNoSpace">
+                                    <apex:outputText value="{! competitiveActivityRec.reportedBy }" />
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                    <table cellspacing="0" cellpadding="1" class="tableFloatedLeft" width="40%">
+                        <apex:repeat value="{! competitiveActivityRec.photoID }" var="imageID" >
+                            <tr>
+                                <td style="padding-left: 10px; padding-bottom: 10px;">
+                                    <img src="{! '/sfc/servlet.shepherd/version/download/' + imageID }" style="height: 50%; width: 100%;" />
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                    <apex:outputPanel rendered="{! competitiveActivityRec.photoID.size > 3 }">
+                        <div class="pageBreak" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            
+            <apex:outputPanel rendered="{! rowNum < competitiveActivityList.size }">
+                <div class="pageBreak" />
+            </apex:outputPanel>
+            
+            <!-- FOOTER -->
+            <div class="footer">
+                <div>Page <span class="pagenumber" /> of  <span class="pagecount" /></div>
+            </div>
+            
+        </apex:repeat>
+        
+    </apex:outputPanel>
+    
+</apex:page>

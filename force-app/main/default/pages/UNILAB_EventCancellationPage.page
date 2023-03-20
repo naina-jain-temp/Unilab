@@ -1,0 +1,142 @@
+<apex:page controller="UNILAB_EventCancellationPageCX" >
+    <apex:slds />       
+    
+    <div class="slds-scope">
+        
+        <!-- RENDERED ONLY IN SALESFORCE LIGHTNING -->
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3'}">  
+            <article class="slds-card" style="background-color:white">
+                <div class="slds-card__header slds-grid">
+                    <div class="slds-col slds-has-flexi-truncate">                           
+                        <div class="slds-media slds-no-space slds-grow" >                                
+                            <div class="slds-media__figure">
+                                
+                                <span class="slds-icon_container slds-icon-standard-event" title="Description of icon when needed"  >                                         
+                                    <svg aria-hidden="true" class="slds-icon">                    
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#event')}"></use>                    
+                                    </svg>                                          
+                                </span>
+                                
+                            </div>                                
+                            <div class="slds-media__body">       
+                                
+                                <p class="slds-line-height_reset">                                        
+                                    UNILAB                                        
+                                </p>
+                                
+                                <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                    Event Cancellation                                     
+                                </h1>    
+                                
+                            </div>                                
+                        </div>                            
+                    </div>             
+                </div>        
+                
+                <apex:form >
+                    <div class="slds-card__body slds-card__body_inner">
+                        <article class="slds-card slds-card_boundary" style="background-color:white">
+                            
+                            <apex:pageMessages />
+                            
+                            <div class="slds-card__header slds-grid"></div>
+                            
+                            <div class="slds-card__body slds-card__body_inner">                       
+                                
+                                <div class="slds-form-element">
+                                    
+                                    <label class="slds-form-element__label" >Reason for Cancellation</label> 
+                                    
+                                    <apex:inputField id="reason" value="{!eventRec.Reason_for_Cancellation__c}" label="" styleClass="slds-select"/>
+                                    
+                                    <div class="slds-p-top_medium">
+                                        <label class="slds-form-element__label" >Others</label> 
+                                    </div>                        
+                                    <apex:inputTextarea id="other" value="{!eventRec.Others__c}" rows="2" label="" styleClass="slds-textarea" />
+                                    
+                                </div>
+                                
+                            </div>
+                            <div class="slds-p-vertical_medium">
+                                <div class="slds-align_absolute-center">
+                                    
+                                    <apex:commandButton value="Save" action="{!saveEvent}" styleClass="slds-button slds-button_brand"/>
+                                    
+                                </div> 
+                            </div>
+                            
+                        </article>
+                    </div>
+                </apex:form>  
+            </article>
+        </apex:outputPanel>
+        
+        
+        <!-- RENDERED ONLY IN CLASSIC VIEW -->
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3'}">      
+            <div class="slds-template_bottom-magnet">                
+                <div class="slds-page-header">                    
+                    <div class="slds-grid" >                        
+                        <div class="slds-col slds-has-flexi-truncate">                           
+                            <div class="slds-media slds-no-space slds-grow" >                                
+                                <div class="slds-media__figure">
+                                    
+                                    <span class="slds-icon_container slds-icon-standard-event" title="Description of icon when needed"  >                                         
+                                        <svg aria-hidden="true" class="slds-icon">                    
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#event')}"></use>                    
+                                        </svg>                                          
+                                    </span>
+                                    
+                                </div>                                
+                                <div class="slds-media__body">       
+                                    
+                                    <p class="slds-line-height_reset">                                        
+                                        UNILAB                                        
+                                    </p>
+                                    
+                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                        Event Cancellation                                     
+                                    </h1>    
+                                    
+                                </div>                                
+                            </div>                            
+                        </div>                        
+                    </div>                   
+                </div>               
+            </div>
+            
+            <div class="slds-template_bottom-magnet">    
+                <apex:form >
+                    
+                    <apex:pageMessages />
+                    
+                    <apex:pageBlock tabStyle="account">
+                        
+                        <div class="slds-form-element">
+                            <div class="slds-p-top_medium">
+                                <label class="slds-form-element__label " >Reason for Cancellation</label> 
+                            </div>                        
+                            
+                            <apex:inputField id="reason" value="{!eventRec.Reason_for_Cancellation__c}" label="" styleClass="slds-select"/>
+                            
+                            <div class="slds-p-top_medium">
+                                <label class="slds-form-element__label" >Others</label> 
+                            </div>                        
+                            <apex:inputTextarea id="other" value="{!eventRec.Others__c}" rows="2" label="" styleClass="slds-textarea" required="true"/>
+                            
+                            <div class="slds-p-vertical_medium">
+                                <div class="slds-align_absolute-center">
+                                    <apex:commandButton value="Save" action="{!saveEvent}" styleClass="slds-button slds-button_brand"/>
+                                </div>                            
+                            </div>
+                        </div>
+                        
+                    </apex:pageBlock>                
+                    
+                </apex:form>
+            </div>
+        </apex:outputPanel>
+    </div>
+    
+    
+</apex:page>

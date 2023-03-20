@@ -1,0 +1,99 @@
+<aura:component controller="UNILAB_AIR_ICOMPLY"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="mycolumns2" type="String[]"/>
+    <aura:attribute name="inputProductComment" type="String[]" />
+    <aura:attribute name="currentEventId" type="String"/>
+    <aura:attribute name="journal" type="String"/>	
+    <aura:attribute name="withoutRec" type="Boolean" default="{!not(empty(v.currentEventId)) ? false : true}"/>
+    
+    <aura:attribute name="mydata3" type="Object"/>
+    <aura:attribute name="mycolumns3" type="List"/>
+    <aura:attribute name="keyField3" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+    
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Compliance Program
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="c-container">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-scrollable_x">
+                    <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal slds-table_col-bordered slds-no-row-hover">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Name">Name</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Name">No. of Transaction</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <aura:iteration items="{! v.mydata }" var="record" >
+                                <tr>
+                                    <th scope="row" class="slds-cell-wrap">
+                                        <div class="slds-truncate">
+                                            {! record.name__c }
+                                        </div>
+                                    </th>
+                                    <th scope="row" class="slds-cell-wrap">
+                                        <lightning:input aura:id="inputComment" variant="label-hidden"  name="{!index}" placeholder="input the number of transaction here..." disabled="{! v.withoutRec }" />
+                                    </th>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    <br/>
+    <div class="slds-form-element">
+        <div class="slds-m-top--xx-small">
+            <div class="slds-page-header">
+                <div class="slds-align--absolute-left">
+                    <div class="slds-text-heading--small">       
+                        Journal Box
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-form-element__control">
+            <lightning:textarea name="txtJournal" value="{! v.journal }" disabled="{! v.withoutRec }"  placeholder="Write a Learnings and Insights..."/>
+        </div>
+    </div> 
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <lightning:button variant="brand" label="Save" onclick="{!c.saveRecord}" disabled="{! v.withoutRec }" />
+    </div>
+    <br/>
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Summary
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <lightning:datatable data="{! v.mydata3 }" 
+                         columns="{! v.mycolumns3 }" 
+                         keyField="Id" 
+                         hideCheckboxColumn ="true"/>
+    <br/>
+</aura:component>

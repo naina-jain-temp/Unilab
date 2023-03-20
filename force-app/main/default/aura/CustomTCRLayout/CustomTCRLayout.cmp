@@ -1,0 +1,29 @@
+<aura:component implements="lightning:recordHomeTemplate" description="Full Width Header with a 6x6 and Full Width Footer" >
+    
+    <aura:attribute name="headerElement" type="Aura.Component[]" />
+    <aura:attribute name="firstLeftElement" type="Aura.Component[]" />
+    <aura:attribute name="firstRightElement" type="Aura.Component[]" />
+    <aura:attribute name="secondElement" type="Aura.Component[]" />
+    
+    <div>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow" size="12" padding="around-small">
+                {! v.headerElement }
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow" size="6" padding="around-small">
+                {! v.firstLeftElement }
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" size="6" padding="around-small">
+                {! v.firstRightElement }
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem size="12" padding="around-small">
+                {! v.secondElement }
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

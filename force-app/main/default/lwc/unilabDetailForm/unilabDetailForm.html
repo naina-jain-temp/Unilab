@@ -1,0 +1,190 @@
+<template>
+    <div class="slds-form-element slds-modal__content slds-p-around_medium" style="height:420px;">
+        
+        <template if:true={spinnercontroller}>
+            <lightning-spinner variant="brand" style="position:fixed;">
+            </lightning-spinner>
+        </template>
+
+        <template if:true={messagecontrol}>        
+            <div class="slds-grid slds-wrap slds-p-around_medium">
+                <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium  ">      
+                    <abbr class="slds-required" title="required"><b>* {msg}</b></abbr>
+                </div>
+            </div>
+        </template>
+
+        <div class="slds-modal__content slds-form-element__control ">
+            <div class="slds-grid slds-wrap slds-p-around_medium">
+                
+                <!--  <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">                    
+                    <lightning-input type='Text' label="Name" required="true" value={recordForm.Name} onchange={nameField} placeholder="Enter Name Here"></lightning-input>
+                </div> -->
+
+                <!--<template if:true={record3}>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                        <lightning-input type='number' label="CM NO" disabled="true" value={recordForm.unilab_CM_No__c} onchange={CMNOField} placeholder="Enter CM Number Here"></lightning-input>
+                    </div>
+                </template>-->
+               
+                <!--<div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-combobox
+                    name="Accrued" label="Accrued" required = "true" value={recordForm.unilab_Accrued__c}
+                    options={acc} onchange={updPick2}></lightning-combobox>
+                </div>-->
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--small slds-m-bottom--small ">
+                    <!-- <label class="slds-form-element__label" ><abbr class="slds-required" title="required">* </abbr>Program</label>
+                     <lightning-input-field field-name="unilab_Program__c" variant="label-hidden" onchange={updPick3} value={recordForm.unilab_Program__c}> </lightning-input-field>-->
+                     <lightning-combobox
+                     name="CustomerTeam"
+                     label="CustomerTeam"
+                     value={recordForm.Customer_Team__c}
+                     onchange={updPick3}
+                     required="true"
+                     options={customerTeamOptions}></lightning-combobox>
+                 </div>
+
+                 <div class="slds-col slds-size_6-of-12 slds-p-horizontal--small slds-m-bottom--small ">
+                    <!-- <label class="slds-form-element__label" ><abbr class="slds-required" title="required">* </abbr>Program</label>
+                     <lightning-input-field field-name="unilab_Program__c" variant="label-hidden" onchange={updPick3} value={recordForm.unilab_Program__c}> </lightning-input-field>-->
+                     <lightning-combobox
+                     name="SubCustomerTeam"
+                     label="Sub CustomerTeam"
+                     value={recordForm.Customer_Sub_Team__c}
+                     onchange={updPick6}
+                     required="true"
+                     disabled={subCustomerTeamDisabled}
+                     options={subCustomerTeamOptions}></lightning-combobox>
+                 </div>
+
+
+                <div class="slds-col slds-size_12-of-12">
+                    <lightning-record-edit-form record-type-id={recordtypeid.Name} object-api-name="RFCM__c">
+                        <div class="slds-grid slds-wrap"> 
+                           <!-- <div class="slds-col slds-size_4-of-12 slds-p-horizontal--small slds-m-bottom--small ">
+                                 // <label class="slds-form-element__label" ><abbr class="slds-required" title="required">* </abbr>Program</label>
+                                 <lightning-input-field field-name="unilab_Program__c" variant="label-hidden" onchange={updPick3} value={recordForm.unilab_Program__c}> </lightning-input-field>//
+                                 <lightning-combobox
+                                 name="SubCustomerTeam"
+                                 label="Sub CustomerTeam"
+                                 value={recordForm.Customer_Sub_Team__c}
+                                 onchange={updPick6}
+                                 required="true"
+                                 disabled={subCustomerTeamDisabled}
+                                 options={subCustomerTeamOptions}></lightning-combobox>
+                             </div> -->
+                             
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal--small slds-m-bottom--small ">
+                                <!--<lightning-input-field field-name="unilab_Classification__c" onchange={updPick4} value={recordForm.unilab_Classification__c}> </lightning-input-field>-->
+                                <lightning-combobox
+                                    name="Classification"
+                                    label="Classification"
+                                    value={recordForm.unilab_Classification__c}
+                                    disabled={classificationDisabled}
+                                    onchange={updPick4}
+                                    required="true"
+                                    options={classificationOption}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal--small slds-m-bottom--small ">
+                               <!-- <label class="slds-form-element__label" ><abbr class="slds-required" title="required">* </abbr>Program</label>
+                                <lightning-input-field field-name="unilab_Program__c" variant="label-hidden" onchange={updPick3} value={recordForm.unilab_Program__c}> </lightning-input-field>-->
+                                <lightning-combobox
+                                name="Program"
+                                label="Program"
+                                disabled={programDisabled}
+                                value={recordForm.unilab_Program__c}
+                                onchange={updPick5}
+                                required="true"
+                                options={programOptions}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                                <lightning-combobox
+                                name="Accrued" label="Accrued" required = "true" value={recordForm.unilab_Accrued__c}
+                                options={acc} onchange={updPick2}></lightning-combobox>
+                            </div>
+                            
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+
+                <!--   <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-combobox
+                    name="Classification" label="Classification" value={recordForm.unilab_Classification__c}
+                    options={cls} onchange={updPick4}></lightning-combobox> 
+                </div> 
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-combobox
+                    name="Program" label="Program" value={recordForm.unilab_Program__c}
+                    options={prg} onchange={updPick3}></lightning-combobox>
+                </div> -->
+                
+                
+
+                
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-input type='Text' label="Claim Reference Number" value={recordForm.unilab_Claim_Reference_Number__c} onchange={clRefNumField} required="true" placeholder="Enter Claim Reference Number Here"></lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">     
+                    <lightning-input type='Text' label='Claim Description' value={recordForm.unilab_Claim_Description__c} onchange={clDescField} placeholder="Enter Claim Description Here" required="true"></lightning-input>
+                </div>
+
+                <!--
+                <template if:true={record3}>
+
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">   
+                        <lightning-input type='Text' label="Company" name='Company' disabled="true" value={recordForm.unilab_Company__c} onchange={companyField}  placeholder="Enter Company Name Here" ></lightning-input>
+                    </div>
+                
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">   
+                        <lightning-input type='number' label="Claimed Amount"  name='Claimed Amount' value={recordForm.unilab_Claimed_Amount__c} disabled="true" onchange={clAmountField} placeholder="Enter Amount Here" ></lightning-input>
+                    </div>
+
+                </template>
+            -->
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">  
+                    <lightning-input type='date' label="Program Duration Start Date" name='Program Duration Start Date' value={recordForm.unilab_Start_Date__c} onchange={proStartDateField} placeholder="Choose Program Start Date" required="true"></lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-input type='date' label="Program Duration End Date" name='Program Duration End Date' value={recordForm.unilab_End_Date__c} onchange={proStopDateField} placeholder="Choose Program End Date" required="true"></lightning-input>
+                </div>
+                <template if:true={record2}>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                        <c-unilab-dynamic-lookup objectname='Account' fieldsnames="Name,Branch_Code__c" fieldname='Customer Name' onaccountdetails={accountdetails} ></c-unilab-dynamic-lookup>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium "> 
+                        <lightning-input type='text' disabled={customerCode} label="Customer Code" name='Customer Code' value={recordForm.unilab_Customer_Code__c} onchange={custCodeField} placeholder="Enter Customer Code Here" ></lightning-input>
+                    </div>
+                </template>
+
+                
+
+                <!--<template if:true={record1}>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">  
+                        <c-unilab-dynamic-lookup disableinput={projcontrol} objectname='Project_Proposal_Document__c' fieldsnames="Name,PPD_Description__c,Company__c" fieldname='Project Proposal Document No' onprojectdetails={projectdetails} ></c-unilab-dynamic-lookup>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">  
+                        <lightning-input type='Text' label="PPD Description" name='PPD Description' disabled="true" value={recordForm.UNILAB_PPD_Description__c} onchange={ppdDescField}  required="false"></lightning-input>
+                    </div>  
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                        <c-unilab-dynamic-lookup disableinput={safecontrol} objectname='SAFE__c' fieldname='Contract No' fieldsnames="Name,Contract_Description__c,Project_Proposal_Document__r.Company__c" oncontractdetails={contractdetails} ></c-unilab-dynamic-lookup>
+                    </div>
+                   <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                        <lightning-input type='Text' label="Contract Description" name='Contract Description' disabled="true" value={recordForm.UNILAB_Contract_Description__c} onchange={conDescField}  required="false"></lightning-input>
+                    </div>
+                </template> -->
+                 <!-- <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">
+                    <lightning-combobox
+                    name="Status" label="Status" required="true" value={recordForm.Status__c}
+                    options={sts} onchange={updPick1}></lightning-combobox>
+                </div>
+
+              <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom--medium ">  
+                    <lightning-input type='Text' label="Participating SKUs" name='Participating SKUs'  value={recordForm.unilab_Participating_SKUs__c} onchange={pSkusField}  placeholder="Enter Participating SKU  Here" required="true"></lightning-input>
+                </div>-->
+
+            </div>
+        </div>
+    </div>
+</template>

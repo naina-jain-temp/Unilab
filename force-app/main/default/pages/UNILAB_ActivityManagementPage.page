@@ -1,0 +1,126 @@
+<!--
+Author       :   Manuelito Ortega
+Created Date :   09.11.2018
+Definition   :   Activity Management page
+History      :   05.24.2017 - Kiko Roberto:  Created
+-->
+<apex:page standardController="Event"  extensions="UNILAB_ActivityManagementCX" >
+    
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="x-ua-compatible" content="ie=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            
+            <!-- Import the Design System style sheet -->
+            <apex:slds />
+            <apex:includeLightning />
+        </head>
+        <body>
+            <input type="hidden" id="recordId"  value="{!recordId}" />
+            
+            <!-- REQUIRED SLDS WRAPPER -->
+            <div class="slds-scope">
+                
+                <div id="lightning">
+                    
+                </div>
+    
+            </div>
+            
+        </body>
+        
+        <script >
+        
+        function isLightningExperienceOrSalesforce1() {
+            return((typeof sforce != 'undefined') && sforce && (!!sforce.one));
+        }
+        function loadLightningOut(){
+            
+            $Lightning.use("c:UNILAB_LEX_ActivityManagementPageApp", function() {
+                var attributes = {mode:"Create",recordId:document.getElementById('recordId').value,unplanned:false,isLightningOut:true,isQuickAction:false,isQuickActionClone:false}; // Set component attributes here
+                
+                $Lightning.createComponent('c:UNILAB_LEX_ActivityManagementPage', attributes, 'lightning',
+                                           function(cmp) {
+                                               
+                                               $A.eventService.addHandler({
+                                                   event: 'c:UNILAB_LEX_ActivityManagementVF_Event',
+                                                   handler: function(event) {
+                                                       
+                                                       var recordId = event.getParam("recordId");
+                                                       var actionType = event.getParam("actionType");
+                                                       if(isLightningExperienceOrSalesforce1()){
+                                                           // VF page in S1 or Lightning Exp
+                                                           
+                                                           if(actionType ==='New Task'){
+
+                                                               setTimeout(function(){
+                                                                   sforce.one.navigateToURL('/00T/e?retURL='+recordId);
+                                                                   document.getElementById('lightning').innerHTML = "";
+                                                                   loadLightningOut(); 
+                                                               }, 2000);
+                                                           }
+                                                           else if(actionType==='Cancel'){
+                                                               sforce.one.navigateToURL('/apex/UNILAB_EventCancellationPage?id='+recordId)
+                                                               document.getElementById('lightning').innerHTML = "";
+                                                               loadLightningOut(); 
+                                                           }
+                                                               else if(actionType==='Save'||actionType==='Complete'){
+                                                                   
+                                                                   setTimeout(function(){
+                                                                       //sforce.one.navigateToURL('/'+recordId)
+                                                                       sforce.one.navigateToSObject(recordId);
+                                                                       document.getElementById('lightning').innerHTML = "";
+                                                                       loadLightningOut(); 
+                                                                                        }, 2000);
+                                                                
+                                                               }
+                                                           
+                                                           
+                                                       } 
+                                                       else {
+                                                           // VF page in Classic
+                                                           if(actionType ==='New Task'){
+                                                               setTimeout(function(){
+                                                                   window.location ='/00T/e?retURL='+recordId;
+                                                                   document.getElementById('lightning').innerHTML = "";
+                                                                   loadLightningOut(); 
+                                                               }, 2000);
+                                                               
+                                                           }
+                                                           else if(actionType==='Cancel'){  
+                                                               window.location ='/apex/UNILAB_EventCancellationPage?id='+recordId;
+                                                                 document.getElementById('lightning').innerHTML = "";
+                                                                loadLightningOut(); 
+                                                           }
+                                                               else if(actionType==='Save'||actionType==='Complete'){
+                                                                         setTimeout(function(){
+                                                                       window.location ='/'+recordId;
+                                                                       document.getElementById('lightning').innerHTML = "";
+                                                                       loadLightningOut(); 
+                                                                                        }, 2000);
+                                                                  
+                                                               }
+                                                       }
+                                                       
+                                                   }
+                                               });
+                                               $A.eventService.addHandler({
+                                                   event: 'force:showToast',
+                                                   handler: function(event){
+                                                       
+                                                   }
+                                                   
+                                               });
+                                           });
+            });
+        }
+        loadLightningOut();
+        </script>
+    </html> 
+    
+    
+    
+    
+    
+</apex:page>

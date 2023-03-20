@@ -1,0 +1,5 @@
+<apex:page standardController="Event_Log__c">
+<apex:map width="100%" height="400px" mapType="roadmap" zoomLevel="16" center="{latitude:{!Event_Log__c.Latitude__c},longitude:{!Event_Log__c.Longitude__c}}">
+<apex:mapMarker title="{!Event_Log__c.Event_Subject__c}" position="{latitude:{!Event_Log__c.Latitude__c},longitude:{!Event_Log__c.Longitude__c}}"/>
+</apex:map>
+</apex:page>

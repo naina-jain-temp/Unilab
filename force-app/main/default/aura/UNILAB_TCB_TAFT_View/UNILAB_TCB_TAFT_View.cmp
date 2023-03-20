@@ -1,0 +1,28 @@
+<aura:component controller="UNILAB_TCB_Form"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="taftData" type="List" />
+    <aura:attribute name="message" type="String"/>
+    <aura:registerEvent name="lightningEvent" type="c:UNILAB_TCB_TAFT_View_LE"/>
+	
+    <tr>
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                {! v.taftData.Activity_Title__c }
+            </div>
+        </th><!--
+            <th scope="row">
+                <div class="slds-truncate slds-align_left">
+                    
+                </div>
+            </th>-->
+        <th scope="row">
+            <div class="slds-truncate_container slds-align_absolute-center">
+                <lightning:button variant="base" label="Delete" title="delete" onclick="{! c.deleteRecord }"/>
+            </div>
+            
+        </th>
+    </tr>
+    
+</aura:component>

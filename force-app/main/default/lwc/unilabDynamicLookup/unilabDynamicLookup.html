@@ -1,0 +1,89 @@
+<template>
+    <div class="slds-form-element">
+        <div class="slds-form-element__control" >
+            <div class="slds-combobox_container" >
+                <div class={lookupControll} aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right " role="none">
+                        <label class="slds-form-element__label" for="text-input-id-47">
+                        <abbr class="slds-required" title="required">* </abbr>{fieldname}</label>                        
+                        <input type="text" class={lookupControl1} disabled={disableinput} id="listbox-id" aria-controls="listbox-id-1"    autocomplete="off" value={serch}  placeholder="Enter Name" onkeyup={showRecord} />
+                        
+                        <template if:true={usersLoadSpinner}>
+                            <div class=" slds-col" style="height:1rem" aura:id="div1">
+                                <div class="slds-spinner_container">
+                                    <div role="status" class="slds-spinner slds-spinner_x-small">
+                                        <span class="slds-assistive-text">Loading</span>
+                                        <div class="slds-spinner__dot-a"></div>
+                                        <div class="slds-spinner__dot-b"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class={lookupControl2}>
+                            <span class="slds-pill slds-pill_link">
+                                <span class="slds-pill__icon_container">
+                                    <span class="slds-icon_container slds-icon-standard-account" title="Account">
+                                        <lightning-icon icon-name="standard:account" alternative-text="Account" title="Account"></lightning-icon>  
+                                        <span class="slds-assistive-text">{objectname}</span>
+                                    </span>
+                                   <!-- <span aria-hidden="true" class="slds-avatar slds-avatar_circle ">
+                                        <abbr class="slds-avatar__initials slds-avatar__initials_inverse" title="Taylor Watson-Rice">{selectedLeadNameAvator}</abbr>
+                                    </span>-->
+                                </span>
+                                <a href="#" class="slds-pill__action" title="Full pill label verbiage mirrored here">
+                                    <span class="slds-pill__label">{selectedRecordName}</span>
+                                </a>
+                                <button class="slds-button slds-button_icon slds-button_icon slds-pill__remove" title="Remove">
+                                    <lightning-icon icon-name="utility:close" alternative-text="close!" variant="close" title="close" size="xx-small" onclick={remove}></lightning-icon>
+                                <span class="slds-assistive-text">Remove selected option</span>
+                                </button>
+                            </span>
+                        </div>
+
+                        <!-- Main Dropdown -->
+                        <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid" role="listbox" style={pickListTop} >
+                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                <li role="presentation" class="slds-listbox__item" >
+                                    <div aria-selected="true" id="option0" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_term slds-has-focus" role="option">
+                                        <div class="slds-media__body">
+                                            <div class="slds-input-has-icon  slds-has-focus  slds-input-has-icon--left">
+                                                <div class="slds-lookup__result-text">
+                                                    <span>{comboboxheader}</span>
+                                                    <span>
+                                                        <button class="slds-button slds-button_icon slds-button_icon slds-pill__remove" title="Remove selected option">
+                                                            <lightning-icon icon-name="utility:close" alternative-text="close!" variant="close" title="close" size="xx-small" onclick={closeCombobox}></lightning-icon>
+                                                            <span class="slds-assistive-text">Remove selected option</span>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>    
+                                    </div>
+                                </li>
+                                <template if:true={filteredNames}>
+                                    <template for:each={filteredNames} for:item="alph" for:index="index" >
+                                        <li role="presentation" key={alph.Id} class="slds-listbox__item" >
+                                            <div id={index} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                <span class="slds-media__figure slds-listbox__option-icon">
+                                                    <span class="slds-icon_container slds-icon-standard-account" title="Account">
+                                                        <lightning-icon size="small" icon-name="standard:account" alternative-text="Account" title="Account"></lightning-icon>  
+                                                        <span class="slds-assistive-text">{objectname}</span>
+                                                    </span>
+                                                </span>
+                                                <div class="slds-media__body">
+                                                    <div class="slds-input-has-icon slds-input-has-icon--right">
+                                                        <div class="slds-lookup__result-text"><a data-indx={index} data-recid={alph.Id} data-name={alph.Name} onclick={selectedRecord}>{alph.Name}</a></div>
+                                                    </div>
+                                                </div>    
+                                            </div>
+                                        </li>
+                                    </template>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

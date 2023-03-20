@@ -1,0 +1,18 @@
+.THIS .slds-truncate {
+    
+    font-size: 0.80rem;
+    
+}
+
+.THIS .slds-pill__action {
+    
+    border-style: none;
+    color: black;
+    
+}
+
+.THIS .slds-pill__remove svg {
+    
+    fill: red;
+    
+}

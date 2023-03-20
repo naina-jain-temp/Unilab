@@ -1,0 +1,28 @@
+<aura:component controller="WelcomeScreen" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="userRecord" type="Object" />
+    <aura:attribute name="descriptionMessage" type="String" default="Welcome to your home page!" />
+    
+    <aura:handler name="init" action="{! c.doInit }" value="{! this }" />
+    
+    <div class="slds-page-header">
+        <div class="slds-media">
+            <div class="slds-media__figure">
+                <span class="slds-avatar slds-avatar_large">
+                    <img alt="{! v.userRecord.Name }" src="{! v.userRecord.FullPhotoUrl }" />
+                </span>
+            </div>
+            <div class="slds-media__body">
+                <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="{! 'Hi, ' + v.userRecord.Name }"
+                    style="font-size: 1.5em;">
+                    Hi, {! v.userRecord.Name }
+                </h1>
+                <p class="slds-text-body_small slds-line-height_reset"
+                   style="font-size: 1rem;">
+                    {! v.descriptionMessage }
+                </p>
+            </div>
+        </div>
+    </div>
+    
+</aura:component>

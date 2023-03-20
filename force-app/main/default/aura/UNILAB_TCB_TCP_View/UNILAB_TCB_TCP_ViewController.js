@@ -1,0 +1,46 @@
+({
+	doInit : function(component, event, helper) {
+        
+        helper.loadECLAccount(component,event);
+        
+        /*
+        var branchId=component.get('v.recordId');
+
+        var action = component.get("c.checkEventToday");
+        
+        action.setParams({
+            branchId: branchId
+        });
+        
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                console.log(response.getReturnValue());
+				var dataCount = response.getReturnValue();
+                //alert(dataCount);
+                if (dataCount === 0 || dataCount === 3){
+                    component.set('v.enableForm',false);
+                }
+                if (dataCount === 1 || dataCount === 2){
+                    helper.loadECLAccount(component,event);
+                }
+            }
+            else if (state === "ERROR") {
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        console.log("Error message: " + 
+                                    errors[0].message);
+                    }
+                } 
+                else {
+                    console.log("Unknown Error");
+                }
+            }
+        });
+        
+        $A.enqueueAction(action);    */
+        
+        
+	}
+})

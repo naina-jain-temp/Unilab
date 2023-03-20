@@ -1,0 +1,24 @@
+<aura:component implements="flexipage:availableForRecordHome,force:lightningQuickActionWithoutHeader,force:appHostable,lightning:actionOverride,force:hasRecordId" access="global" controller="UNILAB_PAL_Controller">
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="spinner" type="Boolean" default="false" />  
+    <ltng:require styles="{!$Resource.PAL_quickActionStyle}" />
+    
+    <div class="slds-p-around_xx-large">
+        <lightning:layout>
+            <lightning:layoutItem size="12" class="slds-p-left_x-large slds-p-left_x-small">
+                <div class="slds-align_absolute-center">
+                    <span class="slds-text-heading_medium">Unable to Create Account Allocation on this Panel</span>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <lightning:layout>
+            <lightning:layoutItem size="12" class="slds-p-left_xx-large slds-p-top_xx-large">
+                <div class="slds-align_absolute-center">
+                    <lightning:button variant="brand" label="Go to Allocation List View" onclick="{!c.goToRecordPage}" />
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

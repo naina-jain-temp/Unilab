@@ -1,0 +1,117 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    <aura:attribute name="createPromoURL" type="String"/>
+    <aura:attribute name="UNILAB_Base_URL" type="String"/>
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <div class="slds-welcome-mat">
+        <div class="slds-welcome-mat__content slds-grid">
+            <div class="slds-welcome-mat__info slds-size_1-of-2">
+                <div class="slds-welcome-mat__info-content">
+                    <h2 class="slds-welcome-mat__info-title" id="welcome-mat-7-label">The Lightning Experience is here!</h2>
+                    <div class="slds-welcome-mat__info-description slds-text-longform">
+                        <p>Welcome to Lightning Experience, the modern, beautiful user experience from Salesforce. With a sales-and service-centric mindset, we focused on reinventing the desktop environment to better support your business processes.</p>
+                    </div>
+                </div>
+            </div>
+            <ul class="slds-welcome-mat__tiles slds-size_1-of-2">
+                <li class="slds-welcome-mat__tile">
+                    <a href="{!v.createPromoURL}" class="slds-box slds-box_link slds-media">
+                        <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                            <div class="slds-welcome-mat__tile-figure">
+                                <div class="slds-welcome-mat__tile-icon-container">
+                                    <span class="slds-icon_container">
+                                        <lightning:icon iconName="utility:tracker" alternativeText="Record Create" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-welcome-mat__tile-body">
+                                <h3 class="slds-welcome-mat__tile-title">Create a Promo</h3>
+                                <p class="slds-welcome-mat__tile-description">Nevermind Excel, Click Me to create a Promo Allocation.</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                
+                <li class="slds-welcome-mat__tile">
+                    <a href="javascript:void(0);" class="slds-box slds-box_link slds-media">
+                        <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                            <div class="slds-welcome-mat__tile-figure">
+                                <div class="slds-welcome-mat__tile-icon-container">
+                                    <span class="slds-icon_container">
+                                        <lightning:icon iconName="standard:opportunity" alternativeText="Manage Shipping Process" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-welcome-mat__tile-body">
+                                <h3 class="slds-welcome-mat__tile-title">Manage Shipping Process</h3>
+                                <p class="slds-welcome-mat__tile-description">Create Shipping Labels, Track the status of the shipment up to the last mile.</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                
+                <li class="slds-welcome-mat__tile">
+                    <a href="javascript:void(0);" class="slds-box slds-box_link slds-media">
+                        <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                            <div class="slds-welcome-mat__tile-figure">
+                                <div class="slds-welcome-mat__tile-icon-container">
+                                    <span class="slds-icon_container">
+                                        <lightning:icon iconName="standard:sales_path" alternativeText="Sales Path" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-welcome-mat__tile-body">
+                                <h3 class="slds-welcome-mat__tile-title">Track the Distribution Activity</h3>
+                                <p class="slds-welcome-mat__tile-description">Last Mile Tracking of where your allocations go.</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <!--<li class="slds-welcome-mat__tile">
+                    <a href="javascript:void(0);" class="slds-box slds-box_link slds-media">
+                        <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                            <div class="slds-welcome-mat__tile-figure">
+                                <div class="slds-welcome-mat__tile-icon-container">
+                                    <span class="slds-icon_container">
+                                        <lightning:icon iconName="utility:chart" alternativeText="Chart" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-welcome-mat__tile-body">
+                                <h3 class="slds-welcome-mat__tile-title">Your Inventory System now is Salesforce</h3>
+                                <p class="slds-welcome-mat__tile-description">Powered by the #1 Customer Success Platform.</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>-->
+                <li class="slds-welcome-mat__tile">
+                    <a href="javascript:void(0);" class="slds-box slds-box_link slds-media">
+                        <div class="slds-media__figure slds-media__figure_fixed-width slds-align_absolute-center">
+                            <div class="slds-welcome-mat__tile-figure">
+                                <div class="slds-welcome-mat__tile-icon-container">
+                                    <span class="slds-icon_container">
+                                        <lightning:icon iconName="standard:lightning_component" alternativeText="Help" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-welcome-mat__tile-body">
+                                <h3 class="slds-welcome-mat__tile-title">Questions?</h3>
+                                <p class="slds-welcome-mat__tile-description">Contact your System Administrator for a help and knowledge how to use the app.</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</aura:component>

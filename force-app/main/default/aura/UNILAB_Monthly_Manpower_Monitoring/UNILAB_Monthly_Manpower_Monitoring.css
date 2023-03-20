@@ -1,0 +1,27 @@
+.THIS .inputrate{
+    width:40px !important;
+}
+
+.THIS thead {
+    background-color: #f3f3f3;
+}
+.THIS .slds-has-button-menu .slds-th__action-button {
+    visibility:hidden;
+}
+.THIS button.slds-button.slds-button_brand{
+    float:right;
+    margin:5px;
+}
+
+.THIS button.slds-button_neutral {
+    float:right;
+    margin: 5px;
+}
+
+.THIS .button-div {
+    background-color:#dadada;
+}
+
+.THIS .slds-form-element__legend {
+  font-size: 20px;   
+}

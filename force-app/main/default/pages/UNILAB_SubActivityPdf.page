@@ -1,0 +1,117 @@
+<!--
+Author       :   Kimiko Roberto
+Created Date :   07.13.2017
+Definition   :   Activity Management page
+History      :   07.13.2017 - Kiko Roberto:  Created
+-->
+<apex:page standardController="Event" extensions="UNILAB_SubActivityPdfCX" 
+           renderAs="{! IF(subActMasterList == NULL, '', IF(Event.Event_Type__c != 'Meeting', '', IF (Event.Event_Sub_type__c != 'MEETING', '', 'pdf'))) }">
+    
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3' }">
+        <apex:outputPanel rendered="{! subActMasterList == NULL || Event.Event_Type__c != 'Meeting' }">
+            <apex:outputPanel rendered="{! Event.Event_Sub_type__c != 'MEETING' }">
+                <apex:pageMessages />
+            </apex:outputPanel>
+        </apex:outputPanel>
+    </apex:outputPanel>
+    
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3' }">
+        <apex:outputPanel rendered="{! subActMasterList == NULL || Event.Event_Type__c != 'MEETING'}">
+            <apex:outputPanel rendered="{! Event.Event_Sub_type__c != 'MEETING' }">
+                <div class="slds-box" style="background-color: #ffc; border-style: solid; border-color: #c00; border-width: 1px;">
+                    <div class="slds-p-around_small">
+                        <h1 style="font-size: 2em; color: #c00;">
+                            <strong>ERROR</strong>
+                        </h1>
+                        <p style="font-size: .75rem;">
+                            Cannot Generate Report because Event Type and Event Sub Type is not Meeting
+                        </p>
+                    </div>
+                </div>
+            </apex:outputPanel>
+        </apex:outputPanel>
+    </apex:outputPanel>
+    
+    <apex:outputPanel rendered="{! subActMasterList != NULL &&  Event.Event_Type__c == 'Meeting' && Event.Event_Sub_type__c == 'MEETING' }">
+        
+        <head>            
+            <style>
+                .divLast {
+                top: 0px;
+                margin:0px;
+                padding: 0px 2px 2px 3px;    
+                border-width: 2px;
+                border-bottom-width:2px;
+                border-bottom-color: Black;
+                border-bottom-style: solid;
+                width: 100%;
+                }
+                
+                body {
+                font-family: 'sans-serif';
+                font: 11px !important;
+                }
+                
+                .title {
+                font: bolder 15px;
+                }                
+            </style>            
+        </head>
+        
+        <body>            
+            <apex:form >                
+                <apex:pageBlock >                    
+                    <apex:outputText >                        
+                        <div class="title">                            
+                            MINUTES OF THE MEETING                            
+                        </div>
+                        <b>Date:</b> {! startDate } - {! endDate }                        
+                        <br />
+                        <br />                        
+                    </apex:outputText>                    
+                    <apex:repeat value="{! subActMasterList }" var="s">
+                        <div align="left" style="font: bolder; font: 12px; padding-top: 10px; padding-bottom: 10px;">                            
+                            <strong>{! s.Activity_Name__c }</strong>                            
+                        </div>
+                        <table border="1" cellpadding="4" cellspacing="0" width="100%">                            
+                            <tr>                                
+                                <td align="top" width="40%">                                    
+                                    <b>Agenda:</b>                                    
+                                </td>                                
+                                <td>                                   
+                                    <apex:outputField value="{! s.Agenda__c }" />                                    
+                                </td>                                
+                            </tr>                            
+                            <tr>                                
+                                <td align="top">                                    
+                                    <b>Attendees:</b>                                    
+                                </td>                                
+                                <td>                                    
+                                    <apex:outputField value="{! s.Attendees__c }" />                                    
+                                </td>                                
+                            </tr>                            
+                            <tr>                                
+                                <td align="top">                                    
+                                    <b>Discussions:</b>                                    
+                                </td>                                
+                                <td>                                    
+                                    <apex:outputField value="{! s.Discussions__c }" />                                    
+                                </td>                                
+                            </tr>                            
+                            <tr>                                
+                                <td align="top">                                    
+                                    <b>Next Steps/Directions:</b>                                    
+                                </td>                                
+                                <td>                                    
+                                    <apex:outputField value="{! s.Next_Steps_Directions__c }" />                                    
+                                </td>                                
+                            </tr>                            
+                        </table>                        
+                    </apex:repeat>                    
+                </apex:pageBlock>                
+            </apex:form>            
+        </body>
+        
+    </apex:outputPanel>
+    
+</apex:page>

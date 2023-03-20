@@ -1,0 +1,553 @@
+<!--
+ Author       :   Joey Villaceran, Joan Bautista, Manuelito Ortega
+ Created Date :   06-11-2018
+ Definition   :   Activity Management Page for Lightning Experience
+-->
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"  access="global" controller="UNILAB_ActivityManagementCX" >
+    <!-- Mode -->
+    <aura:attribute name="mode" type="String" default="Create" />
+    <aura:attribute name="recordId" type="String"  />
+    <!-- EventRecord -->
+    <aura:attribute name="eventRecord" type="sObject" default="{}" />
+    <!-- Sub Activity List -->
+    <aura:attribute name="subActivityList" type="Object[]" default="[]"/>
+    <!-- Location Options -->
+    <aura:attribute name="locationoptions" type="String[]" default="[]"/>
+    <!-- Location Based Options -->
+    <aura:attribute name="locationbasedoptions" type="String[]" default="[]"/>
+    <!-- Mode Of Contact Options -->
+    <aura:attribute name="modeofcontact" type="String[]" default="[]"/>
+    <!--Sub Activity -->
+    <aura:attribute access="Global" name="subActivity" type="Object"/>
+    <!-- actJuncRemarks -->
+    <aura:attribute name="actJuncRemarks" type="String" default=""  />
+    <!-- Create attribute to store lookup value as a sObject--> 
+    <aura:attribute name="assignedToUser" type="sObject" default="{}"/>
+    <!-- Create attribute to store lookup value as a sObject--> 
+    <aura:attribute name="relatedAccount" type="sObject" default="{}"/>
+    <!-- Create attribute to store lookup value as a sObject--> 
+    <aura:attribute name="assignedName" type="sObject" default="{}"/>
+    <!-- Create attribute to store lookup value as a sObject--> 
+    <aura:attribute name="workWith" type="sObject" default="{}"/>
+    <!--Register the component level event-->
+    <aura:registerEvent name="oSelectedRecordEvent" type="c:UNILAB_LEX_CustomLookup_SelectedObjectEvent"/>
+    <!-- Event Type and Sub Event Type Storage -->
+    <aura:attribute name="eventTypeFieldMap" type="map" description="store controller(key)--> dependent(values) picklist value as a map." />
+    <!--  Matrix Mapping of Activity depending on user's role -->
+    <aura:attribute name="activityMatrixList" type="map" />
+    <!--  List of TCR Record Types -->
+    <aura:attribute name="tcrRecordTypes" type="List" />
+    <!-- If Sub Event Type  -->
+    <aura:attribute name="isEventSubTypeDisable" type="boolean" default="true" description="use for, make disbale depandent field." />
+    <!-- Sub Event Type Form Render Status  -->
+    <aura:attribute name="isEventSubType" type="boolean" default="false" description="use for, make disbale depandent field." />
+    
+    <aura:attribute name="isEventSubTypeCall" type="boolean" default="false" />
+    
+    <aura:attribute name="isRenderWhoId" type="boolean" default="true"  />
+    
+    <aura:attribute name="isRenderLocation" type="boolean" default="false"  />
+    
+    <aura:attribute name="isLightningOut" type="boolean" default="false"  />
+    
+    <aura:attribute name="isQuickAction" type="boolean" default="true"  />
+    
+    <aura:attribute name="isQuickActionClone" type="boolean" default="true"  />
+    
+    <aura:attribute name="isCompleteModal" type="boolean" default="false"  />
+    
+    <aura:attribute name="showErrorMessage" type="boolean" default="false"  />
+    
+    <aura:attribute name="showActivitySurveyRating" type="boolean" default="false"  />
+    
+    <aura:attribute name="showSaveAndNewTaskModal" type="boolean" default="false"  />
+    
+    <aura:attribute name="showNotifToast" type="boolean" default="false"  />
+    
+    <aura:attribute name="whoIDOption" type="String" default="Contact"  />
+    
+    <aura:attribute name="unplanned" type="boolean" default="false"  />
+    
+    <aura:attribute name="toastMessage" type="String" default=""  />
+    
+    <aura:attribute name="roleName" type="String" default=""  />
+    
+    <aura:attribute name="oldEventType" type="String" default=""  />
+    
+    <aura:attribute name="oldSubEventType" type="String" default=""  />
+    
+    <aura:attribute name="oldIsAlldayEvent" type="String" default=""  />
+    
+    <aura:registerEvent name="vfEevent" type="c:UNILAB_LEX_ActivityManagementVF_Event" />
+    
+    <aura:attribute name="errorMessage" type="String" default="Please fill in all required fields." />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div aura:id="errormessage" class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <h2>{!v.errorMessage}</h2>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.showNotifToast}">
+        
+        <lightning:layout horizontalAlign="spread" >
+            
+            <lightning:layoutItem  flexibility="auto" size="12" smallDeviceSize = "4" mediumDeviceSize="12" largeDeviceSize="12" >
+                <div  class=" slds-notify slds-theme_success slds-align_absolute-center" role="alert" style="padding:10px;">
+                    <span class="slds-assistive-text">success</span>
+                    <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                        <lightning:icon variant="inverse"  size="small" iconName="utility:success" alternativeText="Success" />
+                        
+                    </span>
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading_small ">{!v.toastMessage}</h2>
+                    </div>
+                    
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+    </aura:if>
+    <lightning:card  iconName="standard:event"  title="{!$Label.c.Work_Plan_Title}">
+        <aura:if isTrue="{!v.Spinner}">
+            <div aura:id="spinnerId" class="slds-spinner_container">
+                <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                    <span class="slds-assistive-text">Loading</span>
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+        </aura:if>
+        <aura:set attribute="actions">
+            <aura:if isTrue="{!v.isQuickActionClone}">
+                <lightning:button label="{!$Label.c.Work_Plan_Button_Clone}" onclick="{!c.cloneEvent}"/>
+                <aura:set attribute="else">
+                    <aura:if isTrue="{!and($Browser.isPhone,!$Browser.isTablet)}">
+                        
+                        <!-- BUTTON MENU -->
+                        <lightning:buttonMenu aura:id="menu" onselect="{! c.handleMenuSelect }" alternativeText="Show menu" menuAlignment="right">
+                            <lightning:menuItem value="Save" label="{!$Label.c.Work_Plan_Button_Save}" />
+                            <!--
+                            <lightning:menuItem value="Clone" label="{!$Label.c.Work_Plan_Button_Clone}" />
+       -->
+                            <aura:if isTrue="{!v.recordId!=null}">
+                                <!--
+                                <aura:set attribute="else">
+                                    <lightning:menuItem value="Clone" label="{!$Label.c.Work_Plan_Button_Clone}" />
+                                </aura:set>
+        -->
+                                <aura:if isTrue="{!v.eventRecord.Event_Type__c =='Call'}">
+                                    <lightning:menuItem value="ShowSurvey" label="{!$Label.c.Work_Plan_Button_Complete}" />
+                                    <aura:set attribute="else">
+                                        <lightning:menuItem value="Complete" label="{!$Label.c.Work_Plan_Button_Complete}" />
+                                    </aura:set>
+                                </aura:if>
+                                <lightning:menuItem value="Cancel" label="{!$Label.c.Work_Plan_Button_Cancel}" />
+                                <lightning:menuItem value="New Task" label="{!$Label.c.Work_Plan_Button_New_Task}" />
+                            </aura:if>
+                        </lightning:buttonMenu>
+                        
+                        <aura:set attribute="else">
+                            
+                            <lightning:button label="{!$Label.c.Work_Plan_Button_Save}"  onclick="{!c.saveEvent}"/>
+                            
+                            <aura:if isTrue="{!v.recordId!=null}">
+                                <!--
+                                <aura:set attribute="else">
+                                    <lightning:button label="{!$Label.c.Work_Plan_Button_Clone}" onclick="{!c.cloneEvent}"/>
+                                </aura:set>
+        -->
+                                <aura:if isTrue="{!v.eventRecord.Event_Type__c =='Call'}">
+                                    
+                                    <lightning:button  variant="success"  label="{!$Label.c.Work_Plan_Button_Complete}" onclick="{!c.showActivitySurveyRating}"/>
+                                    <aura:set attribute="else">
+                                        <lightning:button  variant="success"  label="{!$Label.c.Work_Plan_Button_Complete}" onclick="{!c.showCompleteModal}"/>
+                                    </aura:set>
+                                </aura:if>
+                                
+                                <lightning:button variant="destructive"  label="{!$Label.c.Work_Plan_Button_Cancel}"  onclick="{!c.cancelEvent}" />
+                                <lightning:button variant="brand" label="{!$Label.c.Work_Plan_Button_New_Task}" onclick="{!c.showSaveAndNewTaskModal}" />
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+            
+        </aura:set>
+        <lightning:layout horizontalAlign="spread" multipleRows="true">
+            
+            <!-- Assigned To -->
+            <lightning:layoutItem padding="horizontal-large" flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class ="slds-p-bottom_small">
+                <c:UNILAB_LEX_CustomLookup required="true" aura:id="userLookup"   objectAPIName="User" IconName="standard:user" selectedRecord ="{!v.assignedToUser}"  label="{!$Label.c.Work_Plan_Lookup_Assigned_To}"/>
+            </lightning:layoutItem>
+            <aura:if isTrue="{!!v.isQuickActionClone}">
+                <!-- Event Type, Sub-Type, All Day Event  -->
+                <lightning:layoutItem padding="horizontal-large" flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="6" largeDeviceSize="6" class = "slds-card-body"> 
+                    
+                    <lightning:combobox aura:id="eventtype" required="true" value="{!v.eventRecord.Event_Type__c}"  name="eventtype" label="{!$Label.c.Work_Plan_Combobox_Event_Type}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Event_Type}" onchange="{! c.handleEventTypeChange }"/>
+                    
+                    <lightning:combobox aura:id="eventsubtype" required="true" value="{!v.eventRecord.Event_Sub_type__c}"    disabled="{!v.isEventSubTypeDisable}" name="eventsubtype" label="Event Sub-Type"  placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Event_Sub_Type}"  onchange="{! c.handleSubEventTypeChange }" class="slds-p-bottom_small slds-p-top_small"/>
+                    
+                    <lightning:layout  verticalAlign="grow" multipleRows="true" >
+                        
+                        <lightning:layoutItem class="slds-box" flexibility="grow" size="12">
+                            <lightning:layout verticalAlign="grow" multipleRows="true">
+                                <lightning:layoutItem size="7">
+                                    <legend class="slds-form-element__legend slds-form-element__label">
+                                        {!$Label.c.Work_Plan_DateTime_Start}
+                                    </legend>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="5">
+                                    <lightning:layout verticalAlign="grow" multipleRows="true">
+                                        <lightning:layoutItem size="12">
+                                            <lightning:input type="checkbox" checked="{!v.eventRecord.IsAllDayEvent}" 
+                                                             label="{!$Label.c.Work_Plan_Checkbox_All_Day_Event}" name="test123"/>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <lightning:layout>
+                                <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                                    <aura:if isTrue="{!v.eventRecord.IsAllDayEvent}">
+                                        <aura:if isTrue="{! or($Browser.formFactor == 'DESKTOP', $Browser.isIPhone, $Browser.isIOS, $Browser.isIPad) }">
+                                            <lightning:input onchange ="{!c.onStartDateChange}" aura:id="startdate" type="date"  value="{!v.eventRecord.StartDateTime}" class="slds-p-bottom_small"/>
+                                            <lightning:input onchange ="{!c.onEndDateChange}"  aura:id="enddate" type="date" label="{!$Label.c.Work_Plan_DateTime_End}" value="{!v.eventRecord.EndDateTime}"/>
+                                            <aura:set attribute="else">
+                                                <ui:inputDate aura:id="startdate" change ="{!c.onStartDateChange}" class="slds-input" value="{! v.eventRecord.StartDateTime }" displayDatePicker="true" />
+                                                <ui:inputDate aura:id="enddate" change ="{!c.onEndDateChange}" class="slds-input" label="{!$Label.c.Work_Plan_DateTime_End}" value="{!v.eventRecord.EndDateTime}" displayDatePicker="true" />
+                                            </aura:set>
+                                        </aura:if>                                        
+                                        <aura:set attribute="else">
+                                            <aura:if isTrue="{! or($Browser.formFactor == 'DESKTOP', $Browser.isIPhone, $Browser.isIOS, $Browser.isIPad) }">
+                                                <lightning:input onchange ="{!c.onStartDateChange}" aura:id="startdate" type="datetime" name="input2" value="{!v.eventRecord.StartDateTime}"/>
+                                                <lightning:input onchange ="{!c.onEndDateChange}" aura:id="enddate" type="datetime" name="input2" label="{!$Label.c.Work_Plan_DateTime_End}" value= "{!v.eventRecord.EndDateTime}"/>
+                                                <aura:set attribute="else">
+                                                    <ui:inputDateTime aura:id="startdate" change="{! c.onStartDateChange }" class="slds-input" value="{!v.eventRecord.StartDateTime}" displayDatePicker="true" />
+                                                    <ui:inputDateTime aura:id="enddate" change="{! c.onEndDateChange }" label="{!$Label.c.Work_Plan_DateTime_End}" class="slds-input" value="{!v.eventRecord.EndDateTime}" displayDatePicker="true" />
+                                                </aura:set>
+                                            </aura:if>                                            
+                                        </aura:set>                            
+                                    </aura:if>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </lightning:layoutItem>
+                        
+                        <!-- Location, Location Based and Description Input -->
+                        <lightning:layoutItem class="slds-p-top_small "   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                            
+                            <lightning:combobox required="true" aura:id="modeofcon"  label="{!$Label.c.Mode_of_Contact}" placeholder="{!$Label.c.Mode_of_Contact}" value="{!v.eventRecord.Mode_of_Contact__c}" class="slds-p-bottom_small" options="{!v.modeofcontact}" onchange="{!c.modeofconChange}"/>
+                            
+                        </lightning:layoutItem>
+                        
+                        <lightning:layoutItem class="slds-p-top_small "   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                            
+                            <lightning:combobox required="true" disabled="{!!v.isRenderLocation}"  aura:id="locationbased" default="Home Base" label="{!$Label.c.Work_Plan_Combobox_Location_Based}" value="{!v.eventRecord.Location_Based__c}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Location_Based}" class="slds-p-bottom_small" options="{!v.locationbasedoptions}" onchange="{!c.locationbasedChange}"/>
+                            
+                        </lightning:layoutItem>
+                        
+                        <lightning:layoutItem class="slds-p-top_small "   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                            
+                            <lightning:combobox required="true" disabled="{!!v.eventRecord.Location_Based__c}" aura:id="locationcustom"  label="{!$Label.c.Work_Plan_Input_Location}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Location}" value="{!v.eventRecord.Location_Custom__c}" class="slds-p-bottom_small" options="{!v.locationoptions}" />
+                            <!--<lightning:input required="false" disabled="{!!v.isRenderLocation}"  aura:id="locationcustom" label="{!$Label.c.Work_Plan_Input_Location}" value="{!v.eventRecord.Location_Custom__c}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Location}"  class="slds-p-bottom_small"/>-->
+                            <lightning:textarea aura:id="description" disabled="{!!v.isRenderLocation}" label="{!$Label.c.Work_Plan_TextArea_Description}" value="{!v.eventRecord.Description}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Description}" class="slds-p-bottom_small"/>
+                            
+                        </lightning:layoutItem>
+                        
+                        <!-- Related To -->
+                        <lightning:layoutItem flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" >
+                            
+                            
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                </lightning:layoutItem>
+                
+                <!-- Sub-Type Form -->
+                <lightning:layoutItem  flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="6" largeDeviceSize="6">
+                    <lightning:layout horizontalAlign="grow" multipleRows="true" >
+                        <aura:if isTrue="{!and(v.eventRecord.Event_Type__c =='Field Work',v.eventRecord.Event_Sub_type__c =='Training Contact')}">
+                            <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                <lightning:combobox aura:id="TCRRecordType" required="true" options = '{!v.tcrRecordTypes}' value="{!v.eventRecord.Field_Work_Record_Type__c}"  name="TCRRecordType" label="{!$Label.c.Work_Plan_Record_Type_Label}" placeholder="{!$Label.c.Work_Plan_Record_Type_Label}" />
+                            </lightning:layoutItem>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!v.isRenderWhoId}">
+                            <lightning:layoutItem aura:id="nameLookupLayoutItem"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                
+                                <c:UNILAB_LEX_CustomLookup  aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith + ' (Contact)'}"/>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem aura:id="workWithLookupLayoutItem"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                <c:UNILAB_LEX_CustomLookup   aura:id="workWithLookup" objectAPIName="User" IconName="standard:user" selectedRecord="{!v.workWith}" label ="{!$Label.c.Work_Plan_Lookup_Workwith + ' (CDS)'}"/>
+                                
+                            </lightning:layoutItem>
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!and(v.eventRecord.Event_Type__c == 'Field Work',v.eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                                    <aura:if isTrue="{!or(v.roleName =='Team Lead',v.roleName == 'Administrator')}">
+                                        
+                                        <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                            
+                                            <c:UNILAB_LEX_CustomLookup required="true"  aura:id="workWithLookup" objectAPIName="User" IconName="standard:user" selectedRecord="{!v.workWith}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (CDS)'}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </aura:if>
+                                <aura:if isTrue="{!and(v.eventRecord.Event_Type__c == 'Field Work',v.eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                                    <aura:if isTrue="{!or(v.roleName =='CDS',v.roleName == 'Administrator')}">
+                                        <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                            
+                                            <c:UNILAB_LEX_CustomLookup required="true" aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (Contact)'}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </aura:if>
+                                <aura:if isTrue="{!and(v.eventRecord.Event_Type__c != 'Field Work',v.eventRecord.Event_Sub_type__c != 'Training Contact') }">
+                                    <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small"> 
+                                        <c:UNILAB_LEX_CustomLookup aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (Contact)'}"/>       
+                                    </lightning:layoutItem>
+                                </aura:if>
+                            </aura:set>
+                        </aura:if>
+                         
+                        <lightning:layoutItem aura:id="accountLookupLayout"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                            
+                            <c:UNILAB_LEX_CustomLookup   aura:id="accountLookup"  objectAPIName="accountWithBranchCode" IconName="standard:account" selectedRecord ="{!v.relatedAccount}"  label="{!$Label.c.Work_Plan_Lookup_Related_To}" />
+                            
+                        </lightning:layoutItem>
+                        <aura:if isTrue="{!v.isEventSubTypeCall}">
+                            <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="5" largeDeviceSize="6" class="slds-p-bottom_small">
+                                <h1 class="header">{!$Label.c.Work_Plan_Order_Title}</h1>
+                                <lightning:input type="number" label="{!$Label.c.Work_Plan_Order_Input_Target_Order}" value="{!v.eventRecord.Target_Order__c}" formatter="currency" step="0.01"/>
+                                <lightning:input type="number" label="{!$Label.c.Work_Plan_Order_Input_Actual_Order}" value="{!v.eventRecord.Actual_Order__c}" formatter="currency" step="0.01"/>
+                                
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem  padding="horizontal-large"   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="5" largeDeviceSize="6" class="slds-p-bottom_small">
+                                <h1 class="header">{!$Label.c.Work_Plan_Collection_Title}</h1>
+                                <lightning:input type="number"  label="{!$Label.c.Work_Plan_Collection_Input_Target_Collection}" value="{!v.eventRecord.Target_Collection__c}" formatter="currency" step="0.01"/>
+                                <lightning:input type="number"  label="{!$Label.c.Work_Plan_Collection_Input_Amount_Collection}" value="{!v.eventRecord.Amount_Collection__c}" formatter="currency" step="0.01"/>
+                                
+                            </lightning:layoutItem>
+                        </aura:if>
+                    </lightning:layout>
+                    
+                    <aura:if isTrue="{!v.isEventSubType}">
+                        <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                            <c:UNILAB_LEX_ActivityManagement_SubForm aura:id="subEventTypeForm" subActivity="{!v.subActivity}"  activityMatrixList="{!v.activityMatrixList}" eventType="{!v.eventRecord.Event_Type__c}"   subEventType ="{!v.eventRecord.Event_Sub_type__c}" subActivityList="{!v.subActivityList}"  actJuncRemarks="{!v.actJuncRemarks}" recordId="{!v.recordId}"/> 
+                        </lightning:layoutItem>
+                    </aura:if>
+                    
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <!-- Event Type, Sub-Type, All Day Event  -->
+                    <lightning:layoutItem padding="horizontal-large" flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class = "slds-card-body"> 
+                        
+                        <lightning:combobox aura:id="eventtype" required="true" value="{!v.eventRecord.Event_Type__c}"  name="eventtype" label="{!$Label.c.Work_Plan_Combobox_Event_Type}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Event_Type}" onchange="{! c.handleEventTypeChange }"/>
+                        
+                        <lightning:combobox aura:id="eventsubtype" required="true" value="{!v.eventRecord.Event_Sub_type__c}"    disabled="{!v.isEventSubTypeDisable}" name="eventsubtype" label="Event Sub-Type"  placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Event_Sub_Type}"  onchange="{! c.handleSubEventTypeChange }" class="slds-p-bottom_small slds-p-top_small"/>
+                        
+                        <lightning:layout  verticalAlign="grow" multipleRows="true" >
+                            
+                            <lightning:layoutItem class="slds-box" flexibility="grow" size="12">
+                                <lightning:layout verticalAlign="grow" multipleRows="true">
+                                    <lightning:layoutItem size="7">
+                                        <legend class="slds-form-element__legend slds-form-element__label">
+                                            {!$Label.c.Work_Plan_DateTime_Start}
+                                        </legend>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="5">
+                                        <lightning:layout verticalAlign="grow" multipleRows="true">
+                                            <lightning:layoutItem size="12">
+                                                <lightning:input type="checkbox" checked="{!v.eventRecord.IsAllDayEvent}" 
+                                                                 label="{!$Label.c.Work_Plan_Checkbox_All_Day_Event}" name="test123"/>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <aura:if isTrue="{!v.eventRecord.IsAllDayEvent}">
+                                            <aura:if isTrue="{! or($Browser.formFactor == 'DESKTOP', $Browser.isIPhone, $Browser.isIOS, $Browser.isIPad) }">
+                                                <lightning:input onchange ="{!c.onStartDateChange}" aura:id="startdate" type="date"  value="{!v.eventRecord.StartDateTime}" class="slds-p-bottom_small"/>
+                                                <lightning:input onchange ="{!c.onEndDateChange}"  aura:id="enddate" type="date" label="{!$Label.c.Work_Plan_DateTime_End}" value="{!v.eventRecord.EndDateTime}"/>
+                                                <aura:set attribute="else">
+                                                    <ui:inputDate aura:id="startdate" change ="{!c.onStartDateChange}" class="field" value="{! v.eventRecord.StartDateTime }" displayDatePicker="true" />
+                                                    <ui:inputDate aura:id="enddate" change ="{!c.onEndDateChange}" class="field" label="{!$Label.c.Work_Plan_DateTime_End}" value="{!v.eventRecord.EndDateTime}" displayDatePicker="true" />
+                                                </aura:set>
+                                            </aura:if>                                        
+                                            <aura:set attribute="else">
+                                                <aura:if isTrue="{! or($Browser.formFactor == 'DESKTOP', $Browser.isIPhone, $Browser.isIOS, $Browser.isIPad) }">
+                                                    <lightning:input onchange ="{!c.onStartDateChange}" aura:id="startdate" type="datetime" name="input2" value="{!v.eventRecord.StartDateTime}"/>
+                                                    <lightning:input onchange ="{!c.onEndDateChange}" aura:id="enddate" type="datetime" name="input2" label="{!$Label.c.Work_Plan_DateTime_End}" value= "{!v.eventRecord.EndDateTime}"/>
+                                                    <aura:set attribute="else">
+                                                        <ui:inputDateTime aura:id="startdate" change="{! c.onStartDateChange }" class="field" value="{!v.eventRecord.StartDateTime}" displayDatePicker="true" />
+                                                        <ui:inputDateTime aura:id="enddate" change="{! c.onEndDateChange }" label="{!$Label.c.Work_Plan_DateTime_End}" class="field" value="{!v.eventRecord.EndDateTime}" displayDatePicker="true" />
+                                                    </aura:set>
+                                                </aura:if>                                            
+                                            </aura:set>                            
+                                        </aura:if>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </lightning:layoutItem>
+                            
+                            <!-- Location, Location Based and Description Input -->
+                            <lightning:layoutItem class="slds-p-top_small "   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                                
+                                <lightning:input required="false" disabled="{!!v.isRenderLocation}"  aura:id="locationcustom" label="{!$Label.c.Work_Plan_Input_Location}" value="{!v.eventRecord.Location_Custom__c}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Location}"  class="slds-p-bottom_small"/>
+                                <lightning:combobox required="false" aura:id="modeofcon"  label="{!$Label.c.Mode_of_Contact}" placeholder="{!$Label.c.Mode_of_Contact}" value="{!v.eventRecord.Mode_of_Contact__c}" class="slds-p-bottom_small" options="{!v.modeofcontact}" />
+                                <lightning:combobox required="true" disabled="{!!v.isRenderLocation}"  aura:id="locationbased"  label="{!$Label.c.Work_Plan_Combobox_Location_Based}" value="{!v.eventRecord.Location_Based__c}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Location_Based}" class="slds-p-bottom_small" options="{!v.locationbasedoptions}" />
+                                
+                                <lightning:textarea aura:id="description" disabled="{!!v.isRenderLocation}" label="{!$Label.c.Work_Plan_TextArea_Description}" value="{!v.eventRecord.Description}" placeholder="{!$Label.c.Work_Plan_Input_Placeholder_Description}" class="slds-p-bottom_small"/>
+                                
+                            </lightning:layoutItem>
+                            
+                            <!-- Related To -->
+                            <lightning:layoutItem flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" >
+                                
+                                
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        
+                    </lightning:layoutItem>
+                    
+                    <!-- Sub-Type Form -->
+                    <lightning:layoutItem  flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12">
+                        <lightning:layout horizontalAlign="grow" multipleRows="true" >
+                            <aura:if isTrue="{!and(v.eventRecord.Event_Type__c =='Field Work',v.eventRecord.Event_Sub_type__c =='Training Contact')}">
+                                <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                    <lightning:combobox aura:id="TCRRecordType" required="true" options = '{!v.tcrRecordTypes}' value="{!v.eventRecord.Field_Work_Record_Type__c}"  name="TCRRecordType" label="{!$Label.c.Work_Plan_Record_Type_Label}" placeholder="{!$Label.c.Work_Plan_Record_Type_Label}" />
+                                </lightning:layoutItem>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!v.isRenderWhoId}">
+                                <lightning:layoutItem aura:id="nameLookupLayoutItem"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                    
+                                    <c:UNILAB_LEX_CustomLookup  aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (Contact)'}"/>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem aura:id="workWithLookupLayoutItem"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                    <c:UNILAB_LEX_CustomLookup   aura:id="workWithLookup" objectAPIName="User" IconName="standard:user" selectedRecord="{!v.workWith}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (CDS)'}"/>
+                                    
+                                </lightning:layoutItem>
+                                <aura:set attribute="else">
+                                    <aura:if isTrue="{!and(v.eventRecord.Event_Type__c == 'Field Work',v.eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                                        <aura:if isTrue="{!or(v.roleName =='Team Lead',v.roleName == 'Administrator')}">
+                                            
+                                            <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                                
+                                                <c:UNILAB_LEX_CustomLookup required="true"  aura:id="workWithLookup" objectAPIName="User" IconName="standard:user" selectedRecord="{!v.workWith}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (CDS)'}"/>
+                                            </lightning:layoutItem>
+                                        </aura:if>
+                                    </aura:if>
+                                    <aura:if isTrue="{!and(v.eventRecord.Event_Type__c == 'Field Work',v.eventRecord.Event_Sub_type__c == 'Training Contact') }">
+                                        <aura:if isTrue="{!or(v.roleName =='CDS',v.roleName == 'Administrator')}">
+                                            <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                                
+                                                <c:UNILAB_LEX_CustomLookup required="true" aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith +' (Contact)'}"/>
+                                            </lightning:layoutItem>
+                                        </aura:if>
+                                    </aura:if>
+                                    <aura:if isTrue="{!and(v.eventRecord.Event_Type__c != 'Field Work',v.eventRecord.Event_Sub_type__c != 'Training Contact') }">
+                                        <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small"> 
+                                            <c:UNILAB_LEX_CustomLookup aura:id="nameLookup" objectAPIName="{!v.whoIDOption}" IconName="standard:contact" selectedRecord="{!v.assignedName}" label ="{!$Label.c.Work_Plan_Lookup_Workwith+' (Contact)'}"/>       
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </aura:set>
+                            </aura:if>
+                            
+                            <lightning:layoutItem aura:id="accountLookupLayout"  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                
+                                <c:UNILAB_LEX_CustomLookup   aura:id="accountLookup"  objectAPIName="accountWithBranchCode" IconName="standard:account" selectedRecord ="{!v.relatedAccount}"  label="{!$Label.c.Work_Plan_Lookup_Related_To}" />
+                                
+                            </lightning:layoutItem>
+                            <aura:if isTrue="{!v.isEventSubTypeCall}">
+                                <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="5" largeDeviceSize="6" class="slds-p-bottom_small">
+                                    <h1 class="header">{!$Label.c.Work_Plan_Order_Title}</h1>
+                                    <lightning:input type="number"  label="{!$Label.c.Work_Plan_Order_Input_Target_Order}" value="{!v.eventRecord.Target_Order__c}" formatter="currency" step="0.01"/>
+                                    <lightning:input type="number"  label="{!$Label.c.Work_Plan_Order_Input_Actual_Order}" value="{!v.eventRecord.Actual_Order__c}" formatter="currency" step="0.01"/>
+                                    
+                                </lightning:layoutItem>
+                                
+                                <lightning:layoutItem  padding="horizontal-large"   flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="5" largeDeviceSize="6" class="slds-p-bottom_small">
+                                    <h1 class="header">{!$Label.c.Work_Plan_Collection_Title}</h1>
+                                    <lightning:input type="number"  label="{!$Label.c.Work_Plan_Collection_Input_Target_Collection}" value="{!v.eventRecord.Target_Collection__c}" formatter="currency" step="0.01"/>
+                                    <lightning:input type="number"  label="{!$Label.c.Work_Plan_Collection_Input_Amount_Collection}" value="{!v.eventRecord.Amount_Collection__c}" formatter="currency" step="0.01"/>
+                                    
+                                </lightning:layoutItem>
+                            </aura:if>
+                        </lightning:layout>
+                        
+                        <aura:if isTrue="{!v.isEventSubType}">
+                            <lightning:layoutItem  padding="horizontal-large"  flexibility="auto" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-bottom_small">
+                                <c:UNILAB_LEX_ActivityManagement_SubForm aura:id="subEventTypeForm" subActivity="{!v.subActivity}"  activityMatrixList="{!v.activityMatrixList}" eventType="{!v.eventRecord.Event_Type__c}"   subEventType ="{!v.eventRecord.Event_Sub_type__c}" subActivityList="{!v.subActivityList}"  actJuncRemarks="{!v.actJuncRemarks}" recordId="{!v.recordId}"/> 
+                            </lightning:layoutItem>
+                        </aura:if>
+                        
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+            
+            
+        </lightning:layout>
+        
+        <aura:if isTrue="{!v.showActivitySurveyRating}">
+            <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+                <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header slds-theme_success slds-theme_alert-texture">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                
+                                <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Activity_Survey_Rating}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                            <h2>{!$Label.c.Work_Plan_Modal_Survey_Rating_Message} {!v.eventRecord.Survey_Rating_Percentage__c}%</h2>
+                        </div>
+                        <footer class="slds-modal__footer slds-theme_default">
+                            <button class="slds-button slds-button_neutral" onclick="{!c.completeEvent}">{!$Label.c.Work_Plan_Modal_Button_Save_Changes}</button>
+                            <button class="slds-button slds-button_neutral" onclick="{!c.cancelShowActivitySurveyRating}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                            
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </lightning:layoutItem>
+            
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showSaveAndNewTaskModal}">
+            <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+                <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                
+                                <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Confirmation}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                            <h2>{!$Label.c.Work_Plan_Modal_Confirmation_Message}</h2>
+                        </div>
+                        <footer class="slds-modal__footer slds-theme_default">
+                            <aura:if isTrue="{!v.isCompleteModal}">
+                                <button class="slds-button slds-button_neutral"  onclick="{!c.completeEvent}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                                <aura:set attribute="else">
+                                    <button class="slds-button slds-button_neutral"  onclick="{!c.completeEventAndNewTask}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                                </aura:set>
+                            </aura:if>
+                            <button class="slds-button slds-button_neutral" onclick="{!c.cancelShowSaveAndNewTaskModal}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                            
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </lightning:layoutItem>
+            
+        </aura:if>
+        <div id="end"></div>
+    </lightning:card>
+    <br />
+    <br />
+    <br />
+</aura:component>

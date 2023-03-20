@@ -1,0 +1,78 @@
+<aura:component controller="UNILAB_Housekeeping"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    
+ 
+    <aura:attribute name="Assessment" type="Map" />  
+    <aura:attribute name="disableButton" type="Boolean" />
+    
+    <aura:attribute name="aData" type="List" />
+    <aura:attribute name="Dataa" type="object" />
+    <aura:attribute name="remarks" type="String" />
+    
+    <aura:attribute name="optYes" type="Boolean" default="false"/>
+    <aura:attribute name="optNo" type="Boolean" default="false"/>
+    <aura:attribute name="optNa" type="Boolean" default="false"/>
+    <aura:attribute name="clearChecklist" type="Boolean" />
+      
+ 
+     <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+     <aura:handler name="change" value="{! v.clearChecklist }" action="{! c.clearChecklist }"/>
+	                           <tr>             
+                                      <td style=" border: 0.1px solid black;  border-collapse: collapse; white-space: pre-wrap; ">
+                                           <div  class= "items" >  <p> {! v.Dataa.Title__c}</p> </div>
+                                      </td>
+
+                           <td style=" border: 0.1px solid black;  border-collapse: collapse; ">
+                                      <lightning:input type="checkbox "               
+                                      class="slds-checkbox__label"
+                                      label="" 
+                                      aura:id="cmpYes"
+                                      name="Yes"
+                                      checked = "{!v.optYes}"    
+                                      value = "{!v.optYes}"
+                                      onclick="{! c.setData }"
+                                      style="padding-left:10px;"
+                                      disabled="{!v.disableButton}"/>
+                           </td>
+                                    <!--checkbox --> 
+                            <td style=" border: 0.1px solid black;  border-collapse: collapse;  ">
+                                      <lightning:input type="checkbox " 
+                                	  class="slds-checkbox__label"
+                               	 	  label="" 
+                               		  aura:id="cmpNo"
+                                	  name="No"
+                                      value = "{!v.optYes}"
+                                      disabled="{!v.disableButton}"
+                                      checked = "{!v.optNo}"
+                                      onclick="{! c.setData}"
+                                      style="padding-left:10px;"/> 
+					        </td>
+                                     <!--checkbox --> 
+                                    <td style=" border: 0.1px solid black;  border-collapse: collapse; "> 
+                                            <lightning:input type="checkbox" 
+                                          class="slds-checkbox__label"
+                                          label="" 
+                                          aura:id="cmpNa"
+                                          name="Na"                                          
+                                          checked = "{!v.optNa}"
+										  value = "{!v.optYes}"
+                                          onclick="{! c.setData}"
+                                          style="padding-left:10px;"
+                                          disabled="{!v.disableButton}"/>
+                                  </td>
+                                       <td style=" border: 0.1px solid black;  border-collapse: collapse;">
+
+                                       		<th> 
+                                                 <!--remarks --> 
+                                                <aura:if isTrue="{!v.optNa}">
+                                                    <lightning:textarea name="remarks" label="" value="{!v.remarks}" onblur="{!c.setRemarks}" required="true" />
+                                                    <aura:set attribute="else">
+                                                        <lightning:textarea name="remarks" label="" value="{!v.remarks}" onblur="{!c.setRemarks}" />
+                                                    </aura:set>
+                                                </aura:if>
+                                                
+                                            </th>    
+                       		           </td>
+                                 	 </tr>
+</aura:component>

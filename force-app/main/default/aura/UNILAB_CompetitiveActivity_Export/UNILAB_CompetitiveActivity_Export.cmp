@@ -1,0 +1,173 @@
+<aura:component controller="UNILAB_CompetitiveActivity_Export" implements="force:appHostable" >
+    
+    <!-- FILTER ATTRIBUTES (BACKEND) -->
+    
+    <aura:attribute name="filterDateBySelected" type="String" default="" />
+    <aura:attribute name="startDateRecord" type="String" default="" description="Date__c Field" />
+    <aura:attribute name="endDateRecord" type="String" default="" description="Date__c Field" />
+    <aura:attribute name="channelGroupName" type="String" default="All" description="Channel_Group__c Field" />
+    <aura:attribute name="channelName" type="String" default="" description="Channel__c Field" />    
+    <aura:attribute name="buName" type="String" default="None" description="BU__c Field" />
+    <aura:attribute name="divisionName" type="String" default="" description="Division__c Field" />
+    <aura:attribute name="brandList" type="List" default="[]" description="Brand__c Field" />
+    <aura:attribute name="monthSelected" type="String" default="0" description="Month of Date__c Field" />
+    <aura:attribute name="yearSelected" type="String" description="Year of Date__c Field" />
+    
+    <!-- PICKLIST OPTIONS (UI) -->
+    
+    <aura:attribute name="filterDateByOptions" type="List" default="[{'label': 'Date Range', 'value': 'dateRangeByDateField'},
+                                                                     {'label': 'Date Implemented Range', 'value': 'dateRangeByDateImplementedField'},
+                                                                     {'label': 'Month and Year', 'value': 'monthAndYear'}
+                                                                    ]" />
+    <aura:attribute name="channelGroupOptions" type="List" default="[]" description="Options based from Channel_Group__c Field" />
+    <aura:attribute name="channelOptions" type="List" default="[]" description="Options based from Channel__c Field" />
+    <aura:attribute name="buOptions" type="List" default="[]" description="Options based from BU__c Field" />
+    <aura:attribute name="divisionOptions" type="List" default="[]" description="Options based from Division__c Field" />
+    <aura:attribute name="brandOptions" type="List" default="[]" description="Options based from Brand__c Field" />
+    <aura:attribute name="monthOptions" type="List" default="[]" description="Month" />
+    <aura:attribute name="yearOptions" type="List" default="[]" description="Grouped Year from Date__c Field" />
+    
+    <!-- PLACEHOLDER ATTRIBUTES FOR DEPENDENT PICKLIST (GET VALUES UPON PAGE LOAD) -->
+    
+    <aura:attribute name="channelDepList" type="Map" default="{}" description="Dependent Picklist Channel__c Field" />
+    <aura:attribute name="divisionDepList" type="Map" default="{}" description="Dependent Picklist Division__c Field" />
+    <aura:attribute name="brandDepList" type="Map" default="{}" description="Dependent Picklist Brand__c Field" />
+    
+    <!-- SPINNER -->
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="true" />
+    
+    <!-- PAGE LOAD -->
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+    
+    <ltng:require styles="{! $Resource.disableRefresh }" />
+    
+    <div class="slds-is-relative" aura:id="containerDiv">
+        
+        <aura:if isTrue="{! v.showSpinner }">
+            <lightning:spinner variant="brand" alternativeText="Loading" size="medium" />
+        </aura:if>
+        
+        <div style="{! $Browser.formFactor == 'DESKTOP' ? '' : 'height: 100%; overflow:auto; display: flex; flex-direction: column;' }">
+            
+            <lightning:layout pullToBoundary="small" >
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-page-header">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-title">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning:icon class="headerIconCSS" iconName="utility:copy" size="medium" />
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-page-header__name">
+                                            <div class="slds-page-header__name-title">
+                                                <h1>
+                                                    <span>Trade Activity Feedback</span>
+                                                    <span class="slds-page-header__title slds-truncate">Mass Exporter</span>
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-page-header__col-actions">
+                                        <div class="slds-page-header__controls">
+                                            <div class="slds-page-header__control">
+                                                <lightning:button aura:id="exportButton" name="exportButton"
+                                                                  label="Export" iconName="utility:download" 
+                                                                  onclick="{! c.callExportHelper }" disabled="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                      mediumDeviceSize="6" largeDeviceSize="6" 
+                                      padding="around-small">
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:combobox aura:id="filterDateBy" name="filterDateBy"
+                                                label="Filter Date By" placeholder="Select..."
+                                                options="{! v.filterDateByOptions }" onchange="{! c.handleChange }" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6"
+                                              padding="around-small">
+                            <lightning:input type="date" aura:id="startDateRecord" name="startDateRecord" 
+                                             label="Start Date" value="{! v.startDateRecord }"
+                                             disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6"
+                                              padding="around-small">
+                            <lightning:input type="date" aura:id="endDateRecord" name="endDateRecord" 
+                                             label="End Date" value="{! v.endDateRecord }"
+                                             disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6" 
+                                              padding="around-small">
+                            <lightning:combobox aura:id="monthDate" name="monthDate"
+                                                label="Month" value="0"
+                                                options="{! v.monthOptions }" onchange="{! c.handleChange }"
+                                                disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                              mediumDeviceSize="6" largeDeviceSize="6" 
+                                              padding="around-small">
+                            <lightning:combobox aura:id="yearDate" name="yearDate"
+                                                label="Year" value="{! v.yearSelected }"
+                                                options="{! v.yearOptions }" onchange="{! c.handleChange }"
+                                                disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:combobox aura:id="channelGroupName" name="channelGroupName"
+                                                label="Channel Group" value="{! v.channelGroupName }"
+                                                options="{! v.channelGroupOptions }" onchange="{! c.handleChange }"
+                                                disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:combobox aura:id="channelName" name="channelName"
+                                                label="Channel" placeholder="Select Channel"
+                                                options="{! v.channelOptions }" onchange="{! c.handleChange }" 
+                                                disabled="true" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:combobox aura:id="buName" name="buName"
+                                                label="BU" placeholder="Select BU"
+                                                options="{! v.buOptions }" onchange="{! c.handleChange }" 
+                                                disabled="true" value="{! v.buName }" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:combobox aura:id="divisionName" name="divisionName"
+                                                label="Division" placeholder="Select Division" 
+                                                options="{! v.divisionOptions }" onchange="{! c.handleChange }" 
+                                                disabled="true" />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                      mediumDeviceSize="6" largeDeviceSize="6" 
+                                      padding="around-small">
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="12" padding="around-small">
+                            <lightning:dualListbox aura:id="brandList" name="brandList"
+                                                   label= "Brand" sourceLabel="Available"
+                                                   selectedLabel="Selected" options="{! v.brandOptions }"
+                                                   onchange="{! c.handleChange }"
+                                                   disabled="true" />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+        </div>
+    
+    </div>
+	
+</aura:component>

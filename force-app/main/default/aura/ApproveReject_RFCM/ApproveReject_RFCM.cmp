@@ -1,0 +1,41 @@
+<aura:component controller="RFCMApprovalProcessController" implements="force:lightningQuickActionWithoutHeader,force:hasRecordId">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="comments" type="String" default="" />
+    <aura:attribute name="resp" type="RFCMApprovalProcessController.RFCMApprovalProcessResponse"/>
+    <aura:attribute name="showForm" type="boolean" default="true" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <aura:if isTrue="{!v.showForm}">
+        <div class="slds-col modal-header slds-modal__header">
+            <h2 class="title slds-text-heading--medium">Approve/Reject RFCM</h2>
+        </div>
+        <div class="slds-col modal-body scrollable slds-p-around--medium" style="height: 200px; max-height: 400px; overflow-y: auto !important">
+            <!-- <aura:if isTrue="{! v.resp.errorFlag == false}"> -->
+            <div class="slds-col" style="height:150px;padding:10px">
+                <lightning:textarea name="comments" required="true" value="{!v.comments}" placeholder="Please add your comments" label="Comments" maxlength="250" />
+            </div>
+            
+            <div class="slds-col modal-footer slds-modal__footer">        
+                <lightning:button variant="brand" label="Approve" title="Approve" onclick="{! c.handleApprove }" />
+                <lightning:button variant="brand" label="Reject" title="Reject" onclick="{! c.handleReject }" />
+            </div>
+            <!-- </aura:if> -->
+        </div>
+        <!-- <aura:if isTrue="{! v.resp.errorFlag == true}">
+            Error : {!v.resp.message}
+        </aura:if> -->
+    </aura:if>
+    
+</aura:component>

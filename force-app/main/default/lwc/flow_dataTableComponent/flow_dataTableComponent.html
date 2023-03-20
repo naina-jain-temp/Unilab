@@ -1,0 +1,28 @@
+<!-- sldsValidatorIgnore -->
+<!--
+  @description       :
+  @author            : Amit Singh
+  @group             :
+  @last modified on  : 01-12-2022
+  @last modified by  : Amit Singh
+-->
+<template>
+  <lightning-spinner alternative-text="Loading" size="small" variant="brand" if:true={isSpinner}></lightning-spinner>
+  <div class="slds-m-top_small">
+      <c-error-panel
+          if:true={__errors} errors={__errors}
+          type="inlineMessage">
+      </c-error-panel>
+  </div>
+  <c-do-pagination if:true={dataList}
+      records={dataList}
+      show-table="true"
+      columns={columnsList}
+      max-row-selection={maxNoOfRecordsToSelect}
+      recordsperpage={recordPerPage}
+      onactions={handleRowActions}
+      onselect={handleRowSelection}
+      onsave={handleSave}
+      onpagination={handlePagination}>
+  </c-do-pagination>
+</template>

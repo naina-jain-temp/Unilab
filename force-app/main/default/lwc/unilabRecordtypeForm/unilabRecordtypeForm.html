@@ -1,0 +1,26 @@
+<template>
+    <div class="slds-form-element slds-modal__content slds-p-around_medium" style="height:340px;">
+        <div class="slds-modal__content slds-form-element__control ">
+            <div  class='RecType_div slds-p-top_x-large'>Select a RFCM Type </div>
+                <div class="displaydata1 slds-p-top-large">
+                    <template if:true={recordTypes}>
+                        <template for:each={recordTypes} for:item="recType">
+                            <div key={recType.Id} class="displaygap">
+                                <div class='displaydata'  >
+                                    <span class="slds-radio">
+                                            <input type="radio" data-recid={recType.Id} checked={recType.check} id={recType.Name} value={recType.check} name={recType.Name}  onclick={ChanageRecordType} />
+                                        <label class="slds-radio__label" for={recType.Name}>
+                                            <span class="slds-radio_faux"></span>
+                                            <span class="slds-form-element__label RecType_subdiv2">&nbsp;&nbsp;&nbsp;&nbsp;{recType.Name}</span>
+                                        </label>
+                                    </span>
+                                    <div class="slds-p-left_xx-large slds-p-bottom_small RecType_subdiv1" key={recType.Id}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{recType.Description}</div>
+                                </div> 
+                            </div>
+                                            
+                        </template>
+                    </template>
+                </div>
+        </div>
+    </div>
+</template>

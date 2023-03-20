@@ -1,0 +1,31 @@
+<aura:component controller="UNILAB_MCR_SubmForm"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+    
+    <aura:attribute name="remarksVal" type="String"/>
+    <aura:attribute name="lat" type="String"/>
+    <aura:attribute name="long" type="String"/>
+    <aura:attribute name="networkTest" type="String" default=""/>
+    
+     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	
+    <aura:if isTrue="{!not(empty(v.lat))}">
+        <div aura:id="containerDiv">
+            <lightning:layout multipleRows="true" verticalAlign="Stretch">
+                <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                      mediumDeviceSize="12" largeDeviceSize="12" 
+                                      padding="around-small">
+                    <lightning:textarea value="{!v.remarksVal}" label="Insights/Learnings/Assessment/Feedback" maxlength="4000" />
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem size="12" smallDeviceSize="12" 
+                                      mediumDeviceSize="12" largeDeviceSize="12" 
+                                      padding="around-small">
+                    <div class="slds-align_absolute-center" style="height:3rem">
+                        <lightning:button variant="brand" label="Submit" onclick="{!c.submitHandleClick}" />
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </aura:if>
+</aura:component>

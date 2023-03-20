@@ -1,0 +1,527 @@
+<apex:page controller="UNILAB_WorkPlanApprovalCX" >
+    
+    <apex:slds />
+    
+    
+    <!-- RENDERED ONLY IN SALESFORCE MOBILE APP -->
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme4t'}">        
+        
+        <div class="slds-scope" >
+            <article class="slds-card" style="background-color:white;">                                              
+                <div class="slds-card__body slds-card__body_inner slds-p-bottom_x-small" >                        
+                    
+                    <!-- HEADER -->                
+                    <div class="slds-card__header slds-grid">
+                        <div class="slds-col slds-has-flexi-truncate">                           
+                            <div class="slds-media slds-no-space slds-grow" >                                
+                            
+                                <div class="slds-media__figure">                                        
+                                    <span class="slds-icon_container slds-icon-standard-endorsement" title="Description of icon when needed"  >                                         
+                                        <svg aria-hidden="true" class="slds-icon">                    
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#endorsement')}"></use>                    
+                                        </svg>                                          
+                                    </span>                                        
+                                </div>                                
+                                <div class="slds-media__body">                                               
+                                    <p class="slds-line-height_reset">                                        
+                                        UNILAB                                        
+                                    </p>                                        
+                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                        Workplan Approval                                   
+                                    </h1>                                            
+                                </div>                                
+                            </div>                            
+                        </div>             
+                    </div>
+                    
+                    
+                    <!-- MOBILE SELECTOR -->
+                    <article class="slds-card slds-card_boundary" style="background-color:white;">                            
+                        <div class="slds-card__body slds-card__body_inner">                       
+                            <apex:form >
+                                <div class="slds-p-top_medium">
+                                    <label class="slds-form-element__label" >Month</label>  
+                                </div>
+                                
+                                
+                                <apex:selectlist id="mos2" multiselect="false" size="1" value="{!month}" styleClass="slds-select">
+                                    <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="mobileTable"/>
+                                    <apex:selectOption itemValue="00" itemLabel="All"/>
+                                    <apex:selectOption itemValue="01" itemLabel="January"/>
+                                    <apex:selectOption itemValue="02" itemLabel="February"/>
+                                    <apex:selectOption itemValue="03" itemLabel="March"/>
+                                    <apex:selectOption itemValue="04" itemLabel="April"/>
+                                    <apex:selectOption itemValue="05" itemLabel="May"/>
+                                    <apex:selectOption itemValue="06" itemLabel="June"/>
+                                    <apex:selectOption itemValue="07" itemLabel="July"/>
+                                    <apex:selectOption itemValue="08" itemLabel="August"/>
+                                    <apex:selectOption itemValue="09" itemLabel="September"/>
+                                    <apex:selectOption itemValue="10" itemLabel="October"/>
+                                    <apex:selectOption itemValue="11" itemLabel="November"/>                                
+                                    <apex:selectOption itemValue="12" itemLabel="December"/>
+                                </apex:selectList>
+                                
+                                <div class="slds-p-top_medium">
+                                    <label class="slds-form-element__label" >User</label> 
+                                </div>
+                                
+                                <div class="slds-p-bottom_small">
+                                    <apex:selectList id="user2" value="{!userSelect1}" size="1" multiselect="false" required="false" styleClass="slds-select">                   
+                                        <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="mobileTable"/>
+                                        <apex:selectOptions value="{!AllUsersList}" />    
+                                    </apex:selectList>
+                                </div>
+                            </apex:form>
+                        </div>
+                    </article>
+                    
+                    
+                    <!-- MOBILE TABLE -->                                        
+                    
+                    <article class="slds-card slds-card_boundary" style="background-color:white;">                            
+                        <div class="slds-card__body slds-card__body_inner">
+                            <apex:form id="mobileTable">
+                                
+                                <div class="slds-card__header slds-grid">
+                                    <header class="slds-media slds-media_center slds-has-flexi-truncate"> 
+                                        <table class="slds-table slds-table_header-hidden slds-table_resizable-cols slds-table_fixed-layout slds-m-around_none slds-p-around_none" role="grid" >
+                                            <tbody>                                                    
+                                                <tr class="slds-hint-parent">
+                                                    <td class="slds-text-align_left" role="gridcell">                                            
+                                                        PAGE
+                                                        <apex:selectlist id="pNum1" multiselect="false" size="1" value="{!pageNumber}" >
+                                                            &nbsp;
+                                                            <apex:actionSupport event="onchange" action="{!searchViaPicklist2}" reRender="mobileTable"/>
+                                                            <apex:selectOptions value="{!pageList}" />    
+                                                        </apex:selectlist>
+                                                        OF {!pageListCounter}                                          
+                                                    </td>                                                    
+                                                    <td class="slds-text-align_right" role="gridcell">
+                                                        SELECT ALL
+                                                        <span class="slds-assistive-text">Select All</span>
+                                                        <div class="slds-th__action slds-th__action_form">
+                                                            <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId')" id="select-all"/>
+                                                        </div>
+                                                    </td>                                                        
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </header>
+                                </div>
+                                
+                                <div class="slds-align_absolute-center">
+                                    <apex:commandButton value="Validate" action="{!validate}" styleClass="slds-button slds-button_brand"/>
+                                    &nbsp;
+                                    <apex:commandButton value="Cancel" action="{!cancel}" styleClass="slds-button slds-button_neutral"/>
+                                </div>
+                                
+                                
+                                <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal" >                                        
+                                    
+                                    <tbody>
+                                        <apex:repeat value="{!approvalWrapperList}" var="eventWrap"  > 
+                                            
+                                            <tr class="slds-hint-parent">
+                                                
+                                                <td class="slds-cell-shrink" data-label="Select Row">                                         
+                                                    <apex:inputCheckbox value="{!eventWrap.isChecked}" id="inputId"/>                                            
+                                                </td>                                    
+                                                
+                                                <td role="gridcell" data-label="Subject">
+                                                    <div class="slds-truncate slds-p-left_small">
+                                                        <apex:outputfield value="{!eventWrap.eventRecord.Subject}"/>
+                                                    </div>                                            
+                                                </td>
+                                                
+                                                <td role="gridcell" data-label="Start Date" >
+                                                    <div class="slds-truncate slds-p-left_small">
+                                                        <c:noDateLink >
+                                                            <apex:inputField value="{!eventWrap.eventRecord.StartDateTime}" showDatePicker="false" html-disabled="true" style="text-align:right; 
+                                                                                                                                                          border-style:hidden;"/>
+                                                        </c:noDateLink>
+                                                    </div>
+                                                    
+                                                </td>
+                                                
+                                                <td role="gridcell" data-label="End Date">
+                                                    <div class="slds-truncate slds-p-left_small">
+                                                        <c:noDateLink >
+                                                            <apex:inputField value="{!eventWrap.eventRecord.EndDateTime}" showDatePicker="false" html-disabled="true" style="text-align:right; 
+                                                                                                                                                        border-style:hidden;"/>
+                                                        </c:noDateLink>
+                                                        
+                                                    </div>
+                                                </td>
+                                                
+                                                <td role="gridcell" data-label="Assigned To">
+                                                    <div class="slds-truncate slds-p-left_small">
+                                                        <apex:outputfield value="{!eventWrap.eventRecord.OwnerId}"/>    
+                                                    </div>
+                                                    
+                                                </td>
+                                                
+                                            </tr>
+                                            
+                                            
+                                        </apex:repeat>
+                                    </tbody>
+                                </table>
+                                
+                                
+                                <footer class="slds-card__footer slds-grid">
+                                    
+                                    
+                                    
+                                    
+                                </footer>
+                                
+                            </apex:form>  
+                        </div>                            
+                    </article>     
+                    
+                    
+                    
+                </div>
+            </article>            
+        </div>
+        
+    </apex:outputPanel>
+    
+    
+    <!-- RENDERED ONLY IN SALESFORCE LIGHTNING (DESKTOP) -->
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme4d' }">              
+        
+        <div class="slds-scope" >
+            <article class="slds-card" style="background-color:white;">               
+                <div class="slds-p-bottom_x-small" />
+                
+                <!-- WEB SELECTOR -->
+                <div class="slds-card__body slds-card__body_inner">
+                    <article class="slds-card slds-card_boundary" style="background-color:white;">                            
+                        <div class="slds-card__body slds-card__body_inner">                       
+                            <apex:form >
+                                <div class="slds-p-top_medium">
+                                    <label class="slds-form-element__label" >Month</label>  
+                                </div>
+                                
+                                <apex:selectlist id="mos2" multiselect="false" size="1" value="{!month}" styleClass="slds-select">
+                                    <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="webTable"/>
+                                    <apex:selectOption itemValue="00" itemLabel="All"/>
+                                    <apex:selectOption itemValue="01" itemLabel="January"/>
+                                    <apex:selectOption itemValue="02" itemLabel="February"/>
+                                    <apex:selectOption itemValue="03" itemLabel="March"/>
+                                    <apex:selectOption itemValue="04" itemLabel="April"/>
+                                    <apex:selectOption itemValue="05" itemLabel="May"/>
+                                    <apex:selectOption itemValue="06" itemLabel="June"/>
+                                    <apex:selectOption itemValue="07" itemLabel="July"/>
+                                    <apex:selectOption itemValue="08" itemLabel="August"/>
+                                    <apex:selectOption itemValue="09" itemLabel="September"/>
+                                    <apex:selectOption itemValue="10" itemLabel="October"/>
+                                    <apex:selectOption itemValue="11" itemLabel="November"/>                                
+                                    <apex:selectOption itemValue="12" itemLabel="December"/>
+                                </apex:selectList>
+                                
+                                <div class="slds-p-top_medium">
+                                    <label class="slds-form-element__label" >User</label> 
+                                </div>
+                                
+                                <div class="slds-p-bottom_small">
+                                    <apex:selectList id="user2" value="{!userSelect1}" size="1" multiselect="false" required="false" styleClass="slds-select">                   
+                                        <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="webTable"/>
+                                        <apex:selectOptions value="{!AllUsersList}" />    
+                                    </apex:selectList>
+                                </div>
+                            </apex:form>
+                        </div>                            
+                    </article>
+                </div>   
+                
+                
+                <!-- WEB TABLE -->
+                <div class="slds-card__body slds-card__body_inner">
+                    <article class="slds-card slds-card_boundary" style="background-color:white;">
+                        <apex:form id="webTable">    
+                            <div class="slds-card__header slds-grid">
+                                <header class="slds-media slds-media_center slds-has-flexi-truncate">                        
+                                    <div class="slds-align_absolute-center">    
+                                        
+                                        <div align="center" draggable="false" >
+                                            Page
+                                            <apex:selectlist id="pNum" multiselect="false" size="1" value="{!pageNumber}" >
+                                                &nbsp;
+                                                <apex:actionSupport event="onchange" action="{!searchViaPicklist2}" reRender="webTable"/>
+                                                <apex:selectOptions value="{!pageList}" />    
+                                            </apex:selectlist>
+                                            of {!pageListCounter}
+                                        </div>   
+                                        
+                                    </div>   
+                                </header>
+                            </div>
+                            
+                            
+                            <div class="slds-card__body slds-card__body_inner">
+                                
+                                <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout" role="grid" >
+                                    
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            
+                                            <th class="slds-text-align_right" scope="col" style="width: 3.25rem;">
+                                                <span id="check-group-header" class="slds-assistive-text">Choose a row</span>
+                                                <div class="slds-th__action slds-th__action_form">
+                                                    <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId')" />
+                                                </div>
+                                            </th>
+                                            
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="Subject">Subject</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Start Date" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="Start Date">Start Date</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="Start Date column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-9" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="End Date" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="End Date">End Date</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="End Date column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-10" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            
+                                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Assigned To" scope="col">
+                                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                                    <span class="slds-assistive-text">Sort by: </span>
+                                                    <span class="slds-truncate" title="Assigned To">Assigned To</span>
+                                                    <div class="slds-icon_container">
+                                                        <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                                <div class="slds-resizable">
+                                                    <input type="range" min="20" max="1000" aria-label="Assigned To column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-11" tabindex="-1" />
+                                                    <span class="slds-resizable__handle">
+                                                        <span class="slds-resizable__divider"></span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        <apex:repeat value="{!approvalWrapperList}" var="eventWrap" id="table2"> 
+                                            
+                                            <tr class="slds-hint-parent">
+                                                <td class="slds-text-align_right" role="gridcell">                                            
+                                                    <apex:inputCheckbox value="{!eventWrap.isChecked}" id="inputId"/>                                            
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <apex:outputfield value="{!eventWrap.eventRecord.Subject}"/>
+                                                    </div>                                            
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <c:noDateLink >
+                                                            <apex:inputField value="{!eventWrap.eventRecord.StartDateTime}" showDatePicker="false" html-disabled="true" style="border-style:hidden;background-color:white"/>
+                                                        </c:noDateLink>
+                                                    </div>
+                                                    
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <c:noDateLink >
+                                                            <apex:inputField value="{!eventWrap.eventRecord.EndDateTime}" showDatePicker="false" html-disabled="true" style="border-style:hidden;background-color:white"/>
+                                                        </c:noDateLink>
+                                                        
+                                                    </div>
+                                                </td>
+                                                
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate">
+                                                        <apex:outputfield value="{!eventWrap.eventRecord.OwnerId}"/>    
+                                                    </div>
+                                                    
+                                                </td>
+                                                
+                                            </tr>
+                                            
+                                            
+                                        </apex:repeat>
+                                    </tbody>
+                                </table>
+                                
+                            </div>
+                            
+                            
+                            <footer class="slds-card__footer slds-grid">
+                                <div class="slds-align_absolute-center">
+                                    
+                                    <apex:commandButton value="Validate" action="{!validate}" styleClass="slds-button slds-button_brand slds-m-bottom_x-small"/>&nbsp;&nbsp;                            
+                                    <!-- <apex:commandButton value="Cancel" action="{!cancel}" styleClass="slds-button slds-button_neutral slds-m-bottom_x-small"/> -->
+                                    
+                                </div>   
+                            </footer>
+                        </apex:form>                            
+                    </article>
+                </div>
+                
+            </article>            
+        </div>
+        
+    </apex:outputPanel>
+    
+    
+    <!-- RENDERED ONLY IN CLASSIC VIEW -->
+    <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme3'}">            
+        
+        <!-- CLASSIC HEADER -->
+        <apex:sectionHeader title="Workplan Approval" subtitle="UNILAB" />
+        
+        <!-- CLASSIC SELECTOR -->        
+        <apex:form >            
+            <apex:pageBlock tabStyle="account">
+                <apex:pageBlockSection >
+                    <apex:pageBlockSectionItem >
+                        
+                        <apex:outputLabel for="mos" >Month</apex:outputLabel>
+                        <apex:selectlist id="mos" multiselect="false" size="1" value="{!month}" >
+                            <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="table2"/>
+                            <apex:selectOption itemValue="00" itemLabel="All"/>
+                            <apex:selectOption itemValue="01" itemLabel="January"/>
+                            <apex:selectOption itemValue="02" itemLabel="February"/>
+                            <apex:selectOption itemValue="03" itemLabel="March"/>
+                            <apex:selectOption itemValue="04" itemLabel="April"/>
+                            <apex:selectOption itemValue="05" itemLabel="May"/>
+                            <apex:selectOption itemValue="06" itemLabel="June"/>
+                            <apex:selectOption itemValue="07" itemLabel="July"/>
+                            <apex:selectOption itemValue="08" itemLabel="August"/>
+                            <apex:selectOption itemValue="09" itemLabel="September"/>
+                            <apex:selectOption itemValue="10" itemLabel="October"/>
+                            <apex:selectOption itemValue="11" itemLabel="November"/>                                
+                            <apex:selectOption itemValue="12" itemLabel="December"/>
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel for="user" >User</apex:outputLabel>
+                        <apex:selectList id="user" value="{!userSelect1}" size="1" multiselect="false" required="false" >                   
+                            <apex:actionSupport event="onchange" action="{!searchViaPicklist}" reRender="table2"/>
+                            <apex:selectOptions value="{!AllUsersList}" />    
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                    
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:form>
+        
+        <!-- CLASSIC TABLE -->
+        <apex:form id="table2">                            
+            <apex:pageBlock tabStyle="account">                   
+                
+                <apex:outputPanel style="padding-left:10px;">
+                    Page
+                    <apex:selectlist id="pNum" multiselect="false" size="1" value="{!pageNumber}" >
+                        &nbsp;
+                        <apex:actionSupport event="onchange" action="{!searchViaPicklist2}" reRender="table2"/> <!-- change action -->
+                        <apex:selectOptions value="{!pageList}" />    
+                    </apex:selectlist>
+                    of {!pageListCounter}
+                </apex:outputPanel>
+                
+                <apex:pageblockSection collapsible="true" columns="1" >                                                       
+                    <apex:pageBlockTable value="{!approvalWrapperList}" var="eventWrap"  title="Work Plan Approval" width="auto" >
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId')"/>
+                            </apex:facet>
+                            <apex:inputCheckbox value="{!eventWrap.isChecked}" id="inputId"/>
+                        </apex:column>
+                        <apex:column value="{!eventWrap.eventRecord.Subject}" headerValue="Subject" style="width:auto; height:auto;"/>
+                        <apex:column headerValue="Start Date" style="width:auto;">
+                            <c:noDateLink >
+                                <apex:inputField value="{!eventWrap.eventRecord.StartDateTime}" showDatePicker="false" style="border-style:hidden;"/>
+                            </c:noDateLink>    
+                        </apex:column>
+                        <apex:column headerValue="End Date" style="width:auto;">
+                            <c:noDateLink >
+                                <apex:inputField value="{!eventWrap.eventRecord.EndDateTime}" showDatePicker="false" style="border-style:hidden;"/>
+                            </c:noDateLink>    
+                        </apex:column>
+                        <apex:column value="{!eventWrap.eventRecord.OwnerId}" headerValue="Assigned To" />
+                    </apex:pageBlockTable>               
+                </apex:pageblockSection>
+                
+                <div align="center" draggable="false" >
+                    <apex:commandButton value="Validate" action="{!validate}" reRender="table2" style="float:center;"/> &nbsp;
+                    <!-- <apex:commandButton value="Cancel" action="{!cancel}" reRender="table2" style="float:center;" /> -->
+                </div>               
+                
+            </apex:pageBlock>
+        </apex:form>            
+        
+        
+    </apex:outputPanel>
+    
+    
+    <!-- SCRIPT -->
+    <script type="text/javascript">
+    function selectAllCheckboxes(obj,receivedInputID){
+        var inputCheckBox = document.getElementsByTagName("input");
+        for(var i=0; i<inputCheckBox.length; i++){
+            if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){
+                inputCheckBox[i].checked = obj.checked;
+            }
+        }
+    }
+    </script>
+    
+</apex:page>

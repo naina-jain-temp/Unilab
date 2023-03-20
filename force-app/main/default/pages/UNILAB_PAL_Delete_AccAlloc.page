@@ -1,0 +1,11 @@
+<apex:page standardcontroller="Account_Allocation__c">
+    <apex:pageBlock >
+        <apex:PageMessage summary="You are not allowed to delete Account Allocation on this page."
+            severity="Warning"
+            strength="3"/>
+        <apex:pageMessages />
+    </apex:pageBlock>
+    <apex:form >
+        <apex:commandButton value="Go back" action="{!URLFOR($Action.Allocation__c.List, $ObjectType.Allocation__c)}"/>
+    </apex:form>
+</apex:page>

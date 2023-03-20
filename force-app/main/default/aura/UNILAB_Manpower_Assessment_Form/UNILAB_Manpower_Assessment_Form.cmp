@@ -1,0 +1,194 @@
+<aura:component controller="UNILAB_Monthly_Manpower_Monitoring"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <aura:attribute name="copylastmonthrecord" type="Boolean" />
+    <aura:attribute name="lmData" type="Map" />
+    <aura:attribute name="personnel" type="Map" />
+    <aura:attribute name="trucks" type="Map" />
+    <aura:attribute name="mpContactData" type="List" />
+    <aura:attribute name="mpTruckData" type="List" />
+    <aura:attribute name="mpfilteredContactData" type="List" />
+    <aura:attribute name="mpData" type="Object"/>
+    <aura:attribute name="mpDataResult" type="Map"  default="{!v.mpDataResult}"/>
+    <aura:attribute name="position" type="String" default="{!v.mpData.Title__c}"/>
+    <aura:attribute name="category" type="String" default="{!v.mpData.Category__c}"/>
+    <aura:attribute name="type" type="String" default="{!v.mpData.Type__c}"/>
+    <aura:attribute name="summaryIncluded" type="Boolean" default="{!v.mpData.Summary_Included__c}" />
+    <aura:attribute name="actualsize" type="integer" default="0"/>
+    <aura:attribute name="requiredsize" type="integer" default="{!v.mpData.Required_Size__c}"/>
+    <aura:attribute name="deficitsize" type="integer" default="0"/>
+    <aura:attribute name="rating" type="integer" default="0"/>
+    <aura:attribute name="remarks" type="String" />
+    <aura:attribute name="isTruck" type="String" />
+    
+    <aura:attribute name="openContactModal" type="Boolean" default="false" />
+    <aura:attribute name="openNewContact" type="Boolean" default="false" />
+    <aura:attribute name="openTruckModal" type="Boolean" default="false" />
+    <aura:attribute name="openNewTruck" type="Boolean" default="false" />
+    <aura:attribute name="clearChecklist" type="Boolean" />
+    <aura:attribute name="disableButton" type="Boolean"/>
+    
+    <aura:attribute name="newContactData" type="List" />
+    <aura:attribute name="selectedValue" type="List" />
+    <aura:attribute name="prevSelectedValue" type="List" />
+    <aura:attribute name="accountId" type="String" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{! v.newContactData }" action="{! c.updateContactData }"/>
+    <aura:handler name="change" value="{! v.copylastmonthrecord }" action="{! c.setLastMonthRecord }"/>
+    <aura:handler name="change" value="{! v.clearChecklist }" action="{! c.clearChecklist }"/>
+	<aura:handler name="change" value="{! v.disableButton }" action="{! c.disableButton }"/>
+   	
+    <aura:if isTrue="{!v.openContactModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open slds-modal_large" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight:bold">Set Personnel</h1>                                           
+                   	</header>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        
+                        
+                         <div >
+                             <aura:if isTrue="{!v.openNewContact}">
+                                <div style="padding: 20px;margin-bottom: 20px;border: 1px solid #c1c1c1;border-radius: 20px;">
+                                    <h1 style="font-weight: bold;font-size: 20px;text-align: center;border: 1px solid #e7e7e7;">Add New Personnel</h1>
+                                    <lightning:recordEditForm aura:id="recordEditForm"
+                                                                   objectApiName="Contact"
+                                                                   onsuccess="{!c.onContactSuccess}"
+                                                                   onerror = "{!c.onError}"
+                                                                          >
+                                                
+                                                    <lightning:messages />
+                                                    <lightning:inputField fieldName="Name" value="{!v.name}" label=""/>
+                                        			<lightning:inputField fieldName="AccountId" value="{!v.accountId}" label="Account" disabled = "true"/>
+                                        			<lightning:inputField fieldName="Role_Assignment__c" value="Distributor" disabled = "true"/>
+                                                    <lightning:inputField fieldName="Category__c" value="{!v.category}" disabled = "true"/>
+                                                    <lightning:inputField fieldName="Position__c" value="{!v.position}" disabled = "true"/>
+                                                    
+                                                    <lightning:button label="Cancel" title="Cancel" onclick="{!c.hideNewContact}" />
+                                                    <lightning:button class="slds-m-top_small" variant="brand" type="submit" label="Add Personnel" />
+                                                
+                                            
+                                    </lightning:recordEditForm>
+                                </div>
+                                 <aura:set attribute="else">
+                                     <div class="slds-clearfix">
+                                          <div class="slds-float_right">
+                                            <lightning:button variant="brand"  title="Add New Personnel" label="Add New Personnel" class="set-personnel" onclick="{!c.showNewContact}"/>
+                                          </div>
+                                     </div>
+                                     <lightning:dualListbox name="set-personnel"
+                                       label= "{!'Select your ' + v.position + ' Personnel'}"
+                                       sourceLabel = "Available Personnel"
+                                       selectedLabel="Selected Personnel"
+                                       fieldLevelHelp= "{!'Select your ' + v.position + ' Personnel'}"
+                                       options="{!v.mpfilteredContactData}"
+                                       value="{!v.selectedValue}"
+                                      />
+                                 </aura:set> 
+                        	</aura:if>
+                             
+                   		 </div>
+                        
+                        
+                    </div>
+                    <div class="slds-modal__footer "> 
+                                
+                        <lightning:button variant="brand" name="set" label="Set" onclick="{! c.setDataToCalculate}"/>
+                        <lightning:button variant="neutral" name="cancel" label="Cancel" onclick="{! c.hideContactModal}"/>
+                                
+                    </div>
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>
+    <aura:if isTrue="{!v.openTruckModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open slds-modal_large" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight:bold">Set Truck</h1>                                           
+                   	</header>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        
+                        
+                         <div>
+                             <aura:if isTrue="{!v.openNewTruck}">
+                                <div style="padding: 20px;margin-bottom: 20px;border: 1px solid #c1c1c1;border-radius: 20px;">
+                                    <h1 style="font-weight: bold;font-size: 20px;text-align: center;border: 1px solid #e7e7e7;">Add New Truck</h1>
+                                	<lightning:recordEditForm aura:id="recordEditForm"
+                                                               objectApiName="Trucks__c"
+                                                               onsuccess="{!c.onTruckSuccess}"
+                                                               onerror = "{!c.onError}"
+                                                                      >
+                                            
+                                                <lightning:messages />
+                                        		<lightning:inputField fieldName="Plate_No__c" label=""/>
+                                                <lightning:inputField fieldName="Transport_Type__c" label=""/>
+                                                <lightning:inputField fieldName="Brand__c" />
+                                                <lightning:inputField fieldName="Capacity__c" />
+                                                
+                                                <lightning:button label="Cancel" title="Cancel" onclick="{!c.hideNewTruck}" />
+                                                <lightning:button class="slds-m-top_small" variant="brand" type="submit" label="Add truck" />
+                                            
+                                        
+                                    </lightning:recordEditForm>
+                                </div>
+                                 <aura:set attribute="else">
+                                     <div class="slds-clearfix">
+                                          <div class="slds-float_right">
+                                                <lightning:button variant="brand"  title="Add New Truck" label="Add New Truck" class="set-truck" onclick="{!c.showNewTruck}"/>
+                                          </div>
+                                     </div>
+                                     <lightning:dualListbox name="set-truck"
+                                       label= "{!'Select your Truck'}"
+                                       sourceLabel = "Available Truck"
+                                       selectedLabel="Selected Truck"
+                                       fieldLevelHelp= "{!'Select your Truck'}"
+                                       options= "{!v.mpTruckData}"
+                                       value="{!v.selectedValue}"
+                                   	/>
+                                 </aura:set> 
+                            </aura:if>
+                   		 </div>
+                    </div>
+                    <div class="slds-modal__footer "> 
+                                
+                        <lightning:button variant="brand" name="set" label="Set" onclick="{! c.setDataToCalculate}"/>
+                        <lightning:button variant="neutral" name="cancel" label="Cancel" onclick="{!c.hideTruckModal}"/>
+                                
+                    </div>
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>
+    		<tr>
+                <td style="border: 1px solid black;padding:5px 10px 5px 5px; width:40%">
+                    {!v.position} 
+                    <aura:if isTrue="{!v.isTruck}">
+                        <lightning:buttonIcon iconName="utility:add" variant="brand" alternativeText="Set Truck" title="Truck" onclick="{!c.showTruckModal}"  disabled="{!v.disableButton}"/>
+                        <aura:set attribute="else">
+                        	<lightning:buttonIcon iconName="utility:people" variant="brand" alternativeText="Set Personnel" title="Personnel"  onclick="{!c.showContactModal}"  disabled="{!v.disableButton}"/>
+                        </aura:set>
+                    </aura:if>
+                </td>
+				<td style="border: 1px solid black;text-align:center;padding:5px 10px 5px 5px;">
+                    <span id="input-required-size" aura:id="input-required-size">{!v.requiredsize}</span>
+                </td>
+                <td style="border: 1px solid black;text-align:center;padding:5px 10px 5px 5px;">
+                    <span id="input-actual-size" aura:id="input-actual-size">{!v.actualsize}</span>
+                </td>
+                <td style="border: 1px solid black;text-align:center;padding:5px 10px 5px 5px;"><span id="input-deficit-size" aura:id="input-deficit-size">{!v.deficitsize}</span></td>    			
+                <td style="border: 1px solid black;text-align:center;padding:5px 10px 5px; ">
+                    <span id="input-total-rating" aura:id="input-total-rating">{!v.rating}</span>
+                </td>
+                <td style="border: 1px solid black;text-align:center;padding:5px 10px 5px;width:20%; ">
+                	<lightning:textarea name="remarks"  value="{!v.remarks}" onblur="{!c.setRemarks}" disabled="{!v.disableButton}"/>
+                </td>
+    		</tr>
+    	
+</aura:component>

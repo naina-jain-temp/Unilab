@@ -1,0 +1,209 @@
+<aura:component controller="UNILAB_POC_INVENTORY"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="inventoryData" type="List"/>
+    <aura:attribute name="prevData" type="List"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/>
+    <aura:attribute name="bNoRecordsFound" type="boolean"/>
+    <aura:attribute name="searchKeyword" type="String" default="Core 8"/>
+    <aura:attribute name="successMessage" type="boolean" default="false"/>
+    <aura:attribute name="submittedBtn" type="boolean" default="false"/>
+    <aura:attribute name="disableBtn" type="boolean" default="{! and(not(empty(v.inventoryData)), not(v.submittedBtn)) ? false : true}"/>
+    <aura:attribute name="periodVal" type="String" default="202201"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="optionsMustBrand" type="List"/>
+    <aura:attribute name="lastModifiedDate" type="Date"/>
+    <aura:attribute name="lastModifiedName" type="String"/>
+    <aura:attribute name="isModalOpen" type="boolean" default="false"/>
+    
+    <aura:attribute name="defaultRows" type="List" default="[]" description="reset selected rows..." />
+    <aura:attribute name="disclaimer" type="String" default="Please input Inventory and Offtake in PIECES." />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+    
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Inventory
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div style="max-height: 300px;">
+            <div class="slds-text-body_small slds-p-left_small slds-p-right_small" title="CLI Disclaimer">
+               <p style="display: flex;flex-wrap: wrap;">&#128204;
+               <strong>{! v.disclaimer }</strong></p>
+            </div>
+    </div>
+    <div class="c-container">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-float_left slds-size--1-of-1">
+                    <lightning:select name="Period"
+                                      label="Period"
+                                      value="{! v.periodVal}" 
+                                      onchange="{! c.searchProduct }">
+                        <aura:iteration items="{! v.options}" var="option">
+                            <option text="{! option.label }" value="{! option.value }" />
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12" padding="around-small">
+                <div class="slds-float_left slds-size--1-of-1">
+                    <lightning:select name="Filter"
+                                      label="Must Brand"
+                                      value="{! v.searchKeyword}" 
+                                      onchange="{! c.searchProduct }">
+                        <aura:iteration items="{! v.optionsMustBrand}" var="option">
+                            <option text="{! option.label }" value="{! option.value }" />
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+            </lightning:layoutItem>
+            <aura:if isTrue="{!v.bNoRecordsFound}">
+                <!--display error message if there is no records available -->
+                <lightning:layoutItem size="12" padding="around-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <h2>No record found.</h2>
+                    </div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-scrollable_x">
+                            <table class="slds-table slds-table_bordered slds-table_col-bordered">
+                                <thead>
+                                    <tr class="slds-text-title">
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="code">Must Brand</div>
+                                        </th>
+                                        <th scope="col" class="slds-is-resizable">
+                                            <div class="slds-truncate" title="name">Item Name</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate slds-is-resizable"
+                                                 title="inventory">Previous Month</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-is-resizable"
+                                                 title="offtake">Current Month</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{! v.mydata }" var="record" >
+                                        <c:UNILAB_AIR_POC_INVENTORY_ITEM product="{!record.objProduct}"
+                                                                         inventory="{!record.objInventory}"
+                                                                         inventoryData="{! v.inventoryData}"
+                                                                         prevData="{! v.prevData}"
+                                                                         periodVal="{! v.periodVal}"
+                                                                         lastModifiedDate="{! v.lastModifiedDate}"
+                                                                         lastModifiedName="{! v.lastModifiedName}"
+                                                                         submittedBtn="{! v.submittedBtn}"/>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around-small">
+                        <div class="slds-clearfix slds-float_left slds-size--1-of-1">
+                                <div class="slds-page-header slds-text-align_center" role="banner" style="width:100%">
+                                    <div class="slds-float_right">            
+                                        <lightning:button label="Prev" 
+                                                          iconName="utility:chevronleft" 
+                                                          iconPosition="left"
+                                                          onclick="{!c.handlePrev}" 
+                                                          disabled="{! v.pageNumber == 1}"/>
+                                        <lightning:button label="Next" 
+                                                          iconName="utility:chevronright" 
+                                                          iconPosition="right"
+                                                          disabled="{! v.isLastPage}" 
+                                                          onclick="{!c.handleNext}"/>
+                                    </div>
+                                    <p class="slds-text-heading--small">
+                                        Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*(v.pageSize)+1)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}
+                                    </p>
+                                </div>
+                            </div>
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+        </lightning:layout>
+    </div>
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <h2>Last Modified By: <strong>{!v.lastModifiedName}</strong></h2>&nbsp;&nbsp;&nbsp;
+        <h2>Last Modified Date: <strong><lightning:formattedDateTime value="{!v.lastModifiedDate}" year="numeric" 
+                                                                     month="short" day="2-digit" hour="numeric" 
+                                                                     minute="2-digit" weekday="short"></lightning:formattedDateTime></strong></h2>
+    </div>
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <lightning:button variant="brand" label="Save as Draft" onclick="{!c.saveRecord}" disabled="{! v.disableBtn }" />
+        <lightning:button variant="brand" label="Submit" onclick="{! c.openModel}" disabled="{! v.disableBtn }" />
+        
+        <aura:if isTrue="{!v.isModalOpen}">
+             
+            <!-- Modal/Popup Box starts here-->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal/Popup Box Header Starts here-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                    </header>
+                    <!--Modal/Popup Box Body Starts here-->
+                    <aura:if isTrue="{! v.successMessage}">
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <p><b>
+                                Successfully submitted the form...  Note that the data inputted cannot be changed anymore.
+                                </b>
+                            </p>
+                        </div>
+                        <!--Modal/Popup Box Footer Starts here-->
+                        <footer class="slds-modal__footer">
+                            <lightning:button variant="neutral"
+                                              label="OK"
+                                              title="OK"
+                                              onclick="{! c.closeModel }"/>
+                        </footer>
+                        <aura:set attribute="else">
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                <p><b>
+                                    Are you sure you want to Submit this form?  Please ensure all data are complete and validated before submitting.
+                                    </b>
+                                </p>
+                            </div>
+                            <!--Modal/Popup Box Footer Starts here-->
+                            <footer class="slds-modal__footer">
+                                <lightning:button variant="neutral"
+                                                  label="No"
+                                                  title="No"
+                                                  onclick="{! c.closeModel }"/>
+                                <lightning:button variant="brand"
+                                                  label="Yes"
+                                                  title="Yes"
+                                                  onclick="{!c.submitRecord}"/>
+                            </footer>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+</aura:component>

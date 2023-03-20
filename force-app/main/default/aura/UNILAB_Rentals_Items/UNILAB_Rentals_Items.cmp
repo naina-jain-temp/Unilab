@@ -1,0 +1,38 @@
+<aura:component controller="UNILAB_Rentals"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+	<aura:attribute name="data" type="List" />
+    <aura:attribute name="priorityData" type="List" />
+    <aura:attribute name="availYes" type="boolean" default="false"/>
+    <aura:attribute name="availNo" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <tr>
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                {! v.data.Item__c }
+            </div>
+        </th>
+        <th scope="row">
+            <div class="slds-truncate_container slds-align_absolute-center">
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="Yes" 
+                                 aura:id="optYes"
+                                 name="Yes"
+                                 checked="{! v.data.Yes__c}"
+                                 onchange="{! c.optYesChange}"
+                                 style="padding-right:10px;"/>
+                <lightning:input type="checkbox" 
+                                 class="slds-checkbox__label"
+                                 label="No" 
+                                 aura:id="optNo"
+                                 name="No"
+                                 checked="{! v.data.No__c}"
+                                 onchange="{! c.optNoChange}"/>
+            </div>
+            
+        </th>
+    </tr>
+</aura:component>

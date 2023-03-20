@@ -1,0 +1,87 @@
+<aura:component controller="UNILAB_Monthly_Manpower_Monitoring"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+   
+    	<aura:attribute name="brratings" type="Map" />
+        <aura:attribute name="whratings" type="Map" />
+        <aura:attribute name="fldratings" type="Map"/>
+    	<aura:attribute name="manpowertotal" type="Map" default="{'required':0, 'actual':0, 'deficit':0, 'rating': 0}"/>  
+    
+    	<aura:attribute name="trratings" type="Map" />    
+    	<aura:attribute name="truckrating" type="Integer" default="0"/>    
+    
+    	<aura:attribute name="brratingsstatus" type="String" default="Miss"/>
+        <aura:attribute name="whratingsstatus" type="String" default="Miss"/>
+        <aura:attribute name="fldratingsstatus" type="String" default="Miss"/>
+    	<aura:attribute name="trratingsstatus" type="String" default="Miss"/>
+        
+    	<aura:handler name="change" value="{!v.brratings}" action="{! c.executesummary }"/>
+    	<aura:handler name="change" value="{!v.whratings}" action="{! c.executesummary }"/>	
+        <aura:handler name="change" value="{!v.fldratings}" action="{! c.executesummary }"/>
+        <aura:handler name="change" value="{!v.trratings}" action="{! c.executesummary }"/>
+        
+    
+	<div style="width:100%; padding:20px;">
+        	<table style="border-collapse:collapse;">
+                	<thead>
+                		<tr>
+                            <th style="text-align:center;border: 1px solid black; width:40%">Category</th>
+                            <th style="text-align:center;border: 1px solid black;">Total<br/>Required</th>
+                            <th style="text-align:center;border: 1px solid black;">Total<br/>Actual</th>
+                            <th style="text-align:center;border: 1px solid black;">Total<br/>Deficit</th>
+                            <td style="background-color:white;width:5%"></td> 
+                            <th style="text-align:center;border: 1px solid black; width:20%">Rating</th>
+                        </tr>
+                	</thead>
+                    <tbody>
+                    	<tr>
+                            <td style="border-left: 1px solid black; padding:5px 10px 5px 10px; " >I. Manpower</td>
+                            <td style="text-align:center;font-weight: bolder;">{!v.brratings.required + v.whratings.required + v.fldratings.required}</td>
+                            <td style="text-align:center;font-weight: bolder;">{!v.manpowertotal.actual}</td>
+                            <td style="border-right: 1px solid black; padding:5px 10px 5px 10px;text-align:center;font-weight: bolder;" >{!v.manpowertotal.deficit}</td>
+                            <td></td>
+                            <td style="border: 1px solid black; text-align:center;font-size: 11px;">Manpower<br/>(Total Actual/ Total Required)</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">a. Backroom Personnel</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.brratings.required}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.brratings.actual}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.brratings.deficit}</td>
+                            <td></td>
+                            <td style="border: 1px solid black; text-align:center;" class="manpower-summary-miss" aura:id="backroom-summary-status" rowspan="3">
+                                {!v.manpowertotal.rating}%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">b. Warehouse &amp; Logistics Personnel</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.whratings.required}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.whratings.actual}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.whratings.deficit}</td>
+                           
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">c. Field Sales Personnel</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.fldratings.required}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.fldratings.actual}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.fldratings.deficit}</td>
+                          
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; " colspan="4">II. Truck Requirement</td>
+                            <td></td>
+                            <td style="border: 1px solid black; text-align:center;font-size: 11px;">Truck Requirement<br/>(Total Actual/ Total Required)</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">d. No. of Trucks (based on current DLA)</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.trratings.required}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.trratings.actual}</td>
+                            <td style="border: 1px solid black; text-align:center;">{!v.trratings.deficit}</td>
+                            <td></td>
+                            <td style="border: 1px solid black; text-align:center;" class="manpower-summary-miss" aura:id="truck-summary-status">
+                                {!v.truckrating}%
+                            </td>
+                        </tr>
+                	</tbody>
+			</table>
+        </div>
+</aura:component>

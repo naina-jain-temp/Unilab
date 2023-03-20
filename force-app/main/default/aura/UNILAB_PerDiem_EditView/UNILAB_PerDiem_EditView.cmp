@@ -1,0 +1,51 @@
+<aura:component controller="UNILAB_PerDiem"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global">
+    
+    <aura:attribute name="existEventData" type="List"/>
+    <aura:attribute name="columns" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <lightning:layout multipleRows="true" >
+        <lightning:layoutItem size="12" padding="around-small">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning:icon iconName="custom:custom41" size="medium"/>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-page-header__title slds-truncate">Per Diem</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="slds-media__body">
+                <div class="slds-page-header__name">
+                    <div class="slds-page-header__name-title">
+                        <span class="slds-text-heading_small slds-text-color_error slds-truncate">Note: You can not edit a submitted or aprroved Per Diem.</span>
+                    </div>
+                </div>
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12" padding="around-small">
+            <div class="slds-scrollable_x">
+                <lightning:datatable
+                    keyField="id"
+                    data="{! v.existEventData }"
+                    columns="{! v.columns }"
+                    hideCheckboxColumn="true"/>
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

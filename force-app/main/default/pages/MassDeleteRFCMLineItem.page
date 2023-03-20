@@ -1,0 +1,33 @@
+<apex:page controller="MassDeleteRFCMCont" sidebar="false" >
+    <head>
+        <script src="../../soap/ajax/52.0/connection.js" type="text/javascript"></script>
+        <script src="/soap/ajax/26.0/apex.js"></script>
+         <script type='text/javascript' src='/canvas/sdk/js/publisher.js'></script>
+        </head>
+          
+    <script>
+         var rfcmId = '{!PageID}';
+       sforce.connection.sessionId = '{!$Api.Session_ID}';
+       var query = 'SELECT id from RFCM_line_item__c where RFCM__c =\''+rfcmId+'\'';
+       console.log(query); 
+       var lineItems = sforce.connection.query(query);
+
+       records =lineItems.getArray("records"); 
+       var idsForDeletion = [];
+       for (var i=0; i<records.length; i++) {
+        idsForDeletion.push(records[i].Id);
+       }
+        sforce.connection.deleteIds(idsForDeletion);
+        //window.location =  '/' + rfcmId;
+        var myEmailAdd = window.location.search;
+        console.log('----------------------'+myEmailAdd)
+ 
+        //window.open('/' + rfcmId,'_self');
+       
+    
+    </script>
+
+   
+      
+ 
+</apex:page>

@@ -1,0 +1,23 @@
+<aura:component implements="flexipage:availableForRecordHome,force:lightningQuickActionWithoutHeader,force:appHostable,lightning:actionOverride,force:hasRecordId" access="global" controller="UNILAB_ClonePromo_Controller">
+	
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="promoRec" type="Promo__c" />
+    <aura:attribute name="spinner" type="Boolean" default="false" />
+    <aura:registerEvent name="promoRecId" type="c:UNILAB_PAL_ClonePromo_Event" />
+    <ltng:require styles="{!$Resource.PAL_quickActionStyle}" />
+    <aura:if isTrue="{!v.spinner}">
+        <c:UNILAB_PAL_Spinner/>
+    </aura:if>
+    <header class="slds-modal__header">
+        <p class="slds-text-heading_medium slds-text-align_center">
+            CLONE PROMO
+        </p>
+    </header>
+    <div style="max-height: 70px; height: 70px; overflow-y: auto !important;">
+        <p class='question slds-text-align_center '>Are you sure you want to clone this promo?</p>
+    </div>
+    <footer class="slds-modal__footer" style="padding: 0.50rem 1rem;">
+        <lightning:button variant="brand" label="Clone"  onclick="{!c.clonePromo}" />
+        <lightning:button variant="neutral" label="Cancel"  onclick="{!c.cancelCloning}" />
+    </footer>
+</aura:component>

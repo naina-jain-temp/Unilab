@@ -1,0 +1,15 @@
+<aura:component controller="UNILAB_NEON_SubmitISPlan" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    <aura:attribute name="option" type="NEON_IS_Plan__c" default="{}"/>
+    <aura:attribute name="value" type="String" default=""/>
+    <aura:attribute name="ctData" type="List" default="[]"/>
+    <aura:attribute name="disabled" type="Boolean" default="true"/>
+    
+    <span class="slds-button slds-checkbox_button">
+        <input type="checkbox" aria-describedby="error_01" id="{! v.option.Customer_Team__c }" 
+               value="{! v.value }" name="{! v.option.Customer_Team__c }" 
+               onclick="{! c.onClickCT }"/>
+        <label class="slds-checkbox_button__label" for="{! v.option.Customer_Team__c }">
+            <span class="slds-checkbox_faux">{! v.option.Customer_Team__c }</span>
+        </label>
+    </span>
+</aura:component>

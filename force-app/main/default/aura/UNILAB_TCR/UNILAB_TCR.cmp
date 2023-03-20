@@ -1,0 +1,1673 @@
+<aura:component controller="UNILAB_TrainingContactController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" access="global"  >    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="currentStep" type="String" default="1" />
+    <aura:attribute name="tlEvent" type="Event" />
+    <aura:attribute name="tcr" type="Training_Contact_Report__c" />
+    <aura:attribute name="tcrCalls" type="List" default="{}" />   
+    <aura:attribute name="accountTcr" type="String" default="Account TCR"  access="private"/>    
+    <aura:attribute name="t3Tcr" type="String" default="T3 TCR" access="private"/>
+    <aura:attribute name="subdAuditTcr" type="String" default="SUBD AUDIT TCR" access="private"/>
+    <aura:attribute name="meetingTcr" type="String" default="Meeting TCR" access="private"/>
+    <aura:attribute name="callsSection" type="String" default="7" access="private"/>
+    
+    <aura:attribute name="Draft" type="String" default="Draft" access="private"/>
+    <aura:attribute name="PendingConcur" type="String" default="Pending Concurrence" access="private"/>
+    <aura:attribute name="pendingApproval" type="String" default="Pending Approval" access="private"/>
+    
+    <aura:attribute name="tcrFieldLabelMap" type="Map" default="{'':''}" />
+    <aura:attribute name="tcrRequiredFieldMap" type="Map" default="{'':''}" />
+    <aura:attribute name="tcrCallFieldInfoMap" type="Map" default="{'':''}" />
+    <aura:attribute name="tcrCallRequiredFields" type="List" default="{}" />
+    <aura:attribute name="sectionOneValue" type="String" default="0" />
+    <aura:attribute name="stepToValidate" type="String" default="0" /> 
+    <aura:attribute name="specificSkillDev1List" type="List" default="[]" /> 
+    <aura:attribute name="specificSkillDev2List" type="List" default="[]" /> 
+    
+    <aura:attribute name="isValidUser" type="Boolean" default="false" />
+    <aura:attribute name="isDisabled" type="Boolean" default="true" />
+    <aura:attribute name="isWithPreviousTcr" type="Boolean" default="false" />
+    <aura:attribute name="isRequired" type="Boolean" default="false" />    
+    <aura:attribute name="isSectionValid" type="Boolean" default="false" />           
+    <aura:attribute name="validateCallSection" type="Boolean" default="false" />
+    <aura:attribute name="isWithUnsaved" type="Boolean" default="false" />    
+    <aura:attribute name="isAllowSave" type="Boolean" default="true" />      
+    <aura:attribute name="isWithCalls" type="Boolean" default="false" />      
+    
+    <aura:attribute name="renderTradeTcr" type="Boolean" default="false" />
+    <aura:attribute name="showSubmitConfirm" type="Boolean" default="false" />
+    <aura:attribute name="showUnsaveConfirm" type="Boolean" default="false" />
+    <aura:attribute name="isDraft" type="Boolean" default="true" /> 
+    
+    <aura:attribute name="toastMessage" type="String" default="" />
+    <aura:attribute name="errorMessage" type="String" default="" />
+    <aura:attribute name="showNotifToast" type="Boolean" default="false" />
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    
+    <aura:attribute name="legendSectionThree" type="Boolean" default="false"/>
+    <aura:attribute name="legendSectionFour" type="Boolean" default="false"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    
+    <!-- <aura:attribute name="meetingTCRActiveSections" type="List" default="['A', 'B']" />
+    <aura:attribute name="subAuditTCRActiveSections" type="List" default="['A', 'B', 'C']" /> -->
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />  
+    
+    <ltng:require styles="{! $Resource.disableRefresh }" />
+    
+    
+    <div id="errormessage" class="slds container" aura:id="containerDiv">
+        <aura:if isTrue="{!v.showErrorMessage}">
+            <div  class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <h2>{!v.errorMessage}</h2>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.showNotifToast}">
+            
+            <lightning:layout horizontalAlign="spread" >
+                
+                <lightning:layoutItem  flexibility="auto" size="12" smallDeviceSize = "4" mediumDeviceSize="12" largeDeviceSize="12" >
+                    <div  class=" slds-notify slds-theme_success slds-align_absolute-center" role="alert" style="padding:10px;">
+                        <span class="slds-assistive-text">success</span>
+                        <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                            <lightning:icon variant="inverse"  size="small" iconName="utility:success" alternativeText="Success" />                        
+                        </span>
+                        <div class="slds-notify__content">
+                            <h2 class="slds-text-heading_small ">{!v.toastMessage}</h2>
+                        </div>                    
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>  
+        </aura:if>
+        
+        <aura:if isTrue="{! v.tcr != null}" >
+            <div id="tcrForm" style="height: 100%; margin: 0; overflow:auto;">
+                <aura:if isTrue="{!v.spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container">
+                        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </aura:if>
+                
+                <div style="height: 100%; display: flex; flex-direction: column;">
+                    <!-- PAGE HEADER -->
+                    <div class="slds-page-header" style="background-color: white;">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <span class="slds-avatar slds-avatar_large">
+                                    <img src="{! $Resource.tcricon2 }" />
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <h1 class="slds-page-header__title slds-truncate slds-align-middle slds-p-bottom_xx-small">
+                                    Welcome, 
+                                    <strong>
+                                        {! v.tcr.DFS__c == null  ? v.tcr.Team_Leader_Trainer__r.Name : v.tcr.CDS_Trainee__r.Name }
+                                    </strong>
+                                </h1>
+                                <p class="slds-text-body_small slds-line-height_reset slds-p-bottom_xx-small">
+                                    {! v.isDraft ? 'Creating TCR for: ' : 'Created TCR for: '}
+                                    <strong>{! v.tcr.DFS__c == null  ? v.tcr.CDS_Trainee__r.Name : v.tcr.DFS__r.Name }</strong>
+                                </p>
+                                <p class="slds-text-body_small slds-line-height_reset slds-p-bottom_xx-small">
+                                    TCR Type:
+                                    <strong>
+                                        {! v.tcr.RecordType.Name }
+                                    </strong>
+                                </p>
+                                <p class="slds-text-body_small slds-line-height_reset slds-p-bottom_xx-small">
+                                    TCR Status:
+                                    <strong>
+                                        {! v.tcr.Status__c }<br/>                                        
+                                    </strong>
+                                </p>
+                                <p class="slds-text-body_small slds-line-height_reset">
+                                    
+                                </p>
+                            </div>
+                        </div>                
+                    </div>
+                    <div class="slds-p-bottom_x-small" />
+                    
+                    <!-- TCR MAIN COMPONENT -->
+                    
+                    <article class="slds-card slds-scrollable_y" style="height: 100%;">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <!-- LIGHTNING PROGRESS INDICATOR -->
+                            <lightning:layout multipleRows="true" verticalAlign="stretch">
+                                <lightning:layoutItem size="12" flexibility="auto, grow" padding="around-small">
+                                    <lightning:progressIndicator currentStep="{! v.currentStep }" type="base" variant="base">
+                                        <lightning:progressStep label="Home" value="1" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Basics" value="2" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 1" value="3" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 2A" value="4" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 2B" value="5" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 2C" value="6" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 3" value="7" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 4" value="8" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Section 5" value="9" onclick="{! c.goToSection }" />
+                                        <lightning:progressStep label="Summary" value="10" onclick="{! c.goToSection }" />
+                                    </lightning:progressIndicator>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <div class="slds-p-top_medium" />
+                            
+                            <!-- WELCOME SCREEN -->
+                            <div class="{! v.currentStep == '1' ? 'slds-show' : 'slds-hide' }">
+                                <img src = "{! $Resource.unilablogocircle }" class="slds-align_absolute-center" />
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 2rem;">
+                                    {! $Label.c.TCR_Title }
+                                </h1>
+                                <aura:if isTrue="{! v.isDraft}">
+                                    <p class="slds-text-align_center" style="color: blue;">
+                                        {! $Label.c.TCR_Intro_Subtitle_1 }
+                                    </p>
+                                    
+                                    <p class="slds-text-align_center slds-p-bottom_small" style="color: blue;">
+                                        {! $Label.c.TCR_Intro_Subtitle_2 }
+                                    </p>
+                                </aura:if>
+                                <div class="slds-align_absolute-center">
+                                    <lightning:button variant="brand" label="{! v.isDraft ?$Label.c.TCR_Button_Begin  : $Label.c.TCR_Button_Next}" 
+                                                      title="Begin"
+                                                      onclick="{! c.handleBegin }"  />
+                                </div>
+                            </div>
+                            <!-- END WELCOME SCREEN -->
+                            
+                            <!-- BASIC INFORMATION -->
+                            <div class="{! v.currentStep == '2' ? 'slds-show' : 'slds-hide' }">
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Basic_Information }
+                                </h1>
+                                <lightning:layout multipleRows="true">
+                                    <aura:if isTrue="{! v.tcr.Team_Leader_Trainer__c != null }">
+                                        <lightning:layoutItem class="slds-p-bottom_small" size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <lightning:input aura:id="team_leader_trainer__c" name="tl" value="{! v.tcr.Team_Leader_Trainer__r.Name}" class="slds-p-bottom_small" disabled="true"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                    <lightning:layoutItem class="slds-p-bottom_small" size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <lightning:input aura:id="cds_trainee__c" name="cds" value="{! v.tcr.CDS_Trainee__r.Name}" class="slds-p-bottom_small" disabled="true"/>
+                                    </lightning:layoutItem>
+                                    <aura:if isTrue="{! v.tcr.DFS__c != null}">
+                                        <lightning:layoutItem class="slds-p-bottom_small" size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <lightning:input aura:id="dfs__c" name="tl" value="{! v.tcr.DFS__r.Name}" class="slds-p-bottom_small" disabled="true"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                    <lightning:layoutItem class="slds-p-bottom_small" size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                        <lightning:input aura:id="date__c" name="date" value="{! v.tcr.Date__c}" class="slds-p-bottom_small" disabled="true"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem class="slds-p-bottom_small" size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                        <lightning:input aura:id="area__c" name="area" label="Area:" value="{! v.tcr.Area__c}" class="slds-p-bottom_small" disabled="{! v.isDisabled}" 
+                                                         onchange="{! c.handleChangeValue}"/> 
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                            <!-- END BASIC INFORMATION -->
+                            
+                            <!-- SECTION 1: PLANNING -->
+                            <div class="{! v.currentStep == '3' ? 'slds-show' : 'slds-hide' }">
+                                
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_1 }
+                                </h1>
+                                <h2 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large">
+                                    {! $Label.c.TCR_Planning_Subtitle }
+                                </h2>
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                          mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }" 
+                                                          largeDeviceSize="6">
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="sales_target__c" name="salesTarget"
+                                                              value="{! v.tcr.Sales_Target__c }"
+                                                              disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="sales_target_notes__c" name="salesTargetNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.Sales_Target_Notes__c }"
+                                                            disabled="{! v.isDisabled }"  onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="st_to_date_performance__c" name="salesTargetToDatePerformance"
+                                                              value="{! v.tcr.ST_To_Date_Performance__c }"
+                                                              disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="st_to_date_performance_notes__c" name="stToDatePerformanceNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.ST_To_Date_Performance_Notes__c}"
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="st_to_date_per_performance__c" name="salesTargetToDatePerPerformance"
+                                                              value="{! v.tcr.ST_To_Date_Per_Performance__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="st_to_date_per_performance_notes__c" name="stToDatePerPerformanceNotes"
+                                                            placeholder="" maxlength="255" 
+                                                            value="{! v.tcr.ST_To_Date_Per_Performance_Notes__c}"
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="availability_rps_target_prep__c" name="rpsTarget"
+                                                              value="{! v.tcr.Availability_RPS_Target_Prep__c }"
+                                                              disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="availability_rps_target_prep_notes__c" name="availrpstargetnotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.Availability_RPS_Target_Prep_Notes__c }"
+                                                            disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="presence_visibility_standards__c" name="visibilityStandards"
+                                                              value="{! v.tcr.Presence_Visibility_Standards__c }"
+                                                              disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="presence_visibility_standards_notes__c" name="visibilityStandardsNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.Presence_Visibility_Standards_Notes__c }"
+                                                            disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                          mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                          largeDeviceSize="6">
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="collection_target__c" name="collection_target__c"
+                                                              value="{! v.tcr.Collection_Target__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="collection_target_notes__c" name="collectionTargetNotes"
+                                                            placeholder="" maxlength="255" 
+                                                            value="{! v.tcr.Collection_Target_Notes__c}" 
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="ct_to_date_performance__c" name="colTargetToDatePerformance"
+                                                              value="{! v.tcr.CT_To_Date_Performance__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="ct_to_date_performance_notes__c" name="ctToDatePerformanceNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.CT_To_Date_Performance_Notes__c}"
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/> 
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="ct_to_date_per_performance__c" name="colTargetToDatePerPerformance"
+                                                              value="{! v.tcr.CT_To_Date_Per_Performance__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="ct_to_date_per_performance_notes__c" name="ctToDatePerPerformanceNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.CT_To_Date_Per_Performance_Notes__c}" 
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="npd_saturation_prep__c" name="npdPrep"
+                                                              value="{! v.tcr.NPD_Saturation_Prep__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>    
+                                        <lightning:textarea aura:id="npd_saturation_prep_notes__c" name="npdPrepNotes" placeholder="" maxlength="255" 
+                                                            value="{! v.tcr.NPD_Saturation_Prep_Notes__c}" disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:radioGroup class="customRadioLabel" aura:id="channel_initiatives_prep__c" name="channelInitiativePrep"
+                                                              value="{! v.tcr.Channel_Initiatives_Prep__c}"
+                                                              disabled="{! v.isDisabled}" type="button" onchange="{! c.handleChangeValue}"/>    
+                                        <lightning:textarea aura:id="channel_initiatives_prep_notes__c" name="channelInitiativePrepNotes"
+                                                            placeholder="" maxlength="255"
+                                                            value="{! v.tcr.Channel_Initiatives_Prep_Notes__c}"
+                                                            disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 1: PLANNING -->
+                            
+                            <!-- SECTION 2A: SALES TOOLS -->
+                            <div class="{! v.currentStep == '4' ? 'slds-show' : 'slds-hide' }">
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_2A }
+                                </h1>
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <!-- ACCOUNT AND T3 TCR -->                                  
+                                    <aura:if isTrue="{! or(v.tcr.RecordType.Name == v.accountTcr, v.tcr.RecordType.Name == v.t3Tcr) }">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="sfa_tablet__c" name="sfa_tablet" type="button"
+                                                                  disabled="{! v.isDisabled }" value="{! v.tcr.SFA_Tablet__c }"
+                                                                  class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>
+                                            <aura:if isTrue="{! v.tcr.RecordType.Name == v.t3Tcr }">
+                                                <lightning:radioGroup aura:id="check_pjp_dfs_cdr_wfar__c" name="Check_workplan"
+                                                                      value="{! v.tcr.Check_PJP_DFS_CDR_WFAR__c }"
+                                                                      disabled="{! v.isDisabled }" type="button"
+                                                                      class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>                              
+                                                <aura:set attribute="else">
+                                                    <lightning:radioGroup aura:id="check_workplan_cds_coverage__c" name="Check_workplan"
+                                                                          value="{! v.tcr.Check_Workplan_CDS_Coverage__c }"
+                                                                          disabled="{! v.isDisabled }" type="button"
+                                                                          class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>
+                                                </aura:set>
+                                            </aura:if>
+                                            <lightning:radioGroup class="customRadioLabel" aura:id="review_route_plan__c" name="Review route plan"
+                                                                  value="{! v.tcr.Review_Route_Plan__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="top_psf__c" name="top"
+                                                                  value="{! v.tcr.TOP_PSF__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="ics_availability_check__c" name="ics" 
+                                                                  value="{! v.tcr.ICS_Availability_Check__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="official_receipt_collection_documents__c" name="or"
+                                                                  value="{! v.tcr.Official_Receipt_Collection_documents__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                    <!-- SUBD AUDIT TCR -->
+                                    <aura:if isTrue="{! v.tcr.RecordType.Name == v.subdAuditTcr}">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                
+                                            <lightning:radioGroup aura:id="sfa_tablet__c" name="sfa_tablet"
+                                                                  type="button" disabled="{! v.isDisabled }"
+                                                                  value="{! v.tcr.SFA_Tablet__c }"
+                                                                  class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>                                 
+                                            <lightning:radioGroup aura:id="check_workplan_cds_coverage__c" name="Check_workplan"
+                                                                  value="{! v.tcr.Check_Workplan_CDS_Coverage__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>                                                                    
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="review_route_plan__c" name="Review route plan"
+                                                                  value="{! v.tcr.Review_Route_Plan__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel slds-m-bottom_small" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="official_receipt_collection_documents__c" name="or"
+                                                                  value="{! v.tcr.Official_Receipt_Collection_documents__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                    <!-- MEETING TCR -->
+                                    <aura:if isTrue="{! v.tcr.RecordType.Name == v.meetingTcr}">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                                                                            
+                                            <lightning:radioGroup aura:id="check_workplan_cds_coverage__c" name="Check_workplan"
+                                                                  value="{! v.tcr.Check_Workplan_CDS_Coverage__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>    
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="review_route_plan__c" name="Review route plan"
+                                                                  value="{! v.tcr.Review_Route_Plan__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 2A: SALES TOOLS -->
+                            
+                            <!-- SECTION 2B: TRAINING CONTACT OBJECTIVES -->                    
+                            <div class="{! v.currentStep == '5' ? 'slds-show' : 'slds-hide' }">
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_2B }
+                                </h1>
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <lightning:layoutItem size="12" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <h5 class="slds-page-header__title reset-margin slds-m-bottom_small">
+                                            {! $Label.c.TCR_Objective_Header }
+                                        </h5>
+                                        <lightning:textarea aura:id="objective__c"  name="objective" value="{! v.tcr.Objective__c }" 
+                                                            placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}" maxlength="5000" />
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <!-- ACCOUNT AND T3 TCR -->
+                                    <aura:if isTrue="{! or(v.tcr.RecordType.Name == v.accountTcr, v.tcr.RecordType.Name == v.t3Tcr) }">
+                                        <lightning:layoutItem size="12" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <h5 class="slds-page-header__title reset-margin slds-m-bottom_small">
+                                                {! $Label.c.TCR_Business_Objective_Header }
+                                            </h5>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="sales_target_kra__c" name="kraSalesTarget" 
+                                                                  value="{! v.tcr.Sales_Target_KRA__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>  
+                                            <lightning:textArea aura:id="sales_target_kra_notes__c" name="salestargetkranotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.Sales_Target_KRA_Notes__c }"
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="availability_rps_core__c" name="kraAvailability"
+                                                                  value="{! v.tcr.Availability_RPS_Core__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:textarea aura:id="availability_rps_core_notes__c" name="availrpstargetkranotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.Availability_RPS_Core_Notes__c }"
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="npd_saturation_kra__c" name="kraNPD"
+                                                                  value="{! v.tcr.NPD_Saturation_KRA__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>  
+                                            <lightning:textarea aura:id="npd_saturation_kra_notes__c" name="kraNPDNotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.NPD_Saturation_KRA_Notes__c }"
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>                                                
+                                            <lightning:radioGroup aura:id="presence_visibility_stockweights__c" name="kraPresence"
+                                                                  value="{! v.tcr.Presence_Visibility_Stockweights__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:textarea aura:id="presence_visibility_stockweights_notes__c" name="kraPresenceNotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.Presence_Visibility_Stockweights_Notes__c }"
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">                                           
+                                            <lightning:radioGroup aura:id="collection_target_kra__c" name="kraCollectionTarget"
+                                                                  value="{! v.tcr.Collection_Target_KRA__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/> 
+                                            <lightning:textarea aura:id="collection_target_kra_notes__c" name="collectiontargetkranotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.Collection_Target_KRA_Notes__c }" disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="channel_initiatives_kra__c" name="kraChannelInitiatives"
+                                                                  value="{! v.tcr.Channel_Initiatives_KRA__c }"
+                                                                  disabled="{! v.isDisabled}" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:textarea aura:id="channel_initiatives_kra_notes__c" name="kraChannelInitiativesNotes" placeholder="" maxlength="255" 
+                                                                value="{! v.tcr.Channel_Initiatives_KRA_Notes__c }" disabled="{! v.isDisabled}" onchange="{! c.handleChangeValue}"/>                        
+                                            <lightning:radioGroup aura:id="tpa_mgt__c" name="kraTPA"
+                                                                  value="{! v.tcr.TPA_Mgt__c }"
+                                                                  disabled="{! v.isDisabled}" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:textarea aura:id="tpa_mgt_notes__c" name="kraTPANotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.TPA_Mgt_Notes__c}" 
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id="conduct_brs_tgt_acct__c" name="kraConductBRs"
+                                                                  value="{! v.tcr.Conduct_BRs_TGT_ACCT__c }"
+                                                                  disabled="{! v.isDisabled}" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:textarea aura:id="conduct_brs_tgt_acct_notes__c" name="kraConductBRsNotes"
+                                                                placeholder="" maxlength="255"
+                                                                value="{! v.tcr.Conduct_BRs_TGT_ACCT_Notes__c}" 
+                                                                disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>  
+                                    </aura:if>
+                                    <!-- MEETING TCR -->
+                                    <aura:if isTrue="{!v.tcr.RecordType.Name == v.meetingTcr}">
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="ensure_meeting_details__c" name="kraMeetingDetails"
+                                                                  value="{! v.tcr.Ensure_Meeting_Details__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="agenda_presentation_materials_prep__c" name="kraAgendaPrep"                                                                                          
+                                                                  value="{! v.tcr.Agenda_Presentation_Materials_Prep__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="evaluate_mom__c" name="kraMOM"
+                                                                  value="{! v.tcr.Evaluate_MOM__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                    <!--SUBD AUDIT TCR -->
+                                    <aura:if isTrue="{!v.tcr.RecordType.Name == v.subdAuditTcr}">
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="review_contract_management_documents__c" name="kraContractMngmt"
+                                                                  value="{! v.tcr.Review_Contract_Management_Documents__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="horizontal-large" size="12" smallDeviceSize="12" 
+                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                              largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id="evaluate_past_backroom_process_report__c" name="kraPastBackroom"
+                                                                  value="{! v.tcr.Evaluate_Past_Backroom_Process_Report__c }"
+                                                                  disabled="{! v.isDisabled }" type="button"
+                                                                  class="customRadioLabel" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 2B: TRAINING CONTACT OBJECTIVES -->
+                            
+                            <!-- SECTION 2C: DEVELOPMENTAL OBJECTIVES -->
+                            <div class="{! v.currentStep == '6' ? 'slds-show' : 'slds-hide' }">                          
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_2C }
+                                </h1>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">                                      
+                                        <lightning:textarea aura:id="skill_1__c" name="skill1" maxlength="255" 
+                                                            value="{! v.tcr.Skill_1__c }"
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>                                
+                                        <lightning:textarea aura:id="specific_skill_development_1__c" name="ssd1" maxlength="255" 
+                                                            value="{! v.tcr.Specific_Skill_Development_1__c }" 
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="skill_remarks_1__c" name="remarks1" maxlength="255" 
+                                                            value="{! v.tcr.Skill_Remarks_1__c }" 
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <lightning:textarea aura:id="skill_2__c" name="skill2" maxlength="255" 
+                                                            value="{! v.tcr.Skill_2__c }" 
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="specific_skill_development_2__c" name="ssd2" maxlength="255" 
+                                                            value="{! v.tcr.Specific_Skill_Development_2__c }" 
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="skill_remarks_2__c" name="remarks2" maxlength="255" 
+                                                            value="{! v.tcr.Skill_Remarks_2__c }"
+                                                            disabled="{! or(v.tcr.isWithPreviousTcr__c, !v.isDraft) }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>                                   
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 2C: DEVELOPMENTAL OBJECTIVES -->
+                            
+                            <!-- SECTION 3: TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS -->
+                            <div class="{! v.currentStep == '7' ? 'slds-show' : 'slds-hide' }">
+                                
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        
+                                        <aura:if isTrue="{! $Browser.formFactor == 'PHONE' }">
+                                            <div class="slds-align_absolute-center">
+                                                <lightning:button label="Rating Definition" variant="brand" title="Rating Definition" onclick="{! c.displayLegendSectionThree }" />
+                                            </div>
+                                            <aura:set attribute="else">
+                                                <div style="float: right;">
+                                                    <lightning:button label="Rating Definition" variant="brand" title="Rating Definition" onclick="{! c.displayLegendSectionThree }" />
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        
+                                        <div class="slds-p-bottom_small" />
+                                        
+                                        <aura:if isTrue="{! v.legendSectionThree }">
+                                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                                <div class="slds-modal__container">
+                                                    <header class="slds-modal__header">
+                                                        <lightning:buttonIcon iconName="utility:close"
+                                                                              onclick="{! c.closeLegendSectionThree }"
+                                                                              alternativeText="close"
+                                                                              variant="bare-inverse"
+                                                                              class="slds-modal__close"/>
+                                                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">
+                                                            <strong>
+                                                                Rating Definition
+                                                            </strong>
+                                                        </h2>
+                                                    </header>
+                                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                        <p>
+                                                            <strong>
+                                                                3
+                                                            </strong>
+                                                            = Superior execution, consistent in every call
+                                                        </p>
+                                                        <p>
+                                                            <strong>
+                                                                2
+                                                            </strong>
+                                                            = Satisfactory execution, standards applied to 80% of the calls
+                                                        </p>
+                                                        <p>
+                                                            <strong>
+                                                                1
+                                                            </strong>
+                                                            = Not Satisfactory execution, standards applied below 80% of call
+                                                        </p>
+                                                        <p>
+                                                            <strong>
+                                                                0
+                                                            </strong>
+                                                            = No actions at all
+                                                        </p>
+                                                        <p>
+                                                            <strong>
+                                                                N/A
+                                                            </strong>
+                                                            = Not Applicable to type of activity for the day
+                                                        </p>
+                                                    </div>
+                                                    <footer class="slds-modal__footer">
+                                                        <lightning:button variant="brand" 
+                                                                          label="Close"
+                                                                          title="Close"
+                                                                          onclick="{! c.closeLegendSectionThree }"/>
+                                                    </footer>
+                                                </div>
+                                            </section>
+                                            <div class="slds-backdrop slds-backdrop_open"></div>
+                                        </aura:if>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_3 }
+                                </h1>
+                                <!-- ACCOUNT TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS) -->                                 
+                                <aura:if isTrue="{! and(v.renderTradeTcr,v.currentStep == '7',v.isWithCalls)}"> 
+                                    <c:UNILAB_LEX_TCR_Call callFieldLabels="{! v.tcrCallFieldInfoMap }"
+                                                           tcr="{! v.tcr }" tcrCalls="{! v.tcrCalls }" isSectionValid="{! v.isSectionValid}"
+                                                           isRequired="{! v.isRequired}" validateCallSection="{! v.validateCallSection}"
+                                                           requiredFields="{! v.tcrCallRequiredFields}" 
+                                                           isWithUnsaved="{! v.isWithUnsaved}"  isDisabled="{# v.isDisabled}" 
+                                                           accountTcr = "{! v.accountTcr}" t3Tcr="{! v.t3Tcr}" 
+                                                           toastMessage = "{! v.toastMessage}"  showNotifToast = "{! v.showNotifToast}"
+                                                           errorMessage = "{! v.errorMessage}"  showErrorMessage = "{! v.showErrorMessage}" />
+                                </aura:if>
+                                <!--MEETING TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS)  -->
+                                <aura:if isTrue="{! v.tcr.RecordType.Name == v.meetingTcr}">
+                                    <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <lightning:accordion activeSectionName="A">
+                                                <lightning:accordionSection label="{! $Label.c.TCRPreparation_Label }" name="A">
+                                                    <aura:set attribute="body">
+                                                        <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="meeting_invites_ensure_attendance__c" name="meetingInvintes"
+                                                                                      value="{! v.tcr.Meeting_invites_ensure_attendance__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="agenda_presentation_materials_assess__c" name="agendaPresentAssess"
+                                                                                      value="{! v.tcr.Agenda_Presentation_Materials_Assess__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="venue_logistics_preps__c" name="venueLogistics"
+                                                                                      value="{! v.tcr.Venue_Logistics_Preps__c}" 
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </aura:set>
+                                                </lightning:accordionSection>
+                                                <lightning:accordionSection label="{! $Label.c.TCR_Facilitation_Label }" name="B">
+                                                    <aura:set attribute="body">
+                                                        <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="review_meeting_agreement__c" name="reviewMeetingAgreement"
+                                                                                      value="{! v.tcr.Review_Meeting_Agreement__c }" 
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="execute_presentation_principles_ice__c" name="executePresIce"
+                                                                                      value="{! v.tcr.Execute_Presentation_Principles_ICE__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="facilitate_discussion__c" name="facilitateDiscussion"
+                                                                                      value="{! v.tcr.Facilitate_Discussion__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="facilitate_workshop__c" name="facilitateWorkshop"
+                                                                                      value="{! v.tcr.Facilitate_Workshop__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="secure_agreements_commitments__c" name="secAgreeCommit"
+                                                                                      value="{! v.tcr.Secure_Agreements_Commitments__c }" 
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="clarify_next_steps__c" name="clarifyNextSteps"
+                                                                                      value="{! v.tcr.Clarify_Next_Steps__c }" 
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="established_moms_send__c" name="establishMOM"
+                                                                                      value="{! v.tcr.Established_MOMs_send__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </aura:set>
+                                                </lightning:accordionSection>
+                                            </lightning:accordion>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                    <!--<lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <h5 class="slds-page-header__title reset-margin">
+                                                {! $Label.c.TCRPreparation_Label }
+                                            </h5>                  
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id ="meeting_invites_ensure_attendance__c" name="meetingInvintes"
+                                                                  value="{! v.tcr.Meeting_invites_ensure_attendance__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>      
+                                            <lightning:radioGroup aura:id ="agenda_presentation_materials_assess__c" name="agendaPresentAssess"
+                                                                  value="{! v.tcr.Agenda_Presentation_Materials_Assess__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>   
+                                            <lightning:radioGroup aura:id ="venue_logistics_preps__c" name="venueLogistics"
+                                                                  value="{! v.tcr.Venue_Logistics_Preps__c}" 
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>   
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <h5 class="slds-page-header__title reset-margin">
+                                                {! $Label.c.TCR_Facilitation_Label }
+                                            </h5>                  
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                            <lightning:radioGroup aura:id ="review_meeting_agreement__c" name="reviewMeetingAgreement"
+                                                                  value="{! v.tcr.Review_Meeting_Agreement__c }" 
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="execute_presentation_principles_ice__c" name="executePresIce"
+                                                                  value="{! v.tcr.Execute_Presentation_Principles_ICE__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="facilitate_discussion__c" name="facilitateDiscussion"
+                                                                  value="{! v.tcr.Facilitate_Discussion__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="facilitate_workshop__c" name="facilitateWorkshop"
+                                                                  value="{! v.tcr.Facilitate_Workshop__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="secure_agreements_commitments__c" name="secAgreeCommit"
+                                                                  value="{! v.tcr.Secure_Agreements_Commitments__c }" 
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="clarify_next_steps__c" name="clarifyNextSteps"
+                                                                  value="{! v.tcr.Clarify_Next_Steps__c }" 
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="established_moms_send__c" name="establishMOM"
+                                                                  value="{! v.tcr.Established_MOMs_send__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>                    
+                                    </lightning:layout>-->                           
+                                </aura:if>
+                                <!-- SUBD AUDIT TCR (TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS)-->
+                                <aura:if isTrue="{! v.tcr.RecordType.Name == v.subdAuditTcr}">
+                                    <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                        <lightning:layoutItem size="12" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <h5 class="slds-page-header__title reset-margin slds-m-bottom_small"
+                                                style="font-size: 1.125rem;">
+                                                {! $Label.c.TCR_SUBD_Assessment_Header }
+                                            </h5>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                    <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <lightning:accordion activeSectionName="A">
+                                                <lightning:accordionSection label="{! $Label.c.TCR_SUBD_Contract_Management }" name="A">
+                                                    <aura:set attribute="body">
+                                                        <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="bank_guarantee__c" name="bankGuarantee"
+                                                                                      value="{! v.tcr.Bank_Guarantee__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                                  mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                                  largeDeviceSize="6">
+                                                                <lightning:radioGroup class="customRadioLabel"
+                                                                                      aura:id ="financials_compliance__c" name="finCompliance"
+                                                                                      value="{! v.tcr.Financials_Compliance__c }"
+                                                                                      disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </aura:set>
+                                                </lightning:accordionSection> 
+                                                <lightning:accordionSection label="{! $Label.c.TCR_SUBD_Sales_Backroom_AUDIT }" name="B">
+                                                    <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="workplan_wfar__c" name="workplanWfar"
+                                                                                  value="{! v.tcr.Workplan_WFAR__c }" 
+                                                                                  disabled="{! v.isDisabled }"
+                                                                                  type="button" onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="cdr_dfar__c" name="cdrDfar"
+                                                                                  value="{! v.tcr.CDR_DFAR__c }"
+                                                                                  disabled="{! v.isDisabled }"
+                                                                                  type="button" onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="pjp__c" name="pjp"
+                                                                                  value="{! v.tcr.PJP__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="ics__c" name="ics"
+                                                                                  value="{! v.tcr.ICS__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="tcr_cds__c" name="tcrCds"
+                                                                                  value="{! v.tcr.TCR_CDS__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="cdr_evaluation_dfs__c" name="cdsEvalDfs"
+                                                                                  value="{! v.tcr.CDR_Evaluation_DFS__c }" 
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="training_log__c" name="trainingLog"
+                                                                                  value="{! v.tcr.Training_Log__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="seller_s_performance_board__c" name="sellersPerfomanceBoard"
+                                                                                  value="{! v.tcr.Seller_s_Performance_Board__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="bcp_application__c" name="bcpApplication"
+                                                                                  value="{! v.tcr.BCP_Application__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                    </lightning:layout>
+                                                </lightning:accordionSection>
+                                                <lightning:accordionSection label="{! $Label.c.TCR_SUBD_Backroom_Standards }" name="C">
+                                                    <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="housekeeping__c" name="housekeeping"
+                                                                                  value="{! v.tcr.Housekeeping__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="ira__c" name="ira"
+                                                                                  value="{! v.tcr.IRA__c }"
+                                                                                  disabled="{! v.isDisabled }" type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="fillrate__c" name="fillrate"
+                                                                                  value="{! v.tcr.Fillrate__c }"
+                                                                                  disabled="{! v.isDisabled }"
+                                                                                  type="button" 
+                                                                                  onchange="{! c.handleChangeValue}"/>
+                                                        </lightning:layoutItem>
+                                                        <lightning:layoutItem size="12" padding="around-small" smallDeviceSize="12" 
+                                                                              mediumDeviceSize="{! $Browser.formFactor == 'DESKTOP' ? '12' : '6' }"
+                                                                              largeDeviceSize="6">
+                                                            <lightning:radioGroup class="customRadioLabel"
+                                                                                  aura:id ="returns__c" name="returns"
+                                                                                  value="{! v.tcr.Returns__c }"
+                                                                                  disabled="{! v.isDisabled }"
+                                                                                  type="button" onchange="{! c.handleChangeValue }"/>
+                                                        </lightning:layoutItem>
+                                                    </lightning:layout>
+                                                </lightning:accordionSection>
+                                            </lightning:accordion>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                    <!--<lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                            <h5 class="slds-page-header__title reset-margin">
+                                                {! $Label.c.TCR_SUBD_Assessment_Header }
+                                            </h5> 
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                            <h2 class="slds-page-header__title reset-margin">
+                                                {! $Label.c.TCR_SUBD_Contract_Management }
+                                            </h2> 
+                                            <lightning:radioGroup aura:id ="bank_guarantee__c" name="bankGuarantee"
+                                                                  value="{! v.tcr.Bank_Guarantee__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                            <lightning:radioGroup aura:id ="financials_compliance__c" name="finCompliance"
+                                                                  value="{! v.tcr.Financials_Compliance__c }"
+                                                                  disabled="{! v.isDisabled }" type="button" onchange="{! c.handleChangeValue}"/>
+                                        </lightning:layoutItem>
+                                        <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                            <lightning:layoutItem>
+                                                <h2 class="slds-page-header__title reset-margin">
+                                                    {! $Label.c.TCR_SUBD_Sales_Backroom_AUDIT }
+                                                </h2> 
+                                            </lightning:layoutItem>
+                                            
+                                            <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">                                       
+                                                <lightning:radioGroup aura:id ="workplan_wfar__c" name="workplanWfar"
+                                                                      value="{! v.tcr.Workplan_WFAR__c }" 
+                                                                      disabled="{! v.isDisabled }"
+                                                                      type="button" onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="cdr_dfar__c" name="cdrDfar"
+                                                                      value="{! v.tcr.CDR_DFAR__c }"
+                                                                      disabled="{! v.isDisabled }"
+                                                                      type="button" onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="pjp__c" name="pjp"
+                                                                      value="{! v.tcr.PJP__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>   
+                                                <lightning:radioGroup aura:id ="ics__c" name="ics"
+                                                                      value="{! v.tcr.ICS__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="tcr_cds__c" name="tcrCds"
+                                                                      value="{! v.tcr.TCR_CDS__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>                                          
+                                                <lightning:radioGroup aura:id ="cdr_evaluation_dfs__c" name="cdsEvalDfs"
+                                                                      value="{! v.tcr.CDR_Evaluation_DFS__c }" 
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="training_log__c" name="trainingLog"
+                                                                      value="{! v.tcr.Training_Log__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="seller_s_performance_board__c" name="sellersPerfomanceBoard"
+                                                                      value="{! v.tcr.Seller_s_Performance_Board__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="bcp_application__c" name="bcpApplication"
+                                                                      value="{! v.tcr.BCP_Application__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                            </lightning:layoutItem>
+                                            
+                                        </lightning:layout>
+                                        <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                            <lightning:layoutItem>
+                                                <h2 class="slds-page-header__title reset-margin">
+                                                    {! $Label.c.TCR_SUBD_Backroom_Standards}
+                                                </h2>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                                
+                                                <lightning:radioGroup aura:id ="housekeeping__c" name="housekeeping"
+                                                                      value="{! v.tcr.Housekeeping__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="ira_c" name="ira"
+                                                                      value="{! v.tcr.IRA__c }"
+                                                                      disabled="{! v.isDisabled }" type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="fillrate__c" name="fillrate"
+                                                                      value="{! v.tcr.Fillrate__c }"
+                                                                      disabled="{! v.isDisabled }"
+                                                                      type="button" 
+                                                                      onchange="{! c.handleChangeValue}"/>
+                                                <lightning:radioGroup aura:id ="returns__c" name="returns"
+                                                                      value="{! v.tcr.Returns__c }"
+                                                                      disabled="{! v.isDisabled }"
+                                                                      type="button" onchange="{! c.handleChangeValue}"/>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </lightning:layout>-->
+                                </aura:if>
+                                <lightning:layout class="slds-p-top_small" multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <h1 class="slds-page-header__title reset-margin"
+                                            style="font-size: 1.125rem;">
+                                            
+                                        </h1>
+                                        <lightning:textarea aura:id="tl_notes__c" maxlength="5000"  placeholder="" value="{! v.tcr.TL_Notes__c}" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}" />
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 3: TL'S ASSESSMENT IN FIELD WORK/ENGAGEMENTS -->
+                            
+                            <!-- SECTION 4: TL'S CLOSING - TRAINING SUMMARY (MEMO) -->
+                            <div class="{! v.currentStep == '8' ? 'slds-show' : 'slds-hide' }">
+                                
+                                <lightning:layout class="slds-p-bottom_small" multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <aura:if isTrue="{! $Browser.formFactor == 'PHONE' }">
+                                            <div class="slds-align_absolute-center">
+                                                <lightning:button label="Competency Definition" variant="brand" title="Competency Definition" onclick="{! c.displayLegendSectionFour }" />
+                                            </div>
+                                            <aura:set attribute="else">
+                                                <div style="float: right;">
+                                                    <lightning:button label="Competency Definition" variant="brand" title="Competency Definition" onclick="{! c.displayLegendSectionFour }" />
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        
+                                        <div class="slds-p-bottom_small" />
+                                        
+                                        <aura:if isTrue="{! v.legendSectionFour }">
+                                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                                <div class="slds-modal__container">
+                                                    <header class="slds-modal__header">
+                                                        <lightning:buttonIcon iconName="utility:close"
+                                                                              onclick="{! c.closeLegendSectionFour }"
+                                                                              alternativeText="close"
+                                                                              variant="bare-inverse"
+                                                                              class="slds-modal__close"/>
+                                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                                            <strong>
+                                                                Competency Definition
+                                                            </strong>
+                                                        </h2>
+                                                    </header>
+                                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                                        <p>
+                                                            <strong>Strategic Business Management</strong>
+                                                        </p>
+                                                        <p>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>
+                                                                    Objective Setting (Month, Week, Day, Call). Developing scorecard-tracking &amp; analyze
+                                                                </li>
+                                                                <li>
+                                                                    Setting stretch objectives, with clear assumptions
+                                                                </li>
+                                                                <li>
+                                                                    Business analysis &amp; planning for execution and monitoring
+                                                                </li>
+                                                            </ul>
+                                                        </p>
+                                                        <p>
+                                                            <strong>Conceptual Selling</strong>
+                                                        </p>
+                                                        <p>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>
+                                                                    Developing &amp; executing PSF presentation (5 steps)
+                                                                </li>
+                                                                <li>
+                                                                    Handling objections, Communication techniques with listening
+                                                                </li>
+                                                                <li>
+                                                                    Closing techniques, selling fundamentals (availability, customer service level)
+                                                                </li>
+                                                            </ul>
+                                                        </p>
+                                                        <p>
+                                                            <strong>Strategic Customer &amp; Partner Management</strong>
+                                                        </p>
+                                                        <p>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>
+                                                                    Understanding customer needs, directions, and measures
+                                                                </li>
+                                                                <li>
+                                                                    Account profile sheet, Account penetration, knowledge of decision makers
+                                                                </li>
+                                                            </ul>
+                                                        </p>
+                                                        <p>
+                                                            <strong>Leadership</strong>
+                                                        </p>
+                                                        <p>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>
+                                                                    Dealing with top customer KDMs/KOLs  (VPs to head buyers)
+                                                                </li>
+                                                                <li>
+                                                                    Conducting business reviews and facilitating agreements
+                                                                </li>
+                                                                <li>
+                                                                    Using customer business  development model in identifying opportunities &amp; conducting SWOT
+                                                                </li>
+                                                                <li>
+                                                                    Cross function collaboration (internal &amp; external customers)
+                                                                </li>
+                                                            </ul>
+                                                        </p>
+                                                        <p>
+                                                            <strong>Technical (Sales) Mastery</strong>
+                                                        </p>
+                                                        <p>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>
+                                                                    Management of Daily Work System as a skill - Daily routine (Preps for the day, trade coverage, closing)
+                                                                </li>
+                                                                <li>
+                                                                    Basic Call process per type of call account engagement (HO, Branch)
+                                                                </li>
+                                                                <li>
+                                                                    Coverage planning, meeting operational standards (call &amp; call productivity)
+                                                                </li>
+                                                                <li>
+                                                                    Mastery of Must Do, Standards, Forms, SFA &amp; tools
+                                                                </li>
+                                                            </ul>
+                                                        </p>
+                                                    </div>
+                                                    <footer class="slds-modal__footer">
+                                                        <lightning:button variant="brand" 
+                                                                          label="Close"
+                                                                          title="Close"
+                                                                          onclick="{! c.closeLegendSectionFour }"/>
+                                                    </footer>
+                                                </div>
+                                            </section>
+                                            <div class="slds-backdrop slds-backdrop_open"></div>
+                                        </aura:if>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_4 }
+                                </h1>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <aura:if isTrue="{! $Browser.formFactor == 'DESKTOP' || $Browser.formFactor == 'TABLET'}">
+                                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                                                <thead>
+                                                    <tr class="slds-text-title_caps">
+                                                        <th scope="col" />
+                                                        <th scope="col">
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! $Label.c.TCR_Scorecard_Target_Label }">
+                                                                {! $Label.c.TCR_Scorecard_Target_Label }
+                                                            </div>
+                                                        </th>
+                                                        <th scope="col">
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! $Label.c.TCR_Scorecard_Actual_Label }">
+                                                                {! $Label.c.TCR_Scorecard_Actual_Label }
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <div class="slds-truncate" title="PLANNING">
+                                                                Planning
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Target_Planning__c }">
+                                                                {! v.tcr.Score_Target_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Actual_Planning__c }">
+                                                                {! v.tcr.Score_Actual_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" >
+                                                            <div class="slds-truncate" title="SALES TOOLS">
+                                                                Sales Tools
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Sales_Tools_Target__c }">
+                                                                {! v.tcr.Score_Sales_Tools_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Sales_Tools_Actual__c }">
+                                                                {! v.tcr.Score_Sales_Tools_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" >
+                                                            <div class="slds-truncate" title="Business Objectives">
+                                                                Business Objectives
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Business_Objectives_Target__c }">
+                                                                {! v.tcr.Score_Business_Objectives_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Business_Objectives_Actual__c }">
+                                                                {! v.tcr.Score_Business_Objectives_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </aura:if>
+                                        <aura:if isTrue="{! $Browser.formFactor == 'PHONE' }">
+                                            <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                                <tbody>
+                                                    <tr class="slds-hint-parent">
+                                                        <th data-label="{! $Label.c.TCR_Scorecard_Target_Label }" scope="row" style="font-weight: bold; color: black;" />
+                                                        <td data-label="PLANNING">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Target_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="SALES TOOLS">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Sales_Tools_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Business Objectives">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Business_Objectives_Target__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="slds-hint-parent">
+                                                        <th data-label="{! $Label.c.TCR_Scorecard_Actual_Label }" scope="row" style="font-weight: bold; color: black;" />
+                                                        <td data-label="PLANNING">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Actual_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="SALES TOOLS">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Sales_Tools_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Business Objectives">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Business_Objectives_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </aura:if>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="strengths__c" label="Strengths"  maxlength="255" 
+                                                            value="{! v.tcr.Strengths__c }" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="opportunities__c" label="Opportunities"  maxlength="255" 
+                                                            value="{! v.tcr.Opportunities__c }" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                </lightning:layout>            
+                                <lightning:layout multipleRows="false">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="6" largeDeviceSize="6">
+                                        <strong>Skills to be developed</strong>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <lightning:combobox aura:id="closing_skill_1__c" name="closingSkill1" 
+                                                            value="{! v.tcr.Closing_Skill_1__c }" disabled="{! v.isDisabled  }" onchange="{! c.handleChangeSkillValue}"/>
+                                        <lightning:combobox aura:id="closing_specific_skill_development_1__c" name="cssd1" options="{! v.specificSkillDev1List}"
+                                                            value="{! v.tcr.Closing_Specific_Skill_Development_1__c }" disabled="{! v.isDisabled  }" onchange="{! c.handleChangeValue}"/>
+                                        <lightning:textarea aura:id="closing_skill_remarks_1__c" name="closingSkillRemarks1"  maxlength="255" 
+                                                            value="{! v.tcr.Closing_Skill_Remarks_1__c }" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>                                        
+                                    </lightning:layoutItem>                                    
+                                </lightning:layout>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <lightning:combobox aura:id="closing_skill_2__c"  name="closingSkill2" 
+                                                            value="{! v.tcr.Closing_Skill_2__c }" disabled="{! v.isDisabled }" onchange="{! c.handleChangeSkillValue}"/>
+                                        <lightning:combobox aura:id="closing_specific_skill_development_2__c" name="cssd2" options="{! v.specificSkillDev2List}"
+                                                            value="{! v.tcr.Closing_Specific_Skill_Development_2__c }" disabled="{! v.isDisabled  }" onchange="{! c.handleChangeValue}"/>
+                                         <lightning:textarea aura:id="closing_skill_remarks_2__c"  name="closingSkillRemarks2" maxlength="255" 
+                                                            value="{! v.tcr.Closing_Skill_Remarks_2__c }" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>                                    
+                                </lightning:layout>            
+                                <lightning:layout multipleRows="false">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12">
+                                        <lightning:textarea aura:id="developmental_action_plan__c"  name="actionPlan"  maxlength="5000" 
+                                                            value="{! v.tcr.Developmental_Action_Plan__c }" placeholder=""
+                                                            disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 4: TL'S CLOSING - TRAINING SUMMARY (MEMO) -->
+                            
+                            <!-- SECTION 5: TL'S COMPETENCY JOURNAL (OBSERVABLE CDS BEHAVIOR) -->
+                            <div class="{! v.currentStep == '9' ? 'slds-show' : 'slds-hide' }">
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Section_5 }
+                                </h1>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="care__c" labelVisible="true" variant="bottom-toolbar" maxlength="255" 
+                                                            value="{!v.tcr.Care__c }" placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="grow__c" labelVisible="true" variant="bottom-toolbar" maxlength="255" 
+                                                            value="{!v.tcr.Grow__c }" placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="integrate__c" labelVisible="true" variant="bottom-toolbar" maxlength="255" 
+                                                            value="{!v.tcr.Integrate__c }" placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="execute__c" labelVisible="true" variant="bottom-toolbar" maxlength="255" 
+                                                            value="{!v.tcr.Execute__c }" placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                    
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <lightning:textarea aura:id="transform__c" labelVisible="true" variant="bottom-toolbar" maxlength="255" 
+                                                            value="{!v.tcr.Transform__c }" placeholder="" disabled="{! v.isDisabled }" onchange="{! c.handleChangeValue}"/>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                            <!-- END SECTION 5: TL'S COMPETENCY JOURNAL (OBSERVABLE CDS BEHAVIOR) -->
+                            
+                            <!-- OVERVIEW -->
+                            <div class="{! v.currentStep == '10' ? 'slds-show' : 'slds-hide' }">
+                                <h1 class="slds-page-header__super-title slds-text-align_center slds-p-bottom_x-large"
+                                    style="font-size: 1.25rem;">
+                                    {! $Label.c.TCR_Overview }: {! $Label.c.TCR_Overview_SubTitle }
+                                </h1>
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" padding="horizontal-large" smallDeviceSize="12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-m-bottom_small">
+                                        <aura:if isTrue="{! $Browser.formFactor == 'DESKTOP' || $Browser.formFactor == 'TABLET'}">
+                                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                                                <thead>
+                                                    <tr class="slds-text-title_caps">
+                                                        <th scope="col" />
+                                                        <th scope="col">
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! $Label.c.TCR_Scorecard_Target_Label }">
+                                                                {! $Label.c.TCR_Scorecard_Target_Label }
+                                                            </div>
+                                                        </th>
+                                                        <th scope="col">
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! $Label.c.TCR_Scorecard_Actual_Label }">
+                                                                {! $Label.c.TCR_Scorecard_Actual_Label }
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <div class="slds-truncate" title="PLANNING">
+                                                                Planning
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Target_Planning__c }">
+                                                                {! v.tcr.Score_Target_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Actual_Planning__c }">
+                                                                {! v.tcr.Score_Actual_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" >
+                                                            <div class="slds-truncate" title="SALES TOOLS">
+                                                                Sales Tools
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Sales_Tools_Target__c }">
+                                                                {! v.tcr.Score_Sales_Tools_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Sales_Tools_Actual__c }">
+                                                                {! v.tcr.Score_Sales_Tools_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" >
+                                                            <div class="slds-truncate" title="Business Objectives">
+                                                                Business Objectives
+                                                            </div>
+                                                        </th>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Business_Objectives_Target__c }">
+                                                                {! v.tcr.Score_Business_Objectives_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate slds-align_absolute-center" title="{! v.tcr.Score_Business_Objectives_Actual__c }">
+                                                                {! v.tcr.Score_Business_Objectives_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </aura:if>
+                                        <aura:if isTrue="{! $Browser.formFactor == 'PHONE' }">
+                                            <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                                <tbody>
+                                                    <tr class="slds-hint-parent">
+                                                        <th data-label="{! $Label.c.TCR_Scorecard_Target_Label }" scope="row" style="font-weight: bold; color: black;" />
+                                                        <td data-label="PLANNING">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Target_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="SALES TOOLS">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Sales_Tools_Target__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Business Objectives">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Business_Objectives_Target__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="slds-hint-parent">
+                                                        <th data-label="{! $Label.c.TCR_Scorecard_Actual_Label }" scope="row" style="font-weight: bold; color: black;" />
+                                                        <td data-label="PLANNING">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Actual_Planning__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="SALES TOOLS">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Sales_Tools_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Business Objectives">
+                                                            <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold; float: right;" >
+                                                                {! v.tcr.Score_Business_Objectives_Actual__c }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </aura:if>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <aura:if isTrue="{! and(v.tcr.Id != null, v.currentStep == '10') }">
+                                    <!--<aura:if isTrue="{! or(v.tcr.RecordType.Name == v.accountTcr, v.tcr.RecordType.Name == V.t3Tcr ) }">-->
+                                    <c:UNILAB_TCR_Summary tcrID="{! v.tcr.Id }" tcrType="{! v.tcr.RecordType.Name }" />
+                                    <!--</aura:if>-->
+                                </aura:if>
+                            </div>
+                            <!-- END OVERVIEW -->
+                            
+                            <!-- BUTTONS -->
+                            
+                            <div class="{! v.currentStep != '1' ? 'slds-show' : 'slds-hide' }">
+                                <div class="slds-p-top_x-small slds-align_absolute-center slds-p-bottom_x-small">
+                                    <lightning:button variant="neutral" label="{! $Label.c.TCR_Button_Previous }" title="Previous" onclick="{! c.moveBack }" />
+                                    <aura:if isTrue="{! v.currentStep == '10' }">
+                                        <lightning:button variant="brand" label="{! $Label.c.TCR_Button_Submit }" 
+                                                          title="Submit" onclick="{! c.handleSubmit }" 
+                                                          disabled="{! and(v.tcr.Id != null,!v.isDraft)}"/>                                
+                                        <aura:set attribute="else">                                        
+                                            <lightning:button variant="brand" label="{! v.isDraft ? $Label.c.TCR_Button_Save : $Label.c.TCR_Button_Next }" 
+                                                              title="Save Next" onclick="{! c.handleSaveRecord }" />                                  
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </div>
+                            
+                            <!-- END BUTTONS -->
+                            
+                        </div>
+                    </article>
+                    
+                    <!-- FOOTER (BUTTONS)
+                
+                <aura:if isTrue="{! v.currentStep != '1' }">
+                    <aura:if isTrue="{! $Browser.formFactor == 'DESKTOP' }">
+                        slds-docked-form-footer
+                        <div class="slds-p-top_x-small">
+                            <div class="slds-box slds-align_absolute-center" style="background-color: white;">
+                                <lightning:button variant="neutral" label="{! $Label.c.TCR_Button_Previous }" title="Previous" onclick="{! c.moveBack }" />
+                                <aura:if isTrue="{! v.currentStep == '10' }">                              
+                                    
+                                    <lightning:button variant="brand" label="{! $Label.c.TCR_Button_Submit }" 
+                                                      title="Submit" onclick="{! c.handleSubmit }"  disabled="{! and(v.tcr.Id != null,!v.isDraft)}"/>                                
+                                    <aura:set attribute="else">                                        
+                                        <lightning:button variant="brand" label="{! v.isDraft ?$Label.c.TCR_Button_Save : $Label.c.TCR_Button_Next}" 
+                                                          title="Save Next" onclick="{! c.handleSaveRecord }" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <aura:set attribute="else">
+                            slds-docked-form-footer
+                            <div class="slds-p-top_x-small">
+                                <div class="slds-docked-form-footer slds-align_absolute-center" style="background-color: white; box-shadow: none;">
+                                    <lightning:button variant="neutral" label="{! $Label.c.TCR_Button_Previous }" title="Previous" onclick="{! c.moveBack }" />
+                                    <aura:if isTrue="{! v.currentStep == '10' }">                                                                                  
+                                        <lightning:button variant="brand" label="{! $Label.c.TCR_Button_Submit }" 
+                                                          title="Submit" onclick="{! c.handleSubmit }"  disabled="{! and(v.tcr.Id != null,!v.isDraft)}"/>                                    
+                                        <aura:set attribute="else">                                            
+                                            <lightning:button variant="brand" label="{! v.isDraft ?$Label.c.TCR_Button_Save : $Label.c.TCR_Button_Next}" 
+                                                              title="Save Next" onclick="{! c.handleSaveRecord }" />
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </aura:set>
+                    </aura:if>
+                    
+                </aura:if> -->
+                    
+                </div>
+            </div>
+            
+            <!-- UNSAVED CHANGES CONFIRMATION -->
+            <aura:if isTrue="{!v.showUnsaveConfirm}">
+                <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+                    <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    
+                                    <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                                </button>
+                                <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Confirmation}</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                                <h2>Do you want to save unsaved changes?</h2>                        
+                            </div>
+                            <footer class="slds-modal__footer slds-theme_default">
+                                
+                                <button class="slds-button slds-button_neutral"  onclick="{!c.handleSaveUnsaved}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                                
+                                <button class="slds-button slds-button_neutral" onclick="{!c.handleCancelSaveUnsaved}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                                
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </lightning:layoutItem>            
+            </aura:if>
+            
+            
+            <!-- SUBMISSION CONFIRMATION -->
+            <aura:if isTrue="{!v.showSubmitConfirm}">
+                <lightning:layoutItem flexibility="grow" size="12" smallDeviceSize = "12" mediumDeviceSize="12" largeDeviceSize="12" class="slds-p-right_large slds-p-left_large">
+                    <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    
+                                    <span class="slds-assistive-text">{!$Label.c.Work_Plan_Modal_Menu_Close}</span>
+                                </button>
+                                <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!$Label.c.Work_Plan_Modal_Title_Confirmation}</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="prompt-message-wrapper">
+                                <h2>Are you sure you want to submit TCR for {! v.tcr.DFS__c == null ? v.tcr.CDS_Trainee__r.Name : v.tcr.DFS__r.Name }?</h2>                        
+                            </div>
+                            <footer class="slds-modal__footer slds-theme_default">
+                                
+                                <button class="slds-button slds-button_neutral"  onclick="{!c.handleUpdateStatus}">{!$Label.c.Work_Plan_Modal_Button_Yes}</button>
+                                
+                                <button class="slds-button slds-button_neutral" onclick="{!c.handleCancelSubmit}">{!$Label.c.Work_Plan_Modal_Button_Cancel}</button>
+                                
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </lightning:layoutItem>            
+            </aura:if>
+        </aura:if> 
+    </div>
+</aura:component>

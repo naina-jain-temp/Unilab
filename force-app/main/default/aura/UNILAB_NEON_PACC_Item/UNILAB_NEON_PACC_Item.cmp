@@ -1,0 +1,80 @@
+<aura:component controller="UNILAB_NEON_PACC"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	
+    <aura:attribute name="acctGroupRef" type="NEON_Account_Ref__c" />
+    <aura:attribute name="productAcctGroupData" type="NEON_Product_Account__c" />
+    <aura:attribute name="aInitData" type="List" />
+    <aura:attribute name="acctGroupPriorityData" type="List" />
+    <aura:attribute name="totalAcctGroupRef" type="Integer" />
+    <aura:attribute name="inclOpt" type="boolean" default="true"/>
+    
+    <aura:attribute name="selAcctPipelineDate" type="String" default=""/>
+    <aura:attribute name="selAcctSaturationDate" type="String" default=""/>
+    
+    <aura:attribute name="pipelineValue" type="String"/>
+    <aura:attribute name="saturationValue" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <tr>
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                <!--{! v.aData.CT_Account_Group__c }-->
+                {! v.acctGroupRef.Account_Group__c }
+            </div>
+        </th>
+        
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                <!--<lightning:input type="date" name="pipelineDate" label="" variant="label-hidden" value='{! v.aData.objNAcctGroupData.Pipeline_Date__c }' />-->
+                <aura:if isTrue="{! v.productAcctGroupData.Pipeline_Date__c }">
+                    <lightning:input variant="label-hidden"
+                                     label="Pipeline Date"
+                                     type="date"
+                                     value="{! v.productAcctGroupData.Pipeline_Date__c  }"
+                                     disabled="true"/>
+                    <aura:set attribute="else">
+                        <lightning:input aura:id="pipelineDateInput"
+                                         variant="label-hidden"
+                                         label="Pipeline Date"
+                                         type="date"
+                                         value="{! v.pipelineValue }"
+                                         onchange="{! c.pipelineDateChange }"/>
+                    </aura:set>
+                </aura:if>
+            </div>
+        </th>
+        
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                <!--<lightning:input type="date" name="saturationDate" label="" variant="label-hidden" value='{! v.aData.objNAcctGroupData.Saturation_Date__c}' />-->
+                <aura:if isTrue="{! v.productAcctGroupData.Saturation_Date__c }">
+                    <lightning:input variant="label-hidden"
+                                     label="Saturation Date"
+                                     type="date"
+                                     value="{! v.productAcctGroupData.Saturation_Date__c  }"
+                                     disabled="true"/>
+                    <aura:set attribute="else">
+                        <lightning:input aura:id="pipelineDateInput"
+                                         variant="label-hidden"
+                                         label="Saturation_Date__c Date"
+                                         type="date"
+                                         value="{! v.saturationValue }"
+                                         onchange="{! c.saturationDateChange }" />
+                    </aura:set>
+                </aura:if>
+            </div>
+        </th>
+        
+        <th scope="row">
+            <div class="slds-truncate slds-align_left">
+                <aura:if isTrue="{! v.productAcctGroupData.Saturation_Date__c }">
+                	<aura:set attribute="else">
+                        <lightning:input type="checkbox-button" label="Account Inclusion" name="included" checked = '{!v.inclOpt}'  value='{!v.inclOpt}' onchange='{!c.inclBoxChange}' />
+                    </aura:set>
+                </aura:if>
+                
+            </div>
+        </th>
+    </tr>
+</aura:component>

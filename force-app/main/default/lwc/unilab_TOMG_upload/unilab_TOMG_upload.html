@@ -1,0 +1,45 @@
+<template>
+    <lightning-card>
+        <div class="mainsec container_690">
+            <div style="text-align:center;padding-bottom:15px;">
+                <b>TOMG FILE UPLOAD/DOWNLOAD</b>
+            </div>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col--padded slds-p-left_none slds-size_1-of-1 slds-medium-size--1-of-2 slds-p-top_medium" style="padding-top:24px;">
+                    <lightning-radio-group type="radio" name="type" options={uploadOptions} value={uploadObj.type} class="customRadiomm" onchange={handleOnChange}></lightning-radio-group>
+                </div>
+                <div class="slds-col--padded slds-p-left_none slds-size_1-of-1 slds-medium-size--1-of-2">
+                    <lightning-combobox name="objectName" label="Object Name" value={uploadObj.objectName} placeholder="Select Object Name" options={objectOptions} onchange={handleOnChange}></lightning-combobox>
+                </div>
+            </div>
+            <div class="slds-grid slds-wrap slds-m-top_large text-center" if:true={showFileUpload}>
+                <div class="slds-col--padded slds-p-left_none slds-size_1-of-1 slds-medium-size--1-of-1">
+                    <b>UPLOAD CSV FILE</b>
+                    <lightning-file-upload accept={acceptedCSVFormats} label="" class="m_file-upload" name="fileUploader" onuploadfinished={handleUploadFinished}></lightning-file-upload>
+                    <div if:true={isFileUploaded}> 
+                        <p>Added File Name is: 
+                            <b style="padding-left:10px;">{fileName}</b>
+                        </p>
+                        <br/>
+                        <span>Click on below Upload button to Insert the <b>CSV file</b> records</span>
+                    </div>
+                    <div class="slds-m-top_medium text-center">
+                        <lightning-button  onclick={uploadFileHandler} label="Upload" variant="brand"></lightning-button>
+                    </div>
+                    
+                </div>
+            </div>
+
+            
+            <div class="slds-grid slds-wrap slds-m-top_medium sec-downloadbtn" if:true={showDownloadUpload}>
+                <div class="slds-col--padded  slds-size_1-of-1 slds-medium-size--1-of-1 slds-p-vertical_x-large text-center" if:true={showDownloadUpload}>
+                    <lightning-button icon-name="utility:download" label="Download as CSV" title="Download CSV File" onclick={exportToCSV} class="slds-m-right--large" variant="brand"></lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Loading" size="medium" style="z-index: 10000 !important;"></lightning-spinner>
+        </template>
+    </lightning-card>
+</template>

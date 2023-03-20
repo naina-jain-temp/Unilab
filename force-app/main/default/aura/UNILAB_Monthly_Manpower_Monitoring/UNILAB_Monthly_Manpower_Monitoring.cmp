@@ -1,0 +1,340 @@
+<aura:component controller="UNILAB_Monthly_Manpower_Monitoring"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                access="global" >
+   
+    <aura:attribute name="lmData" type="Map" />    
+    <aura:attribute name="backroomlist" type="List" />
+    <aura:attribute name="warehouselist" type="List" />
+    <aura:attribute name="fieldlist" type="List" />
+    <aura:attribute name="trucklist" type="List" />
+	<aura:attribute name="select" type="Object"/>
+    
+    <aura:attribute name="backroomoptions" type="List" />
+    <aura:attribute name="warehouseoptions" type="List" />
+    <aura:attribute name="fieldoptions" type="List" />
+    <aura:attribute name="truckoptions" type="List" />
+    
+    <aura:attribute name="backroomresult" type="Map"  />
+    <aura:attribute name="warehouseresult" type="Map" />
+    <aura:attribute name="fieldresult" type="Map" />
+    <aura:attribute name="truckresult" type="Map" />
+    
+    <aura:attribute name="brratings" type="Map" default="{'required':'0', 'actual':'0','deficit':'0'}"/>
+    <aura:attribute name="whratings" type="Map" default="{'required':'0', 'actual':'0','deficit':'0'}"/>
+    <aura:attribute name="fldratings" type="Map" default="{'required':'0', 'actual':'0','deficit':'0'}"/>
+    <aura:attribute name="trratings" type="Map" default="{'required':'0', 'actual':'0','deficit':'0'}"/>
+    
+    <aura:attribute name="backroom-oeb-duallist" type="String" />
+    <aura:attribute name="year" type="String" />
+    <aura:attribute name="month" type="String" />
+    <aura:attribute name="accountId" type="String" />
+    
+    <aura:attribute name="isSubmitted" type="Boolean" />
+    <aura:attribute name="alreadyExist" type="Boolean" />
+    <aura:attribute name="clearChecklist" type="Boolean" />
+    <aura:attribute name="isCopied" type="Boolean" default="false"/>
+    <aura:attribute name="copylastmonthrecord" type="Boolean" />
+    <aura:attribute name="disableSubmit" type="Boolean" default="false"/>
+    <aura:attribute name="disableCopy" type="Boolean" default="false"/>
+    <aura:attribute name="disableButton" type="Boolean" default="false"/>
+    <aura:attribute name="openConfirmationBox" type="Boolean" />
+    <aura:attribute name="openCriteriaModal" type="Boolean" default="false"/>
+    <aura:attribute name="progressbar" type="Integer" default="0"/>
+    <aura:attribute name="progress" type="Integer" default="0"/>
+    <aura:attribute name="AssessmentId" type="String" />
+    <aura:attribute name="openProgressModal" type="Boolean" default="false"/>
+    <aura:attribute name="progresstitle" type="String" default="Inprogress"/>
+    <aura:attribute name="progressmessage" type="String" default="Save Successfully!, Thank you so much for your Patience."/>
+     
+    <aura:handler name="change" value="{!v.isSubmitted}" action="{!c.disableSubmit}"/>
+    <aura:handler name="change" value="{!v.backroomresult}" action="{!c.calculate}"/>
+    <aura:handler name="change" value="{!v.warehouseresult}" action="{!c.calculate}"/>
+    <aura:handler name="change" value="{!v.fieldresult}" action="{!c.calculate}"/>
+    <aura:handler name="change" value="{!v.truckresult}" action="{!c.calculate}"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    
+    <div id="container">
+        <aura:if isTrue="{!v.alreadyExist}">
+            
+             <div class="slds-grid slds-gutters" style="width:100%; ">
+        	
+                 
+                  <div class="slds-col slds-large-size_12-of-12" style="background-color:lightgreen;padding:20px;">
+                    <h1 style="font-weight: bold; font-size:16px; text-align:center ">Information</h1>
+                    <br/>
+                    <ul style="font-size:12px;">
+                        <li> <p style="font-weight:bold; font-size:14px; text-align:center"> The checklist for this account is already submitted for this month!</p> </li>
+                    </ul>
+                </div>
+             
+            </div>    
+            
+        </aura:if>
+       
+        
+        <div style="width:100%; padding:20px;">
+          
+        	<table >
+                <tr>
+                   
+                    <td style="padding:0px 20px 0px 20px;width:45%">
+                        <div >
+                            <lightning:select name="months" label="Month" required="true" value="{!v.month}">
+                                    <option text="{!v.month}"/>
+                            </lightning:select>
+                        </div>
+                    </td>
+                    <td style="width:5%"></td>
+                    
+                    <td >
+                        <div >
+                            <lightning:select name="year" label="Year" required="true" value="{!v.year}">
+                                    <option text="{!v.year}"/>
+                        	</lightning:select>
+                        </div>
+                    </td>
+                     
+                </tr>
+    		</table>
+        </div>
+        
+        <lightning:overlayLibrary aura:id="summary-modal"/>
+        
+        
+        	<c:UNILAB_Manpower_Summary aura:id="child" 
+                         		   brratings = "{!v.brratings}"
+                                   whratings = "{!v.whratings}"
+                                   fldratings = "{!v.fldratings}"
+                                   trratings = "{!v.trratings}"
+                                   />
+		
+        
+        <aura:if isTrue="{!v.openProgressModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open slds-modal_small" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate" style="font-weight:bold">Save Successfully</h1>                                           
+                   	</header>
+      								<div class="slds-modal__content slds-p-around_small" id="modal-content-id-1">                                		
+                                       <lightning:progressBar value="100" />
+                                        <br/>
+                                        <p style="text-align:center;">{!v.progressmessage}</p>
+                                	</div>
+                    			<footer class="slds-modal__footer "> 
+                                    <div> 
+                                   	 	<lightning:button variant="neutral" name="Close" label="Close" onclick="{! c.hideInprogressModal}"/>                                    
+                                    </div>
+                                </footer>
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>
+        
+        <aura:if isTrue="{!v.openConfirmationBox}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open slds-modal_small" >
+                <div class="slds-modal__container" >
+                    <div class="slds-modal__header">                                                
+								<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" style="font-weight:bold">Confirmation</h1>                                           
+                   	</div>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">                                		
+                       <p style="text-align:center; font-size:14px;"> Are you sure you want to submit the record?</p>
+                    </div>
+                <footer class="slds-modal__footer "> 
+                    <div style="margin-right:70px;"> 
+                        <lightning:button variant="brand" name="yes" label="Yes" onclick="{! c.submit}"/>
+                        <lightning:button variant="neutral" name="no" label="Cancel" onclick="{! c.hideConfirmationBox}"/>                                    
+                    </div>
+                </footer>
+                   			
+                 </div>
+            </section>
+		   <div class="slds-backdrop slds-backdrop_open"></div>            
+		</aura:if>		
+        
+        <aura:if isTrue="{!v.openCriteriaModal}">
+            
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+					 aria-modal="true" aria-describedby="modal-content-id-1" 
+					 class="slds-modal slds-fade-in-open slds-modal_small" >
+                <div class="slds-modal__container" style="width:100px;">
+                    <header class="slds-modal__header">                                                
+                        <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight:bold">Criteria</h1>                                           
+                   	</header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">                                		
+                           <table style="border-collapse:collapse;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center;border: 1px solid black; width:70%">Criteria</th>
+                                        <th style="text-align:center;border: 1px solid black;">Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">(-) negative deficit = Not Compliant, undermanned , and less than required</td>
+                                        <td style="border: 1px solid black; text-align:center;">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">(0) zero deficit  = Compliant</td>
+                                        <td style="border: 1px solid black; text-align:center;">1</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid black; padding:5px 10px 5px 10px; ">(+) positive deficit or more than +1  = Compliant but overmanned/ exceeds requirement</td>
+                                        <td style="border: 1px solid black; text-align:center;">1</td>
+                                    </tr>
+                                </tbody>
+                        </table>
+                        </div>
+                    <footer class="slds-modal__footer "> 
+                        <div> 
+                            <lightning:button variant="neutral" name="Close" label="Close" onclick="{! c.hideCriteriaModal}"/>                                    
+                        </div>
+                    </footer>
+                 </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        
+	    </aura:if>
+        
+        
+        <div style="width:100%; padding:20px;">
+            <div style="width:100%; padding:0px 0px 50px;" class="button-div">
+                <lightning:button type="submit" variant="brand" label="Submit" title="Submit" onclick="{!c.confirm}" disabled="{!v.disableSubmit}" />
+                <lightning:button label="Criteria" title="Criteria" onclick="{!c.showCriteriaModal}" />
+                <lightning:button label="Copy Last Month" title="Copy Last Month" onclick="{!c.copyLastMonthRecord}" disabled="{!v.isCopied}"/>
+            </div>
+            <table style="border-collapse:collapse;margin-bottom:10px;">
+            	<thead>
+                    <tr>
+                    	<th style="border: 1px solid black;padding:5px 10px 5px 10px;">Backroom Personnel</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Required</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Actual</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Deficit</th>	
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Ratings</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        
+                    <aura:iteration items="{! v.backroomlist}" var="backroom">
+                        
+                         <c:UNILAB_Manpower_Assessment_Form mpContactData="{!v.backroomoptions}"
+                                                       	    mpData="{!backroom}"
+                                                            mpDataResult="{!v.backroomresult}"
+                                                            lmData = "{!v.lmData.bp}"
+                                                            copylastmonthrecord = "{!v.copylastmonthrecord}"
+                                                            clearChecklist="{!v.clearChecklist}"
+                                                            disableButton="{!v.disableButton}"
+                                                            accountId = "{!v.accountId}"
+                                                            />
+                    </aura:iteration>
+                </tbody>
+           </table>
+        </div>
+        
+        <div style="width:100%; padding:20px;">
+        	<table style="border-collapse:collapse;margin-bottom:10px;">
+            	<thead>
+                    <tr>
+                        <th style="border: 1px solid black;padding:5px 10px 5px 10px;" >Warehouse &amp; Logistics Personnel</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Required</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Actual</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Deficit</th>	
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Ratings</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        
+                    <aura:iteration items="{! v.warehouselist}" var="warehouse">
+                        
+                         <c:UNILAB_Manpower_Assessment_Form mpContactData="{!v.warehouseoptions}"
+                                                       	    mpData="{!warehouse}"
+                                                            mpDataResult="{!v.warehouseresult}"
+                                                            lmData = "{!v.lmData.wlp}"
+                                                            copylastmonthrecord = "{!v.copylastmonthrecord}"
+                                                            clearChecklist="{!v.clearChecklist}"
+                                                            disableButton="{!v.disableButton}"
+                                                            accountId = "{!v.accountId}"
+                                                            />
+                    </aura:iteration>
+                </tbody>
+           </table>
+        </div>
+        
+		<div style="width:100%; padding:20px;">
+            <table style="border-collapse:collapse;margin-bottom:10px;">
+            	<thead>
+                    <tr>
+                        <th style="border: 1px solid black;padding:5px 10px 5px 10px;">Field Personnel</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Required</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Actual</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Deficit</th>	
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Ratings</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        
+                    <aura:iteration items="{! v.fieldlist}" var="fields">
+                        
+                         <c:UNILAB_Manpower_Assessment_Form mpContactData="{!v.fieldoptions}"
+                                                       	    mpData="{!fields}"
+                                                            mpDataResult="{!v.fieldresult}"
+                                                            lmData = "{!v.lmData.fsp}"
+                                                            copylastmonthrecord = "{!v.copylastmonthrecord}"
+                                                            clearChecklist="{!v.clearChecklist}"
+                                                            disableButton="{!v.disableButton}"
+                                                            accountId = "{!v.accountId}"
+                                                            />
+                        
+                    </aura:iteration>
+                </tbody>
+           </table>
+        </div>
+        
+        <div style="width:100%; padding:20px;">
+            <table style="border-collapse:collapse;margin-bottom:10px;">
+            	<thead>
+                    <tr>
+                    	<th style="border: 1px solid black;padding:5px 10px 5px 10px;">Truck Requirement</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Required</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Actual</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3;">Deficit</th>	
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Ratings</th>
+                        <th style="border: 1px solid black;text-align:center;background-color: #f3f3f3; ">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{! v.trucklist}" var="trucks">
+                        
+                         <c:UNILAB_Manpower_Assessment_Form mpTruckData="{!v.truckoptions}"
+                                                       	    mpData="{!trucks}"
+                                                            mpDataResult="{!v.truckresult}"
+                                                            isTruck="true"
+                                                            lmData = "{!v.lmData.tr}"
+                                                            copylastmonthrecord = "{!v.copylastmonthrecord}"
+                                                            clearChecklist="{!v.clearChecklist}"
+                                                            disableButton="{!v.disableButton}"
+                                                            accountId = "{!v.accountId}"
+                                                            />
+                        
+                    </aura:iteration>    
+                    
+                    
+                </tbody>
+           </table>
+            <div style="width:100%; padding:0px 0px 50px;" class="button-div">
+            	<lightning:button type="submit" variant="brand" label="Submit" title="Submit" onclick="{!c.confirm}" disabled="{!v.disableSubmit}" />
+            	<lightning:button label="Criteria" title="Criteria" onclick="{!c.showCriteriaModal}" />
+                <lightning:button label="Copy Last Month" title="Copy Last Month" onclick="{!c.copyLastMonthRecord}" disabled="{!v.isCopied}"/>
+            </div>
+        </div>
+                
+    </div>
+	
+</aura:component>

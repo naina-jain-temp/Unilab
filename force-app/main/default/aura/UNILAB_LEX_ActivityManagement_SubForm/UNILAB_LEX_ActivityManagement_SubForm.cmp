@@ -1,0 +1,117 @@
+<aura:component controller="UNILAB_ActivityManagementCX" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    
+    <!-- Sub Activity List -->
+    <aura:attribute access="Global" name="subActivityList" type="Object[]"/>
+    <aura:attribute name= "recordId" type="String" />
+    <aura:attribute access="Global" name="subActivity" type="Object"/>
+    
+    <aura:attribute name="subActivityOptions" type="List" default="[]"/>
+    
+    <aura:attribute name="eventType" type="String" default=""/>
+    
+    <aura:attribute name="subEventType" type="String" default=""/>
+    <aura:attribute name="UpperlowercasesubEventType" type="String" default=""/>
+    <aura:attribute name="addedActivity" type="Boolean" default="false"/>
+    <!-- actJuncRemarks -->
+    <aura:attribute name="actJuncRemarks" type="String" default=""  />
+    
+    <aura:attribute name="openSection" type="String" default="A" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <!--  Matrix Mapping of Activity depending on user's role -->
+    <aura:attribute name="activityMatrixList" type="map" />
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    
+    <aura:method name="requireRemarksAnalysisInsights" action="{!c.requireRemarksAnalysisInsights}"> 
+    </aura:method>
+    <aura:method name="requireDiscussionsAgreements" action="{!c.requireDiscussionsAgreements}"> 
+    </aura:method>
+    
+    <article class="slds-card slds-card_boundary">
+        <aura:if isTrue="{! v.showSpinner }">
+            <lightning:spinner alternativeText="Loading" size="medium" />
+        </aura:if>
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning:icon iconName="standard:event" size="small" alternativeText="Event" /> 
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">	
+                        <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="Card Header">
+                            <span class="slds-text-heading_small">{!$Label.c.Work_Plan_Event_Sub_Type_Title}</span>
+                        </a>
+                    </h2>
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body slds-card__body_inner">
+            <lightning:accordion aura:id="accordion" activeSectionName="D">
+                <aura:iteration items="{!v.subActivityList}" var="subAtivity"  indexVar="i">
+                    
+                    <lightning:accordionSection  name="A" label="{!v.UpperlowercasesubEventType}" >
+                        
+                        <aura:set attribute="actions">
+                            
+                            <lightning:buttonMenu aura:id="menu" alternativeText="Show menu" iconSize="x-small" menuAlignment="right" onselect="{! c.handleMenuSelect }">
+                                
+                                <lightning:menuItem  value="{!i}" label="Remove">
+                                </lightning:menuItem>
+                                <aura:if isTrue="{! v.recordId }">
+                                    <aura:if isTrue="{! subAtivity.Id }">
+                                        <lightning:menuItem value="{! subAtivity.Id }" label="Delete" />
+                                    </aura:if>
+                                </aura:if>
+                                
+                            </lightning:buttonMenu>
+                            
+                        </aura:set>
+                        
+                        <aura:set attribute="body">
+                            <lightning:combobox  value="{!subAtivity.Activity_Name__c}" label="{!v.eventType}"  options="{! v.subActivityOptions }" class ="slds-p-bottom_small"/>
+                            <aura:if isTrue="{!v.eventType == 'Admin Work'}">
+                                <lightning:textarea value="{!subAtivity.Remarks__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Remarks}" />
+                            </aura:if>
+                            <aura:if isTrue="{!v.eventType == 'Meeting'}">
+                                <lightning:textarea value="{!subAtivity.Agenda__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Agenda}" />
+                                <lightning:textarea value="{!subAtivity.Attendees__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Attendees}" />
+                                <aura:if isTrue="{!v.recordId != null}">
+                                    <aura:set attribute="else" >
+                                        <lightning:textarea aura:id="discussionAgreement" value="{!subAtivity.Discussions__c}" label="{!$Label.c.Work_Plan_Event_Sub_Type_DiscussionsAgreements}" />
+                                    </aura:set> 
+                                    <lightning:textarea aura:id = "discussionAgreement" value="{!subAtivity.Discussions__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_DiscussionsAgreements}" required="true" />
+                                </aura:if>
+                                <lightning:textarea value="{!subAtivity.Next_Steps_Directions__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_NextStepsTimings}" />
+                            </aura:if>
+                            <aura:if isTrue="{!v.eventType == 'Special Activity/Partnering' || v.eventType == 'POC Special Activity'}">
+                                <lightning:textarea value="{!subAtivity.Objectives__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Objectives}" />
+                                <lightning:textarea value="{!subAtivity.Attendees__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Attendees}" />
+                                <lightning:textarea value="{!subAtivity.Learnings_Insights__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_Remarks}" />
+                                <aura:if isTrue="{!v.eventType == 'POC Special Activity'}">
+                                    <lightning:textarea value="{!subAtivity.Requirements_Submitted__c}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_RequirementsSubmitted}" />
+                                </aura:if>
+                            </aura:if>
+                            
+                        </aura:set>
+                    </lightning:accordionSection>
+                    
+                </aura:iteration>   
+                
+            </lightning:accordion>
+            <aura:if isTrue="{!or(v.eventType == 'Call',v.eventType == 'Field Work') }">
+                <lightning:textarea aura:id="actJuncRemarks" value="{!v.actJuncRemarks}"  label="{!$Label.c.Work_Plan_Event_Sub_Type_RemarksAnalysisInsights}" placeholder="type here..."/>
+            </aura:if>
+            
+            
+        </div>
+        <footer id='bottom' class="slds-card__footer">
+            <a  class="slds-card__footer-action"  onclick="{!c.addMoreSubEvent}">{!$Label.c.Work_Plan_Event_Sub_Type_AddMore}
+                <span class="slds-assistive-text">{!$Label.c.Work_Plan_Event_Sub_Type_AddMore}</span>
+            </a>
+        </footer>
+        
+    </article>
+    
+</aura:component>

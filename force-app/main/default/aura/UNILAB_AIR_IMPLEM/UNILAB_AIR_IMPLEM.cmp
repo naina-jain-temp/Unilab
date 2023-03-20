@@ -1,0 +1,76 @@
+<aura:component controller="UNILAB_AIR_IMPLEM"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <aura:attribute name="PageHeading" type="String" default="New Record"/>
+    
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="keyField" type="List"/>
+    <aura:attribute name="journal" type="String"/>
+    <aura:attribute name="currentEventId" type="String"/>
+    <aura:attribute name="withoutRec" type="Boolean" default="{!not(empty(v.currentEventId)) ? false : true}"/>
+    
+    <aura:attribute name="mydata2" type="Object"/>
+    <aura:attribute name="mycolumns2" type="List"/>
+    <aura:attribute name="keyField2" type="List"/>
+    
+    <aura:attribute name="defaultRows" type="List" default="[]" description="reset selected rows..." />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler event="force:refreshView" action="{!c.init}" />
+
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Promo and Merch Implem
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div style="slds-form-element max-height: 300px">
+        <lightning:datatable data="{! v.mydata }" 
+                             columns="{! v.mycolumns }" 
+                             keyField="Id" 
+                             onrowselection="{! c.handleRowAction }"
+                             hideCheckboxColumn ="{! v.withoutRec }"
+                             selectedRows="{!v.defaultRows}" />
+    </div>
+    <br/>
+    <div class="slds-form-element">
+        <div class="slds-m-top--xx-small">
+            <div class="slds-page-header">
+                <div class="slds-align--absolute-left">
+                    <div class="slds-text-heading--small">       
+                        Journal Box
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-form-element__control">
+            <lightning:textarea name="txtJournal" value="{! v.journal }" disabled="{! v.withoutRec }"  placeholder="Write a Learnings and Insights..."/>
+        </div>
+    </div> 
+    <br/>
+    <div class="slds-grid slds-grid--align-center"> 
+        <lightning:button variant="brand" label="Save" onclick="{!c.SaveRecord}" disabled="{! v.withoutRec }" />
+    </div>
+    <br/>
+    <div class="slds-m-top--xx-small">
+        <div class="slds-page-header">
+            <div class="slds-align--absolute-left">
+                <div class="slds-text-heading--small">       
+                    Summary
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <lightning:datatable data="{! v.mydata2 }" 
+                         columns="{! v.mycolumns2 }" 
+                         keyField="Id" 
+                         hideCheckboxColumn ="true"/>
+    <br/>
+</aura:component>

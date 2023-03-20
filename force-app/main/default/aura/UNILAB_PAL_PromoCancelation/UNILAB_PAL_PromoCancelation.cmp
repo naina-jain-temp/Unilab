@@ -1,0 +1,22 @@
+<aura:component controller="UNILAB_CreatePromo_Controller" implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" >
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="reasonCancel" type="String" />
+    <aura:attribute name="spinner" type="Boolean" default="false" /> 
+    <ltng:require styles="{!$Resource.PAL_quickActionStyle}" />
+    <aura:if isTrue="{!v.spinner}">
+        <c:UNILAB_PAL_Spinner/>
+    </aura:if>
+    
+    <header class="slds-modal__header">
+        <p class="slds-text-heading_medium slds-text-align_center">
+            Cancel Promo
+        </p>
+    </header>
+    <div style="max-height: 150px; height: 150px; overflow-y: auto !important;">
+        <lightning:textarea class="slds-p-around_small" value="{!v.reasonCancel}" label="Reason for Cancelation" required="true"/>
+    </div>
+    <footer class="slds-modal__footer" style="padding: 0.50rem 1rem;">
+        <lightning:button variant="brand" label="Submit"  onclick="{!c.submitPromo}" />
+        <lightning:button variant="neutral" label="Cancel"  onclick="{!c.cancelPromo}" />
+    </footer>
+</aura:component>

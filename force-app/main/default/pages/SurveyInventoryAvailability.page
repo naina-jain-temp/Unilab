@@ -1,0 +1,246 @@
+<apex:page controller="SurveyInventoryAvailabilityCX" >
+    <apex:slds />
+    <style>
+    	.rightText {
+        text-align: right;
+        }
+    </style>
+    <div class="slds-scope">        
+        
+        <!-- RENDERED ONLY IN SALESFORCE LIGHTNING -->
+        <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme3'}">        
+            <article class="slds-card">
+                
+                <!-- HEADER -->
+                <div class="slds-card__header slds-grid">
+                    <div class="slds-col slds-has-flexi-truncate">                           
+                        <div class="slds-media slds-no-space slds-grow" >                                
+                            <div class="slds-media__figure">
+                                
+                                <span class="slds-icon_container slds-icon-standard-survey" title="Description of icon when needed"  >                                         
+                                    <svg aria-hidden="true" class="slds-icon">                    
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{! URLFOR($Asset.SLDS, '/assets/icons/standard-sprite/svg/symbols.svg#survey')}"></use>                    
+                                    </svg>                                          
+                                </span>
+                                
+                            </div>                                
+                            <div class="slds-media__body">       
+                                
+                                <p class="slds-line-height_reset">                                        
+                                    Survey Inventory Availability                                  
+                                </p>
+                                
+                                <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate">                                        
+                                    <apex:outputLabel value="{!iDetails.Survey_Summary_Form__r.Survey_Summary_Form_Name__c}" />                                    
+                                </h1>    
+                                
+                            </div>                                
+                        </div>                            
+                    </div>             
+                </div>
+                
+                <!-- MOBILE TABLE -->
+                <apex:outputPanel rendered="{! $User.UIThemeDisplayed == 'Theme4t'}">
+                    <apex:form id="mobileTable">
+                        <apex:pageMessages />
+                        
+                        <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                           
+                            <tbody>
+                                <apex:repeat value="{!ilItemList}" var="iw" id="table2"> 
+                                    
+                                    <tr class="slds-hint-parent">
+                                        
+                                        <td role="gridcell" data-label="Product Name">
+                                            <div class="slds-truncate slds-p-left_small">
+                                                <span title="{!iw.Product__r.Name}"><apex:outputText value="{!iw.Product__r.Name}" /></span>
+                                            </div>
+                                        </td>
+                                        
+                                        <td role="gridcell" data-label="Status">
+                                            <div class="slds-truncate slds-p-left_x-large">
+                                                <apex:selectList value="{!iw.Status__c}" size="1" styleClass="slds-select" dir="RTL">
+                                                    <apex:selectOptions value="{!StatusList}"/> 
+                                                </apex:selectList>
+                                            </div>                                            
+                                        </td>
+                                        
+                                        <td role="gridcell" data-label="Feedback">
+                                            <div class="slds-truncate slds-p-left_small">
+                                                <apex:inputTextarea id="shelfTxt" value="{!iw.Feedback__c }" styleClass="slds-textarea rightText" rows="2" />
+                                            </div>
+                                            
+                                        </td>                                    
+                                        
+                                    </tr>
+                                    
+                                    
+                                </apex:repeat>
+                            </tbody>
+                            
+                        </table>
+                        
+                        <footer class="slds-card__footer slds-grid">
+                                <div class="slds-align_absolute-center">
+                                    <apex:commandButton action="{!btnSave}" value="Save" styleClass="slds-button slds-button_brand"/>                           
+                                </div> 
+                        </footer>
+                        
+                        
+                    </apex:form>
+                </apex:outputPanel>                
+              
+                
+                <!-- WEB TABLE -->
+                <apex:outputPanel rendered="{! $User.UIThemeDisplayed != 'Theme4t'}">  
+                <apex:form id="webTable">
+                    <apex:pageMessages />
+                    
+                    <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout" role="grid" >
+                        
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                
+                                
+                                
+                                <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                    <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                        <span class="slds-assistive-text">Sort by: </span>
+                                        <span class="slds-truncate" title="Product Name">Product Name</span>
+                                        <div class="slds-icon_container">
+                                            <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                    <div class="slds-resizable">
+                                        <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                        <span class="slds-resizable__handle">
+                                            <span class="slds-resizable__divider"></span>
+                                        </span>
+                                    </div>
+                                </th>
+                                
+                                <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                    <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                        <span class="slds-assistive-text">Sort by: </span>
+                                        <span class="slds-truncate" title="Status">Status</span>
+                                        <div class="slds-icon_container">
+                                            <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                    <div class="slds-resizable">
+                                        <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                        <span class="slds-resizable__handle">
+                                            <span class="slds-resizable__divider"></span>
+                                        </span>
+                                    </div>
+                                </th>
+                                
+                                <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Subject" scope="col">
+                                    <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                        <span class="slds-assistive-text">Sort by: </span>
+                                        <span class="slds-truncate" title="Feedback">Feedback</span>
+                                        <div class="slds-icon_container">
+                                            <svg class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon" aria-hidden="true">
+                                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#arrowdown" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true">Sorted none</span>
+                                    <div class="slds-resizable">
+                                        <input type="range" min="20" max="1000" aria-label="Subject column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-8" tabindex="-1" />
+                                        <span class="slds-resizable__handle">
+                                            <span class="slds-resizable__divider"></span>
+                                        </span>
+                                    </div>
+                                </th>
+                                
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            <apex:repeat value="{!ilItemList}" var="iw" id="table2"> 
+                                
+                                <tr class="slds-hint-parent">
+                                    <td class="slds-text-align_left" role="gridcell">
+                                        <div class="slds-truncate">
+                                            <span title="{!iw.Product__r.Name}"><apex:outputText value="{!iw.Product__r.Name}" /></span>
+                                        </div>
+                                    </td>
+                                    
+                                    <td role="gridcell">
+                                        <div class="slds-truncate">
+                                            <apex:selectList value="{!iw.Status__c}" size="1" styleClass="slds-select">
+                                                <apex:selectOptions value="{!StatusList}"/> 
+                                            </apex:selectList>
+                                        </div>                                            
+                                    </td>
+                                    
+                                    <td role="gridcell">
+                                        <div class="slds-truncate">
+                                            <apex:inputTextarea id="shelfTxt" value="{!iw.Feedback__c }" styleClass="slds-textarea" rows="2" />
+                                        </div>
+                                        
+                                    </td>                                    
+                                    
+                                </tr>
+                                
+                                
+                            </apex:repeat>
+                        </tbody>
+                        
+                    </table>
+                    
+                    <div class="slds-p-vertical_medium">
+                        <div class="slds-align_absolute-center">
+                            <apex:commandButton action="{!btnSave}" value="Save" styleClass="slds-button slds-button_brand"/>                           
+                        </div> 
+                    </div>
+                    
+                    
+                </apex:form>
+                </apex:outputPanel>
+            </article>
+        </apex:outputPanel>
+    </div>
+    
+    
+    <script> 
+    (function(){try{var a=navigator.userAgent; 
+                    if((a.indexOf('Salesforce')!=-1)&&(a.indexOf('iPhone')!=-1||a.indexOf('iPad')!=-1)&&(a.indexOf('OS/8')!=-1||a.indexOf('OS 8')!=-1)&&(a.indexOf('Safari')==-1)){ 
+                        var s=document.createElement('style'); 
+                        s.innerHTML="html,html body{overflow: auto;-webkit-overflow-scrolling:touch;}body{position:absolute;left:0;right:0;top:0;bottom:0;}"; 
+                        document.getElementsByTagName('head')[0].appendChild(s);}}catch(e){}})(); 
+    </script>     
+    
+    <script> 
+    var ua=navigator.userAgent; 
+    if((ua.indexOf('Salesforce')!=-1)&&(ua.indexOf('iPhone')!=-1||ua.indexOf('iPad')!=-1)&&(ua.indexOf('OS/8')!=-1||ua.indexOf('OS 8')!=-1)&&(ua.indexOf('Safari')==-1)){ 
+        function IOS_SCROLL_BOOTSTRAP() { 
+            var children = Array.prototype.slice.call(document.body.children), 
+                placeholder = document.createElement('section'), 
+                fragment = document.createDocumentFragment(), 
+                styles, 
+                width, 
+                height; 
+            children.forEach(function(c){fragment.appendChild(c);}); 
+            placeholder.appendChild(fragment); 
+            styles = [ 
+                'width:100%;', 
+                'height:', (window.screen.height - 42), 'px;', 
+                'position: absolute; overflow: auto; -webkit-overflow-scrolling: touch' 
+            ].join(''); 
+            placeholder.style.cssText = styles; 
+            document.body.appendChild(placeholder); 
+        } 
+        window.addEventListener('load', function (e) { 
+            IOS_SCROLL_BOOTSTRAP(); 
+        }); 
+    } 
+    </script>    
+</apex:page>

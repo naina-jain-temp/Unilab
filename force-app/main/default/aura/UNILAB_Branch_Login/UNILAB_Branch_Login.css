@@ -1,0 +1,13 @@
+.THIS {
+}
+
+
+.THIS .slds-box_x-small{
+    min-height: 50px;
+    margin-bottom: 5px;
+    background: #ffffff;
+}
+
+.THIS .slds-text-body_small{
+    font-weight: 100;
+}

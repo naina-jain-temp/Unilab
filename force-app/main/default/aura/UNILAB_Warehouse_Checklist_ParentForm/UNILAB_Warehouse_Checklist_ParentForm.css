@@ -1,0 +1,136 @@
+/*Overall Rating table*/
+
+.THIS .catActualRating {
+    margin-left:40px;
+    font-size:13px;
+}
+
+.THIS .catOverallRating {
+    margin-left:40px; 
+    font-size:13px;
+}
+
+.THIS .rating {
+    margin-left:-20px;
+    font-size:13px;
+}
+
+/*header*/
+.THIS .header1 {    
+    margin-right:100px;
+    white-space: pre-wrap;
+    text-align: center;
+    border: 0.1px solid black; 
+    border-collapse: collapse;
+}
+
+.THIS .header2 {
+    width:100px;  
+	white-space: pre-wrap;
+    text-align: center;
+     border: 0.1px solid black; 
+    border-collapse: collapse;
+}
+
+.THIS .header3 {
+    width:10px;
+	white-space: pre-wrap;
+    text-align: center;
+     border: 0.1px solid black; 
+    border-collapse: collapse;
+
+}
+
+.THIS .header4 {    
+
+     padding-left: 20px;
+    border: 0.1px solid black; 
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.THIS .header5 {
+    margin-left: -30px;    
+    border: 0.1px solid black; 
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.THIS .header6 {
+    padding-left: 50px;
+ 	text-align: center;
+    border: 0.1px solid black; 
+    border-collapse: collapse;
+}
+
+/*data rows*/
+
+
+.THIS .requiredQty {
+    margin-left:20px;
+   	font-size: 15px;
+    text-align: center;
+}
+
+.THIS .actualQty {
+    font-size: 15px;
+    margin-top:-25px;
+    width:70px;
+    margin-left:10px;
+    text-align: center;
+}
+
+.THIS .deficitQty {
+    font-size: 15px;
+ 	margin-left: 5px;
+    text-align: center;
+    
+}
+
+.THIS .ratings {
+    margin-left: 5px;
+	font-size: 15px;   
+    text-align: center;
+}
+
+.THIS .remarks {
+    margin-top:-10px;
+    width: 150px;
+    text-align: center;
+
+
+}
+
+.THIS .items {
+    font-weight: bold;
+    width:80px;
+    white-space: pre-wrap;
+     text-align: center;
+    width: 100px;
+}
+
+
+/*Modal 2*/
+
+.THIS .criteriaRating {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+/*SUMMARY data*/
+
+.THIS .catReqRating {
+    font-size: 13.5px;
+}
+
+.THIS .catActualRating{
+     font-size: 13.5px;
+}
+
+.THIS .catOverallRating{
+    font-size: 13.5px;
+}
+
+.THIS .catItems{
+     font-size: 13.5px;
+}

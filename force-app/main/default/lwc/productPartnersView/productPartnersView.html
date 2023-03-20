@@ -1,0 +1,25 @@
+<template>
+    <lightning-card  variant="Narrow"  title={title} icon-name="standard:products">
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
+        </template>
+        <lightning-button-group slot="actions">
+            <lightning-button label="Refresh" onclick={handleSync}></lightning-button>
+            <lightning-button label="Download Product List" onclick={downloadProductList}></lightning-button>
+            <lightning-button label="Download Resources" onclick={downloadResources}></lightning-button>
+        </lightning-button-group>
+        <div class="slds-m-right_medium slds-m-left_medium slds-m-bottom_medium" onkeyup={handleSearch}>
+            <lightning-input type="search" variant="standard" name="Name" placeholder="Search Products...">
+            </lightning-input>
+        </div>
+        <div class="slds-var-p-around_small" style="height: 600px;">
+            <lightning-datatable
+                key-field="id"
+                data={dataList}
+                hide-checkbox-column
+                columns={columnsList}
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+</template>

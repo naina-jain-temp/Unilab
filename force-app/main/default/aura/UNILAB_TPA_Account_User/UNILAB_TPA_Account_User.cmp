@@ -1,0 +1,45 @@
+<aura:component controller="UNILAB_TPA_Account_User"
+                implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+	<!--aura doInit handler--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--aura attributes-->  
+    <aura:attribute name="lstTASR" type="List"/>
+    <lightning:card footer="Card Footer">
+        <aura:set attribute="title">
+            <lightning:icon iconName="utility:resource_territory" size="small"/>
+            Account TPA
+        </aura:set>
+        <aura:set attribute="footer">
+        </aura:set>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Name">Name</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Position">Position/Agency</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.lstTASR}" var="TPA">
+                    <tr>
+                        <th scope="row">
+                            <div class="slds-truncate" title="{!TPA.full_name__c}">
+                                {!TPA.full_name__c}
+                            </div>
+                        </th>
+                        <th scope="row">
+                            <div class="slds-truncate" title="{!TPA.position_sub_type_name__c}">
+                                {!TPA.position_sub_type_name__c} ({!TPA.group_alias__c})
+                            </div>
+                        </th>
+                    </tr>  
+                </aura:iteration>
+            </tbody>
+        </table>
+    </lightning:card>
+</aura:component>

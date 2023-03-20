@@ -1,0 +1,312 @@
+<aura:component controller="UNILAB_TCR_Summary" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,force:hasRecordId" access="global" >
+    
+    <aura:attribute name="tcrType" type="String" />
+    <aura:attribute name="tcrResult" type="Training_Contact_Report_Call__c" />
+    <aura:attribute name="totalCallAve" type="List" />
+    
+    <aura:handler name="init" action="{! c.doInit }" value="{! this }" />
+    
+    <aura:if isTrue="{! or(v.tcrType == 'Account TCR', v.tcrType == 'T3 TCR') }">
+        <!-- TCR TYPE EQUALS 'Account TCR' -->
+        <aura:if isTrue="{! v.tcrType == 'Account TCR' }">
+            <div class="slds-box" style="background-color: white;">            
+                <div class="slds-scrollable" style="height: 100%; width: 100%;">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="A.2 TRADE COVERAGE (per call)">
+                                        <strong>A.2 TRADE COVERAGE (per call)</strong>
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="acctName">
+                                    <th scope="col">
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! acctName.Account__r.Name }">
+                                            <strong>{! acctName.Account__r.Name }</strong>
+                                        </div>
+                                    </th>
+                                </aura:iteration>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="a. Review Plans Prior to Entering Call (Review Objectives)">
+                                        a. Review Plans Prior to Entering Call (Review Objectives)
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Review_Plans_Prior_to_Entering_Call__c }"
+                                             style="{! tcrCallValue.Review_Plans_Prior_to_Entering_Call__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Review_Plans_Prior_to_Entering_Call__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="b. Selling &amp; Display Area Activities">
+                                        b. Selling &amp; Display Area Activities
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Selling_Display_Area_Activities__c }"
+                                             style="{! tcrCallValue.Selling_Display_Area_Activities__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Selling_Display_Area_Activities__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="c. Collection and Settlements">
+                                        c. Collection and Settlements
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Collection_and_Settlements__c }"
+                                             style="{! tcrCallValue.Collection_and_Settlements__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Collection_and_Settlements__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="d. Presentation &amp; Follow-thru- Negotiations">
+                                        d. Presentation &amp; Follow-thru- Negotiations
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Presentation_Follow_thru_Negotiations__c }"
+                                             style="{! tcrCallValue.Presentation_Follow_thru_Negotiations__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Presentation_Follow_thru_Negotiations__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="e. Secure Approval and Final Agreements">
+                                        e. Secure Approval and Final Agreements
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Secure_Approval_and_Final_Agreements__c }"
+                                             style="{! tcrCallValue.Secure_Approval_and_Final_Agreements__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Secure_Approval_and_Final_Agreements__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="f. Post Call Activities">
+                                        f. Post Call Activities
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Post_Call_Activities__c }"
+                                             style="{! tcrCallValue.Post_Call_Activities__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Post_Call_Activities__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="slds-p-bottom_x-small" />
+                </div>
+                <div class="slds-p-bottom_small" />
+                <div class="slds-scrollable" style="height: 100%; width: 100%;">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="SUM OF ALL CALLS">
+                                        <strong>SUM OF ALL CALLS</strong>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="TOTAL NUMBER OF CRITERIA">
+                                        <strong>TOTAL NUMBER OF CRITERIA</strong>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="AVERAGE OF ALL CALLS">
+                                        <strong>AVERAGE OF ALL CALLS</strong>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <aura:iteration items="{! v.totalCallAve }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue }"
+                                             style="font-weight: bold;" >
+                                            {! tcrCallValue }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                                <aura:if isTrue="{! v.totalCallAve.length != 3 }">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold;" />
+                                    </td>
+                                </aura:if>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="slds-p-bottom_x-small" />
+                </div>
+            </div>
+            <br />
+            <c:UNILAB_TCR_Sub_Chart recordId="{! v.recordId }" />
+        </aura:if>
+        <!-- TCR TYPE EQUALS 'T3 TCR' -->
+        <aura:if isTrue="{! v.tcrType == 'T3 TCR' }">
+            <!-- TCR TYPE EQUALS 'T3 TCR' -->
+            <div class="slds-box" style="background-color: white;">
+                <div class="slds-scrollable_x" style="width: 100%;">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="A.1 SUB-D - TRAINING THE CDS">
+                                        <strong>A.1 SUB-D - TRAINING THE CDS</strong>
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="acctName">
+                                    <th scope="col">
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! acctName.Account__r.Name }">
+                                            <strong>{! acctName.Account__r.Name }</strong>
+                                        </div>
+                                    </th>
+                                </aura:iteration>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="a. Explain &amp; ensure understanding of the field training objective">
+                                        a. Explain &amp; ensure understanding of the field training objective
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Explain_training_objectives__c }"
+                                             style="{! tcrCallValue.Explain_training_objectives__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Explain_training_objectives__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="b. Observe - check quality execution of DFS and CDR coverage">
+                                        b. Observe - check quality execution of DFS and CDR coverage
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Observe__c }"
+                                             style="{! tcrCallValue.Observe__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Observe__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="c. Critique - Point out things well done &amp; opportunities during coverage">
+                                        c. Critique - Point out things well done &amp; opportunities during coverage
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Critique__c }"
+                                             style="{! tcrCallValue.Critique__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Critique__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="d. Recommend - Clarify and suggest next steps to improve succeeding coverage">
+                                        d. Recommend - Clarify and suggest next steps to improve succeeding coverage
+                                    </div>
+                                </th>
+                                <aura:iteration items="{! v.tcrResult }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue.Recommend__c }"
+                                             style="{! tcrCallValue.Recommend__c == 'N/A' ? 'color: red;' : 'color: black;' }" >
+                                            {! tcrCallValue.Recommend__c }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="slds-p-bottom_x-small" />
+                </div>
+                <div class="slds-p-bottom_small" />
+                <div class="slds-scrollable" style="height: 100%; width: 100%;">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="SUM OF ALL CALLS">
+                                        <strong>SUM OF ALL CALLS</strong>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="TOTAL NUMBER OF CRITERIA">
+                                        <strong>TOTAL NUMBER OF CRITERIA</strong>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate slds-align_absolute-center" title="AVERAGE OF ALL CALLS">
+                                        <strong>AVERAGE OF ALL CALLS</strong>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <aura:iteration items="{! v.totalCallAve }" var="tcrCallValue">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" title="{! tcrCallValue }"
+                                             style="font-weight: bold;" >
+                                            {! tcrCallValue }
+                                        </div>
+                                    </td>
+                                </aura:iteration>
+                                <aura:if isTrue="{! v.totalCallAve.length != 3 }">
+                                    <td>
+                                        <div class="slds-truncate slds-align_absolute-center" style="font-weight: bold;" />
+                                    </td>
+                                </aura:if>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="slds-p-bottom_x-small" />
+                </div>
+            </div>
+            <br />
+            <c:UNILAB_TCR_Sub_Chart recordId="{! v.recordId }" />
+        </aura:if>
+        <aura:set attribute="else">.
+            <h1 class="slds-align_absolute-center slds-p-top_x-small" style="color: red; font-size: 1rem;">
+                <strong>Cannot generate chart with this type of TCR.</strong>
+            </h1>
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

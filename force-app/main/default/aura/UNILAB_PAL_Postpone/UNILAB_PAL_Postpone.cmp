@@ -1,0 +1,42 @@
+<aura:component controller="UNILAB_PAL_Postpone_Controller" implements="force:appHostable,force:lightningQuickActionWithoutHeader,lightning:actionOverride,force:hasRecordId,flexipage:availableForAllPageTypes">
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="allocation" type="Allocation__c" default="{'sobjectType':'Allocation__c', 'Start_Date__c': 0, 'End_Date__c': 0}"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <ltng:require styles="{!$Resource.PAL_quickActionStyle}" />
+    <aura:if isTrue="{!v.spinner}">
+        <c:UNILAB_PAL_Spinner/>
+    </aura:if>
+    <header class="slds-modal__header">
+        <p class="slds-text-heading_medium slds-text-align_center">
+            POSTPONE ALLOCATION
+        </p>
+    </header>
+    <div style="max-height: 100px; height: 100px; overflow-y: auto !important;">
+        <lightning:layout>
+                            <lightning:layoutItem size="6" padding="around-small">
+                                <lightning:input aura:id="allocStartDate"
+                                                 type="date" 
+                                                 name="startdate" 
+                                                 label="Start Date" 
+                                                 value="{!v.allocation.Start_Date__c}"
+                                                 required="true"/>
+                            </lightning:layoutItem>	
+                            <lightning:layoutItem size="6" padding="around-small">
+                                <lightning:input aura:id="allocEndDate"
+                                                 type="date" 
+                                                 name="enddate" 
+                                                 label="End Date" 
+                                                 value="{!v.allocation.End_Date__c}"
+                                                 required="true"/>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+    </div>
+    <footer class="slds-modal__footer" style="padding: 0.50rem 1rem;">
+        <button class="slds-button slds-button_neutral" onclick="{!c.closePostponeModal}">Cancel</button>
+        <button class="slds-button slds-button_brand" onclick="{!c.saveAndSubmit}">Save</button>
+    </footer>
+    
+</aura:component>
