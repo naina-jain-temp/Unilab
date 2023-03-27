@@ -1,0 +1,129 @@
+<template>
+    <div style="padding: 3%;">
+        <table style="width:50%">
+            <tr>
+                <th>Select Year</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        data-id="yearPicklist"
+                        value={selectedYear}
+                        variant = "label-hidden"
+                        options={yearsValue}
+                        onchange={changeYear} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+            <tr>
+                <th>Select Month</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        data-id="monthPicklist"
+                        value={selectedMonth}
+                        variant = "label-hidden"
+                        options={monthsValue}
+                        onchange={changeMonth} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+            <tr>
+                <th>P Months</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        data-id="numberOfMonths"
+                        value={value}
+                        variant = "label-hidden"
+                        options={options}
+                        onchange={changeNoOfMonths} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+          </table>
+
+          <br>
+          <br>
+          <br>
+          <br>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Sell-In OB</th>
+                    <th></th>
+                    <th>Final Sell-In</th>
+                    <th></th>
+                    <th colspan="2">Allocation Share</th>
+                    <th colspan="3">Initial Allocation</th>
+                    <th>+/-Adjustment</th>
+                    <th colspan="3" style="background-color:blue">Final Allocation</th>
+                </tr>
+                <tr>
+                    <th>Customer Team</th>
+                    <th>OB Target</th>
+                    <th>SOT</th>
+                    <th>Actual Amount</th>
+                    <th>SOB</th>
+                    <th style="background-color:gold">w/ Alloc(Y/N)</th>
+                    <th style="background-color: yellow;">SOB</th>
+                    <th>QTY</th>
+                    <th>Amount</th>
+                    <th>Impact vs Actual</th>
+                    <th>QTY</th>
+                    <th style="background-color:blue">QTY</th>
+                    <th style="background-color:blue">Amount</th>
+                    <th style="background-color:blue">Impact vs Actual</th>
+                </tr>
+                <template for:each={mapData} for:item="keyValue">
+                    <tr key={keyValue.key}>
+                        <td scope="col">
+                            <div>{keyValue.key}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.obTarget}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.sot}%</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.sellInActualAmount}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.sob}%</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.wAlloc}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.allocationSOB}%</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.initialAllocQty}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.initialAllocAmt}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.initialImpactVsActual}%</div>
+                        </td>
+                        <td scope="col">
+                            <div>-</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.finalAllocQty}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.finalAllocAmt}</div>
+                        </td>
+                        <td scope="col">
+                            <div>{keyValue.value.finalImpactVsActual}%</div>
+                        </td>
+                    </tr>
+                </template>
+            </thead>
+        </table>
+    </div>
+    
+</template>

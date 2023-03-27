@@ -1,0 +1,96 @@
+<template>
+    <div style="padding: 3%;">
+        <table style="width:50%">
+            <tr>
+                <th>Measure Type</th>
+                <td>Sell-IN</td>
+            </tr>
+            <tr>
+                <th>GLU</th>
+                <td>{gluName}</td>          
+            </tr>  
+            <tr>
+                <th>GLU Cluster</th>
+                <td>{clusterName}</td>    
+            </tr>
+            <tr>
+                <th>Division</th>    
+                <td>{productFamily}</td>  
+            </tr>
+            <tr>
+                <th>Brand</th>
+                <td>{brandName}</td>     
+            </tr>
+            <tr>
+                <th>MAT</th>
+                <td>{sku}</td>    
+            </tr>
+            <tr>
+                <th>Select Year</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        name="progress"
+                        value={selectedYear}
+                        variant = "label-hidden"
+                        options={yearsValue}
+                        onchange={handleChangeYear} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+            <tr>
+                <th>Select Month</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        name="progress"
+                        value={selectedMonth}
+                        variant = "label-hidden"
+                        options={monthsValue}
+                        onchange={handleChangeMonth} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+            <tr>
+                <th>P Months</th>
+                <td>
+                    <lightning-combobox
+                        class="monthPicklist"
+                        name="progress"
+                        value={value}
+                        variant = "label-hidden"
+                        options={options}
+                        onchange={handleChange} >
+                    </lightning-combobox>                    
+                </td>    
+            </tr>
+          </table>
+
+          <br>
+          <br>
+          <br>
+          <br>
+
+          <table>
+            <tr>
+                <th>SNCD Channel</th>
+                <template for:each={pastMonths} for:item="months">
+                        <th key={months}>{months}</th>
+                </template>
+                <!-- <th>2021 JAN</th>
+                <th>2021 JAN</th>
+                <th>2021 JAN</th> -->
+            </tr>
+           
+            <template for:each={customerTeamValues} for:item="customerTeams">
+                <tr key={customerTeams}>
+                    <td style="background-color: white;">{customerTeams}</td>
+                </tr>
+            </template>
+
+            
+
+          </table>
+    </div>
+    
+</template>
